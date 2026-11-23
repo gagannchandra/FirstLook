@@ -114,7 +114,7 @@ def build_features(raw: pd.DataFrame, tier: str, spec: dict | None = None) -> pd
         hist_cols = spec["history_columns"]
         parts.append(raw.reindex(columns=hist_cols).apply(pd.to_numeric, errors="coerce").astype(np.float32))
     X = pd.concat(parts, axis=1)
-    order = spec["tiers"][tier]
+    order = spec["tiers"][tier] if "tiers" in spec else spec["model_features"]
     missing = [c for c in order if c not in X.columns]
     if missing:
         raise ValueError(f"feature pipeline missing columns: {missing[:5]}")

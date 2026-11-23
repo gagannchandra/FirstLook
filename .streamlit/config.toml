@@ -1,0 +1,19 @@
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+address = "localhost"
+fileWatcherType = "none"
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = true
+
+[theme]
+base = "light"
+primaryColor = "#0f6e6a"
+backgroundColor = "#f6f7f5"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#14201f"
+font = "sans serif"
