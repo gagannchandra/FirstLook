@@ -1,0 +1,9 @@
+data/
+.venv/
+models/raw/
+models/variants/
+models/bundles/*_dev/
+results/figures/
+results/logs/
+guide/
+.git/

@@ -1,0 +1,8 @@
+# Minimal runtime for the offline app and benchmark (Docker image)
+numpy
+pandas
+onnxruntime
+lightgbm
+psutil
+streamlit
+plotly
