@@ -20,7 +20,7 @@ from src import calibrate, conformal
 from src.common import PROC, ROOT, meta, rows_for
 from src.compress import onnx_export, onnx_session, onnx_proba
 from src.evaluate import core_metrics
-from src.features import VITAL_RANGES
+from src.features import VITAL_RANGES, safe_name
 from src.runtime import complaint_label
 from src.select_calibrate import choose_thresholds
 
@@ -77,13 +77,15 @@ def build(slot: str, variant_file: str, base_tier: str, version: str) -> dict:
     Xtr = pd.read_parquet(PROC / f"{base_tier}.parquet", columns=cols).iloc[tr]
     cc_freq = Xtr[[c for c in cols if c.startswith("cc_")]].sum() if any(c.startswith("cc_") for c in cols) else pd.Series(dtype=float)
     all_cc = base_spec["cc_columns"]
-    hist_used = [c for c in cols if c in base_spec["history_columns"]]
-    hist_default_zero = {h: bool(np.nanmin(Xtr[h].to_numpy()) == 0 and not Xtr[h].isna().any()) for h in hist_used}
+    raw_by_safe = {safe_name(h): h for h in base_spec["history_columns"]}
+    hist_safe = [c for c in cols if c in raw_by_safe]          # model feature names
+    hist_used = [raw_by_safe[c] for c in hist_safe]             # raw names = app form keys
+    hist_default_zero = {raw_by_safe[c]: bool(not Xtr[c].isna().any() and np.nanmin(Xtr[c].to_numpy()) == 0) for c in hist_safe}
     spec = {
         "version": version, "app_slot": slot, "slot_name": SLOT_NAME[slot], "base_tier": base_tier,
         "model_features": cols, "cc_columns": all_cc, "history_columns": base_spec["history_columns"] if base_tier == "t3" else [],
         "history_inputs": hist_used, "history_default_zero": hist_default_zero,
-        "history_input_medians": {h: float(np.nanmedian(Xtr[h])) for h in hist_used},
+        "history_input_medians": {raw_by_safe[c]: float(np.nanmedian(Xtr[c])) for c in hist_safe},
         "complaints_in_model": [c for c in cols if c.startswith("cc_")],
         "complaint_labels": {c: complaint_label(c) for c in all_cc},
         "complaint_order": sorted(all_cc, key=lambda c: -float(cc_freq.get(c, 0))),

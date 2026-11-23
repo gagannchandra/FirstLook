@@ -1,0 +1,17 @@
+{
+ "tier": "t2",
+ "model": "cat",
+ "n_trials": 15,
+ "tune_rows": 403549,
+ "tune_sec": 778,
+ "fit_sec": 53,
+ "best_params": {
+  "learning_rate": 0.05878491617603747,
+  "depth": 6,
+  "l2_leaf_reg": 2.858051065806936,
+  "scale_pos_weight": 1.0
+ },
+ "best_iteration": 1998,
+ "val_logloss": 0.39348801831104296,
+ "val_auc": 0.8760027256258932
+}

@@ -1,0 +1,20 @@
+{
+ "tier": "t2",
+ "model": "xgb",
+ "n_trials": 28,
+ "tune_rows": 403549,
+ "tune_sec": 2418,
+ "fit_sec": 89,
+ "best_params": {
+  "learning_rate": 0.07939512852406432,
+  "max_depth": 6,
+  "subsample": 0.8140525474881365,
+  "colsample_bytree": 0.6812428289317627,
+  "min_child_weight": 3.8252942064443043,
+  "reg_lambda": 4.803663120512057,
+  "scale_pos_weight": 1.0
+ },
+ "best_iteration": 1150,
+ "val_logloss": 0.39365285634994507,
+ "val_auc": 0.8758018881091306
+}

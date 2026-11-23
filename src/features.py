@@ -8,6 +8,7 @@ Training and the app both call this function, so the encoding is identical.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -44,6 +45,11 @@ PREVDISPO_LEVELS = [
     "Discharge", "No previous dispo", "Admit", "Transfer to Another Facility",
     "LWBS after Triage", "AMA", "Eloped", "LWBS before Triage", "Observation", "Send to L&D",
 ]
+
+
+def safe_name(col: str) -> str:
+    """Model-facing feature name: LightGBM rejects JSON special characters ([]{}":,)."""
+    return re.sub(r'[\[\]{}":,]', "_", col)
 
 
 def load_spec(path: Path = SPEC_PATH) -> dict:
@@ -84,7 +90,7 @@ def feature_names(tier: str, cc_cols: list[str], hist_cols: list[str]) -> list[s
     if tier in ("t2", "t3"):
         names.append("esi")
     if tier == "t3":
-        names += [f"prevdispo={lv}" for lv in PREVDISPO_LEVELS] + list(hist_cols)
+        names += [f"prevdispo={lv}" for lv in PREVDISPO_LEVELS] + [safe_name(c) for c in hist_cols]
     return names
 
 
@@ -112,7 +118,9 @@ def build_features(raw: pd.DataFrame, tier: str, spec: dict | None = None) -> pd
     if tier == "t3":
         parts.append(_onehot(raw["previousdispo"], PREVDISPO_LEVELS, "prevdispo"))
         hist_cols = spec["history_columns"]
-        parts.append(raw.reindex(columns=hist_cols).apply(pd.to_numeric, errors="coerce").astype(np.float32))
+        hist = raw.reindex(columns=hist_cols).apply(pd.to_numeric, errors="coerce").astype(np.float32)
+        hist.columns = [safe_name(c) for c in hist_cols]
+        parts.append(hist)
     X = pd.concat(parts, axis=1)
     order = spec["tiers"][tier] if "tiers" in spec else spec["model_features"]
     missing = [c for c in order if c not in X.columns]

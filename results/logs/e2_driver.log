@@ -61,4 +61,305 @@ DONE t1/lr: val AUC=0.8461 logloss=0.4332 trials=15 tune=138s fit=10s
   eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
   [t1/lgbm] trial 22: logloss=0.4194 auc=0.8571 (10s)
   eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
-  [t1/lgbm] trial 23: loglo
+  [t1/lgbm] trial 23: logloss=0.4187 auc=0.8575 (29s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t1/lgbm] trial 24: logloss=0.4188 auc=0.8575 (25s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t1/lgbm] trial 25: logloss=0.4193 auc=0.8571 (25s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t1/lgbm] trial 26: logloss=0.4192 auc=0.8572 (17s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t1/lgbm] trial 27: logloss=0.4200 auc=0.8567 (33s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t1/lgbm] trial 28: logloss=0.4188 auc=0.8575 (27s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t1/lgbm] trial 29: logloss=0.4189 auc=0.8575 (31s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+DONE t1/lgbm: val AUC=0.8575 logloss=0.4187 trials=30 tune=490s fit=28s
+  [t1/xgb] trial 0: logloss=0.4710 auc=0.8558 (51s)
+  [t1/xgb] trial 1: logloss=0.4642 auc=0.8561 (255s)
+  [t1/xgb] trial 2: logloss=0.4708 auc=0.8569 (135s)
+  [t1/xgb] trial 3: logloss=0.4702 auc=0.8570 (235s)
+  [t1/xgb] trial 4: logloss=0.4738 auc=0.8541 (25s)
+  [t1/xgb] trial 5: logloss=0.4656 auc=0.8563 (195s)
+  [t1/xgb] trial 6: logloss=0.4225 auc=0.8548 (20s)
+  [t1/xgb] trial 7: logloss=0.4755 auc=0.8552 (217s)
+  [t1/xgb] trial 8: logloss=0.4726 auc=0.8558 (108s)
+  [t1/xgb] trial 9: logloss=0.4702 auc=0.8553 (51s)
+  [t1/xgb] trial 10: logloss=0.4206 auc=0.8562 (65s)
+  [t1/xgb] trial 11: logloss=0.4222 auc=0.8548 (21s)
+  [t1/xgb] trial 12: logloss=0.4201 auc=0.8565 (54s)
+  [t1/xgb] trial 13: logloss=0.4197 auc=0.8568 (69s)
+  [t1/xgb] trial 14: logloss=0.4193 auc=0.8572 (61s)
+  [t1/xgb] trial 15: logloss=0.4217 auc=0.8553 (35s)
+  [t1/xgb] trial 16: logloss=0.4196 auc=0.8569 (71s)
+  [t1/xgb] trial 17: logloss=0.4215 auc=0.8556 (36s)
+  [t1/xgb] trial 18: logloss=0.4195 auc=0.8571 (154s)
+  [t1/xgb] trial 19: logloss=0.4196 auc=0.8570 (202s)
+  [t1/xgb] trial 20: logloss=0.4192 auc=0.8572 (152s)
+  [t1/xgb] trial 21: logloss=0.4201 auc=0.8565 (76s)
+  [t1/xgb] trial 22: logloss=0.4193 auc=0.8572 (154s)
+  [t1/xgb] trial 23: logloss=0.4197 auc=0.8569 (210s)
+  [t1/xgb] trial 24: logloss=0.4192 auc=0.8572 (158s)
+  [t1/xgb] trial 25: logloss=0.4193 auc=0.8571 (160s)
+  [t1/xgb] trial 26: logloss=0.4195 auc=0.8570 (180s)
+  [t1/xgb] trial 27: logloss=0.4196 auc=0.8569 (94s)
+  [t1/xgb] trial 28: logloss=0.4193 auc=0.8571 (113s)
+  [t1/xgb] trial 29: logloss=0.4208 auc=0.8562 (207s)
+DONE t1/xgb: val AUC=0.8572 logloss=0.4192 trials=30 tune=3564s fit=157s
+  [t1/cat] trial 0: logloss=0.4719 auc=0.8563 (16s)
+  [t1/cat] trial 1: logloss=0.4204 auc=0.8564 (20s)
+  [t1/cat] trial 2: logloss=0.4722 auc=0.8568 (18s)
+  [t1/cat] trial 3: logloss=0.4700 auc=0.8571 (34s)
+  [t1/cat] trial 4: logloss=0.4190 auc=0.8575 (73s)
+  [t1/cat] trial 5: logloss=0.4201 auc=0.8568 (30s)
+  [t1/cat] trial 6: logloss=0.4197 auc=0.8571 (179s)
+  [t1/cat] trial 7: logloss=0.4194 auc=0.8573 (83s)
+  [t1/cat] trial 8: logloss=0.4687 auc=0.8570 (154s)
+  [t1/cat] trial 9: logloss=0.4192 auc=0.8574 (40s)
+  [t1/cat] trial 10: logloss=0.4211 auc=0.8562 (71s)
+  [t1/cat] trial 11: logloss=0.4193 auc=0.8574 (46s)
+  [t1/cat] trial 12: logloss=0.4195 auc=0.8573 (41s)
+  [t1/cat] trial 13: logloss=0.4197 auc=0.8571 (77s)
+  [t1/cat] trial 14: logloss=0.4196 auc=0.8571 (59s)
+DONE t1/cat: val AUC=0.8575 logloss=0.4190 trials=15 tune=940s fit=74s
+  [t1/rf] trial 0: logloss=0.4618 auc=0.8312 (31s)
+  [t1/rf] trial 1: logloss=0.4391 auc=0.8415 (122s)
+  [t1/rf] trial 2: logloss=0.4735 auc=0.8247 (30s)
+  [t1/rf] trial 3: logloss=0.5050 auc=0.8311 (240s)
+  [t1/rf] trial 4: logloss=0.4485 auc=0.8383 (27s)
+  [t1/rf] trial 5: logloss=0.5281 auc=0.8179 (90s)
+  [t1/rf] trial 6: logloss=0.4945 auc=0.8349 (25s)
+  [t1/rf] trial 7: logloss=0.4760 auc=0.8232 (19s)
+  [t1/rf] trial 8: logloss=0.4548 auc=0.8340 (46s)
+  [t1/rf] trial 9: logloss=0.4778 auc=0.8107 (31s)
+DONE t1/rf: val AUC=0.8415 logloss=0.4391 trials=10 tune=661s fit=119s
+  [t2/lr] trial 0: logloss=0.4057 auc=0.8677 (8s)
+  [t2/lr] trial 1: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 2: logloss=0.4082 auc=0.8669 (8s)
+  [t2/lr] trial 3: logloss=0.4577 auc=0.8675 (9s)
+  [t2/lr] trial 4: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 5: logloss=0.4580 auc=0.8674 (8s)
+  [t2/lr] trial 6: logloss=0.4577 auc=0.8675 (9s)
+  [t2/lr] trial 7: logloss=0.4583 auc=0.8673 (8s)
+  [t2/lr] trial 8: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 9: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 10: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 11: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 12: logloss=0.4056 auc=0.8677 (9s)
+  [t2/lr] trial 13: logloss=0.4577 auc=0.8675 (9s)
+  [t2/lr] trial 14: logloss=0.4056 auc=0.8677 (9s)
+DONE t2/lr: val AUC=0.8677 logloss=0.4056 trials=15 tune=128s fit=9s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 0: logloss=0.4439 auc=0.8738 (4s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 1: logloss=0.3935 auc=0.8759 (15s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 2: logloss=0.4447 auc=0.8744 (9s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 3: logloss=0.3943 auc=0.8754 (6s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 4: logloss=0.3952 auc=0.8747 (5s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 5: logloss=0.3950 auc=0.8749 (3s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 6: logloss=0.3956 auc=0.8744 (3s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 7: logloss=0.4418 auc=0.8755 (18s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 8: logloss=0.3948 auc=0.8750 (6s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 9: logloss=0.4417 auc=0.8742 (10s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 10: logloss=0.3937 auc=0.8757 (10s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 11: logloss=0.3943 auc=0.8753 (6s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 12: logloss=0.3934 auc=0.8760 (31s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 13: logloss=0.3939 auc=0.8756 (12s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 14: logloss=0.3944 auc=0.8753 (33s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 15: logloss=0.3943 auc=0.8753 (4s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 16: logloss=0.3938 auc=0.8757 (11s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 17: logloss=0.3939 auc=0.8756 (32s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 18: logloss=0.3935 auc=0.8759 (14s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 19: logloss=0.3935 auc=0.8759 (26s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 20: logloss=0.3939 auc=0.8756 (23s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 21: logloss=0.3934 auc=0.8760 (16s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 22: logloss=0.3936 auc=0.8758 (35s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 23: logloss=0.3940 auc=0.8756 (8s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 24: logloss=0.3941 auc=0.8755 (19s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 25: logloss=0.3936 auc=0.8758 (28s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 26: logloss=0.4427 auc=0.8755 (26s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 27: logloss=0.3935 auc=0.8759 (18s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 28: logloss=0.3932 auc=0.8761 (22s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  [t2/lgbm] trial 29: logloss=0.3936 auc=0.8758 (29s)
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+DONE t2/lgbm: val AUC=0.8761 logloss=0.3932 trials=30 tune=480s fit=21s
+  [t2/xgb] trial 0: logloss=0.4416 auc=0.8746 (50s)
+  [t2/xgb] trial 1: logloss=0.4356 auc=0.8744 (248s)
+  [t2/xgb] trial 2: logloss=0.4414 auc=0.8756 (133s)
+  [t2/xgb] trial 3: logloss=0.4411 auc=0.8758 (174s)
+  [t2/xgb] trial 4: logloss=0.4446 auc=0.8733 (20s)
+  [t2/xgb] trial 5: logloss=0.4373 auc=0.8751 (156s)
+  [t2/xgb] trial 6: logloss=0.3959 auc=0.8741 (16s)
+  [t2/xgb] trial 7: logloss=0.4441 auc=0.8749 (221s)
+  [t2/xgb] trial 8: logloss=0.4424 auc=0.8750 (99s)
+  [t2/xgb] trial 9: logloss=0.4408 auc=0.8745 (47s)
+  [t2/xgb] trial 10: logloss=0.3946 auc=0.8751 (48s)
+  [t2/xgb] trial 11: logloss=0.3952 auc=0.8745 (19s)
+  [t2/xgb] trial 12: logloss=0.3945 auc=0.8752 (40s)
+  [t2/xgb] trial 13: logloss=0.3942 auc=0.8755 (60s)
+  [t2/xgb] trial 14: logloss=0.3943 auc=0.8754 (47s)
+  [t2/xgb] trial 15: logloss=0.3955 auc=0.8745 (29s)
+  [t2/xgb] trial 16: logloss=0.3938 auc=0.8756 (57s)
+  [t2/xgb] trial 17: logloss=0.3946 auc=0.8751 (44s)
+  [t2/xgb] trial 18: logloss=0.3937 auc=0.8757 (91s)
+  [t2/xgb] trial 19: logloss=0.3946 auc=0.8750 (44s)
+  [t2/xgb] trial 20: logloss=0.3940 auc=0.8755 (126s)
+  [t2/xgb] trial 21: logloss=0.3942 auc=0.8754 (112s)
+  [t2/xgb] trial 22: logloss=0.3940 auc=0.8755 (68s)
+  [t2/xgb] trial 23: logloss=0.3948 auc=0.8749 (135s)
+  [t2/xgb] trial 24: logloss=0.3951 auc=0.8748 (100s)
+  [t2/xgb] trial 25: logloss=0.3937 auc=0.8758 (86s)
+  [t2/xgb] trial 26: logloss=0.3942 auc=0.8754 (59s)
+  [t2/xgb] trial 27: logloss=0.3937 auc=0.8758 (90s)
+DONE t2/xgb: val AUC=0.8758 logloss=0.3937 trials=28 tune=2418s fit=89s
+  [t2/cat] trial 0: logloss=0.4412 auc=0.8753 (16s)
+  [t2/cat] trial 1: logloss=0.3946 auc=0.8751 (12s)
+  [t2/cat] trial 2: logloss=0.4422 auc=0.8757 (18s)
+  [t2/cat] trial 3: logloss=0.4410 auc=0.8759 (26s)
+  [t2/cat] trial 4: logloss=0.3935 auc=0.8760 (53s)
+  [t2/cat] trial 5: logloss=0.3940 auc=0.8757 (27s)
+  [t2/cat] trial 6: logloss=0.3940 auc=0.8756 (140s)
+  [t2/cat] trial 7: logloss=0.3936 auc=0.8759 (65s)
+  [t2/cat] trial 8: logloss=0.4394 auc=0.8757 (129s)
+  [t2/cat] trial 9: logloss=0.3943 auc=0.8754 (23s)
+  [t2/cat] trial 10: logloss=0.3942 auc=0.8755 (71s)
+  [t2/cat] trial 11: logloss=0.3935 auc=0.8759 (42s)
+  [t2/cat] trial 12: logloss=0.3936 auc=0.8759 (38s)
+  [t2/cat] trial 13: logloss=0.4409 auc=0.8759 (30s)
+  [t2/cat] trial 14: logloss=0.4395 auc=0.8757 (90s)
+DONE t2/cat: val AUC=0.8760 logloss=0.3935 trials=15 tune=778s fit=53s
+  [t2/rf] trial 0: logloss=0.4263 auc=0.8624 (28s)
+  [t2/rf] trial 1: logloss=0.4034 auc=0.8692 (111s)
+  [t2/rf] trial 2: logloss=0.4355 auc=0.8596 (31s)
+  [t2/rf] trial 3: logloss=0.4574 auc=0.8650 (217s)
+  [t2/rf] trial 4: logloss=0.4086 auc=0.8685 (27s)
+  [t2/rf] trial 5: logloss=0.4706 auc=0.8598 (96s)
+  [t2/rf] trial 6: logloss=0.4489 auc=0.8649 (25s)
+  [t2/rf] trial 7: logloss=0.4361 auc=0.8592 (20s)
+  [t2/rf] trial 8: logloss=0.4134 auc=0.8668 (47s)
+  [t2/rf] trial 9: logloss=0.4270 auc=0.8567 (32s)
+DONE t2/rf: val AUC=0.8692 logloss=0.4034 trials=10 tune=634s fit=112s
+  [t3/lr] trial 0: logloss=0.3291 auc=0.9157 (14s)
+  [t3/lr] trial 1: logloss=0.3305 auc=0.9153 (19s)
+  [t3/lr] trial 2: logloss=0.3393 auc=0.9139 (8s)
+  [t3/lr] trial 3: logloss=0.3701 auc=0.9154 (22s)
+  [t3/lr] trial 4: logloss=0.3316 auc=0.9150 (24s)
+  [t3/lr] trial 5: logloss=0.3679 auc=0.9160 (8s)
+  [t3/lr] trial 6: logloss=0.3683 auc=0.9159 (13s)
+  [t3/lr] trial 7: logloss=0.3694 auc=0.9158 (8s)
+  [t3/lr] trial 8: logloss=0.3296 auc=0.9156 (14s)
+  [t3/lr] trial 9: logloss=0.3299 auc=0.9155 (16s)
+  [t3/lr] trial 10: logloss=0.3288 auc=0.9158 (9s)
+  [t3/lr] trial 11: logloss=0.3288 auc=0.9158 (9s)
+  [t3/lr] trial 12: logloss=0.3289 auc=0.9158 (8s)
+  [t3/lr] trial 13: logloss=0.3288 auc=0.9158 (9s)
+  [t3/lr] trial 14: logloss=0.3288 auc=0.9157 (10s)
+DONE t3/lr: val AUC=0.9178 logloss=0.3250 trials=15 tune=193s fit=61s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[LightGBM] [Fatal] Do not support special JSON characters in feature name.
+[W 2026-11-24 05:02:11,627] Trial 0 failed with parameters: {'scale_pos_weight': np.float64(2.366), 'learning_rate': 0.14518497439122724, 'num_leaves': 81, 'max_depth': 8, 'min_child_samples': 194, 'subsample': 0.5102922471479012, 'colsample_bytree': 0.9759278817295955, 'reg_lambda': 2.1368329072358767} because of the following error: LightGBMError('Do not support special JSON characters in feature name.').
+Traceback (most recent call last):
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 210, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 169, in objective
+    m, info = fit_model(name, params, Xtr, ytr, Xva, yva)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 95, in fit_model
+    m.fit(Xtr, ytr, eval_set=[(Xva, yva)] if Xva is not None else None, eval_metric="binary_logloss",
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1704, in fit
+    super().fit(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1171, in fit
+    self._Booster = train(
+                    ^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/engine.py", line 296, in train
+    booster = Booster(params=params, train_set=train_set)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3758, in __init__
+    train_set.construct()
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2574, in construct
+    self._lazy_init(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2207, in _lazy_init
+    return self.set_feature_name(feature_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3059, in set_feature_name
+    _safe_call(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 297, in _safe_call
+    raise LightGBMError(_LIB.LGBM_GetLastError().decode("utf-8"))
+lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name.
+[W 2026-11-24 05:02:11,632] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 227, in <module>
+    main()
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 223, in main
+    run(a.tier, n, a.trials, X, meta)
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 183, in run
+    study.optimize(objective, n_trials=n_trials, timeout=TIMEOUT_S[name])
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 503, in optimize
+    _optimize(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 68, in _optimize
+    _optimize_sequential(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 169, in _optimize_sequential
+    frozen_trial_id = _run_trial(study, func, catch)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 267, in _run_trial
+    raise func_err
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 210, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 169, in objective
+    m, info = fit_model(name, params, Xtr, ytr, Xva, yva)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 95, in fit_model
+    m.fit(Xtr, ytr, eval_set=[(Xva, yva)] if Xva is not None else None, eval_metric="binary_logloss",
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1704, in fit
+    super().fit(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1171, in fit
+    self._Booster = train(
+                    ^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/engine.py", line 296, in train
+    booster = Booster(params=params, train_set=train_set)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3758, in __init__
+    train_set.construct()
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2574, in construct
+    self._lazy_init(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2207, in _lazy_init
+    return self.set_feature_name(feature_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3059, in set_feature_name
+    _safe_call(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 297, in _safe_call
+    raise LightGBMError(_LIB.LGBM_GetLastError().decode("utf-8"))
+lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name.

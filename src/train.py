@@ -40,7 +40,7 @@ SEED = 42
 N_JOBS = 10
 MODELS_ALL = ["lr", "lgbm", "xgb", "cat", "rf"]
 DEFAULT_TRIALS = {"lr": 15, "rf": 10, "xgb": 30, "lgbm": 30, "cat": 15}
-TIMEOUT_S = {"lr": 1800, "rf": 3600, "xgb": 3600, "lgbm": 3600, "cat": 4800}
+TIMEOUT_S = {"lr": 1200, "rf": 2400, "xgb": 2400, "lgbm": 2400, "cat": 3000}  # per-study cap (D24)
 
 
 def load_tier(tier: str) -> tuple[pd.DataFrame, pd.DataFrame]:

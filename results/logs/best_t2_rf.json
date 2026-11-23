@@ -1,0 +1,18 @@
+{
+ "tier": "t2",
+ "model": "rf",
+ "n_trials": 10,
+ "tune_rows": 403549,
+ "tune_sec": 634,
+ "fit_sec": 112,
+ "best_params": {
+  "n_estimators": 300,
+  "max_depth": 28,
+  "min_samples_leaf": 2,
+  "max_features": 0.25,
+  "max_samples": 0.3,
+  "class_weight": null
+ },
+ "val_logloss": 0.4033731968620317,
+ "val_auc": 0.8691697102918974
+}

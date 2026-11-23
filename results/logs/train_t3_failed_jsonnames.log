@@ -1,0 +1,95 @@
+  [t3/lr] trial 0: logloss=0.3291 auc=0.9157 (14s)
+  [t3/lr] trial 1: logloss=0.3305 auc=0.9153 (19s)
+  [t3/lr] trial 2: logloss=0.3393 auc=0.9139 (8s)
+  [t3/lr] trial 3: logloss=0.3701 auc=0.9154 (22s)
+  [t3/lr] trial 4: logloss=0.3316 auc=0.9150 (24s)
+  [t3/lr] trial 5: logloss=0.3679 auc=0.9160 (8s)
+  [t3/lr] trial 6: logloss=0.3683 auc=0.9159 (13s)
+  [t3/lr] trial 7: logloss=0.3694 auc=0.9158 (8s)
+  [t3/lr] trial 8: logloss=0.3296 auc=0.9156 (14s)
+  [t3/lr] trial 9: logloss=0.3299 auc=0.9155 (16s)
+  [t3/lr] trial 10: logloss=0.3288 auc=0.9158 (9s)
+  [t3/lr] trial 11: logloss=0.3288 auc=0.9158 (9s)
+  [t3/lr] trial 12: logloss=0.3289 auc=0.9158 (8s)
+  [t3/lr] trial 13: logloss=0.3288 auc=0.9158 (9s)
+  [t3/lr] trial 14: logloss=0.3288 auc=0.9157 (10s)
+DONE t3/lr: val AUC=0.9178 logloss=0.3250 trials=15 tune=193s fit=61s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[LightGBM] [Fatal] Do not support special JSON characters in feature name.
+[W 2026-11-24 05:02:11,627] Trial 0 failed with parameters: {'scale_pos_weight': np.float64(2.366), 'learning_rate': 0.14518497439122724, 'num_leaves': 81, 'max_depth': 8, 'min_child_samples': 194, 'subsample': 0.5102922471479012, 'colsample_bytree': 0.9759278817295955, 'reg_lambda': 2.1368329072358767} because of the following error: LightGBMError('Do not support special JSON characters in feature name.').
+Traceback (most recent call last):
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 210, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 169, in objective
+    m, info = fit_model(name, params, Xtr, ytr, Xva, yva)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 95, in fit_model
+    m.fit(Xtr, ytr, eval_set=[(Xva, yva)] if Xva is not None else None, eval_metric="binary_logloss",
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1704, in fit
+    super().fit(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1171, in fit
+    self._Booster = train(
+                    ^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/engine.py", line 296, in train
+    booster = Booster(params=params, train_set=train_set)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3758, in __init__
+    train_set.construct()
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2574, in construct
+    self._lazy_init(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2207, in _lazy_init
+    return self.set_feature_name(feature_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3059, in set_feature_name
+    _safe_call(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 297, in _safe_call
+    raise LightGBMError(_LIB.LGBM_GetLastError().decode("utf-8"))
+lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name.
+[W 2026-11-24 05:02:11,632] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 227, in <module>
+    main()
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 223, in main
+    run(a.tier, n, a.trials, X, meta)
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 183, in run
+    study.optimize(objective, n_trials=n_trials, timeout=TIMEOUT_S[name])
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/study.py", line 503, in optimize
+    _optimize(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 68, in _optimize
+    _optimize_sequential(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 169, in _optimize_sequential
+    frozen_trial_id = _run_trial(study, func, catch)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 267, in _run_trial
+    raise func_err
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/optuna/study/_optimize.py", line 210, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 169, in objective
+    m, info = fit_model(name, params, Xtr, ytr, Xva, yva)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/src/train.py", line 95, in fit_model
+    m.fit(Xtr, ytr, eval_set=[(Xva, yva)] if Xva is not None else None, eval_metric="binary_logloss",
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1704, in fit
+    super().fit(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/sklearn.py", line 1171, in fit
+    self._Booster = train(
+                    ^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/engine.py", line 296, in train
+    booster = Booster(params=params, train_set=train_set)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3758, in __init__
+    train_set.construct()
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2574, in construct
+    self._lazy_init(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 2207, in _lazy_init
+    return self.set_feature_name(feature_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 3059, in set_feature_name
+    _safe_call(
+  File "/home/gaganchandra/Documents/Personal Projects/FirstLook/.venv/lib/python3.12/site-packages/lightgbm/basic.py", line 297, in _safe_call
+    raise LightGBMError(_LIB.LGBM_GetLastError().decode("utf-8"))
+lightgbm.basic.LightGBMError: Do not support special JSON characters in feature name.

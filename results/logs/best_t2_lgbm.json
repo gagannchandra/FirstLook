@@ -1,0 +1,21 @@
+{
+ "tier": "t2",
+ "model": "lgbm",
+ "n_trials": 30,
+ "tune_rows": 403549,
+ "tune_sec": 480,
+ "fit_sec": 21,
+ "best_params": {
+  "learning_rate": 0.021481124625411404,
+  "num_leaves": 41,
+  "max_depth": 8,
+  "min_child_samples": 38,
+  "subsample": 0.6327957377113127,
+  "colsample_bytree": 0.5754737562015401,
+  "reg_lambda": 2.720431754625958,
+  "scale_pos_weight": 1.0
+ },
+ "best_iteration": 2233,
+ "val_logloss": 0.39320515655063587,
+ "val_auc": 0.876093560522559
+}

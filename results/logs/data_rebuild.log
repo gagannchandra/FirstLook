@@ -1,0 +1,58 @@
+rows=560,486 cols=972 admit rate=0.2973
+patient id columns: none
+constant columns: ['ecodesmachinery', 'phencyclidine(pcp)screen,urine,noconf._last', 'phencyclidine(pcp)screen,urine,noconf._min', 'phencyclidine(pcp)screen,urine,noconf._max', 'phencyclidine(pcp)screen,urine,noconf._median']
+exact duplicate rows: 2
+group
+arrival                    4
+chief_complaint          200
+demographic                2
+hist_labs                379
+hist_vitals               28
+outcome                    1
+outpatient_meds           48
+pmh_ccs                  281
+prior_imaging_ekg          9
+prior_procedures           1
+prior_utilisation          3
+sensitive_demographic      7
+site                       1
+triage                     1
+triage_vitals              7
+dtype: int64
+t1: (560486, 222)
+t2: (560486, 223)
+t3: (560486, 976)
+top single-feature AUCs:
+               feature      auc
+                  esi 0.767920
+                  age 0.731723
+  meds_cardiovascular 0.684076
+meds_gastrointestinal 0.665372
+    arrival=ambulance 0.642787
+         n_admissions 0.641349
+                  htn 0.640462
+      prevdispo=Admit 0.637568
+          n_surgeries 0.629761
+        meds_vitamins 0.622058
+features with single AUC > 0.95: none
+                          split      n  admit_rate
+                         S1:all 560486      0.2973
+                       S1:train 403549      0.2973
+                         S1:cal  44839      0.2973
+                         S1:val  56049      0.2973
+                        S1:test  56049      0.2973
+     site:A Academic (inferred) 322283      0.3188
+                site:A S1:train 232216      0.3190
+                  site:A S1:cal  25681      0.3161
+                  site:A S1:val  32235      0.3185
+                 site:A S1:test  32151      0.3198
+    site:B Community (inferred) 166497      0.3165
+                site:B S1:train 119893      0.3163
+                  site:B S1:cal  13228      0.3220
+                  site:B S1:val  16706      0.3157
+                 site:B S1:test  16670      0.3142
+site:C Free-standing (inferred)  71706      0.1562
+                site:C S1:train  51440      0.1551
+                  site:C S1:cal   5930      0.1607
+                  site:C S1:val   7108      0.1580
+                 site:C S1:test   7228      0.1586
