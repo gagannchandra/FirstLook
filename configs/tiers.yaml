@@ -1,0 +1,58 @@
+t1:
+  description: 'Nurse-only: age, sex, arrival mode, arrival hour bin, 7 triage vitals,
+    chief complaint'
+  raw_inputs:
+  - age
+  - gender
+  - arrivalmode
+  - arrivalhour_bin
+  - triage_vital_hr
+  - triage_vital_sbp
+  - triage_vital_dbp
+  - triage_vital_rr
+  - triage_vital_o2
+  - triage_vital_o2_device
+  - triage_vital_temp
+  - cc_* (200)
+  n_features: 222
+t2:
+  description: T1 + ESI
+  raw_inputs:
+  - T1
+  - esi
+  n_features: 223
+t3:
+  description: T2 + all EHR history groups
+  raw_inputs:
+  - T2
+  - previousdispo
+  - hist_labs
+  - hist_vitals
+  - outpatient_meds
+  - pmh_ccs
+  - prior_imaging_ekg
+  - prior_procedures
+  - prior_utilisation
+  n_features: 976
+excluded_from_inputs:
+  sensitive:
+  - ethnicity
+  - race
+  - lang
+  - religion
+  - maritalstatus
+  - employstatus
+  - insurance_status
+  site:
+  - dep_name
+  outcome:
+  - disposition
+  not_in_guide_tiers:
+  - arrivalmonth
+  - arrivalday
+  constant:
+  - ecodesmachinery
+  - phencyclidine(pcp)screen,urine,noconf._last
+  - phencyclidine(pcp)screen,urine,noconf._min
+  - phencyclidine(pcp)screen,urine,noconf._max
+  - phencyclidine(pcp)screen,urine,noconf._median

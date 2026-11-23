@@ -1,0 +1,12 @@
+data/
+*.RData
+*.rdata
+*.parquet
+*.csv
+*.zip
+.venv/
+mlruns/
+__pycache__/
+.pytest_cache/
+catboost_info/
+*.pyc
