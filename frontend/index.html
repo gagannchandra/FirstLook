@@ -155,7 +155,7 @@
 
 <!-- ================================================================ ASSESS -->
 <section id="assess" class="wrap" aria-labelledby="t-assess" hidden>
-  <div class="workspace">
+  <div class="workspace solo">
   <form id="pform" class="sheet" novalidate autocomplete="off">
     <div class="sheet-head">
       <h1 id="t-assess">Triage assessment</h1>
@@ -230,32 +230,17 @@
 
     <div class="form-foot">
       <p class="errsum" id="errsum" role="alert" hidden></p>
-      <div class="foot-row">
-        <button type="submit" class="btn primary" id="go">Check and save</button>
-        <button type="button" class="btn quiet" id="clear">Clear form</button>
+      <div class="actionbar" id="actionbar">
+        <p class="needs" id="needs" data-state="empty"></p>
+        <div class="foot-row">
+          <button type="button" class="btn quiet" id="clear">Clear form</button>
+          <button type="submit" class="btn primary" id="go">Check and save</button>
+        </div>
       </div>
-    </div>
-  </form>
-
-  <aside class="panel" id="ready" aria-labelledby="t-ready">
-    <div class="card ready" id="readycard" data-state="empty">
-      <h2 id="t-ready">Before you check</h2>
-      <div id="st-empty" class="st">
-        <p>FirstLook needs these. Select one to jump to it.</p>
-        <ul class="todo" id="todo"></ul>
-      </div>
-      <div id="st-fix" class="st" hidden>
-        <p>Check these readings first.</p>
-        <ul class="todo" id="fixlist"></ul>
-      </div>
-      <div id="st-ready" class="st" hidden>
-        <p class="ok-line"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything needed is filled in.</p>
-        <p class="hint" id="readyhint">Adding the triage level, or the patient’s record, makes the estimate sharper.</p>
-      </div>
-      <button type="submit" form="pform" class="btn primary block" id="go2">Check and save</button>
     </div>
     <p class="disc">Decision support only. Clinical judgement decides.</p>
-  </aside>
+  </form>
+
   </div>
 </section>
 

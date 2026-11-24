@@ -452,22 +452,21 @@ function update(now) {
 /* ---------------------------------------------------------------- checklist (assess) and estimate (result) */
 function setState(s) {
   const ready = s === "result" || s === "busy";
-  $("readycard").dataset.state = ready ? "ready" : s; $("tag").dataset.state = s;
-  $("st-empty").hidden = s !== "empty"; $("st-fix").hidden = s !== "fix"; $("st-ready").hidden = !ready;
-  $("readyhint").hidden = !!(radio("esi") && $("usehist").checked);
+  $("needs").dataset.state = ready ? "ready" : s; $("tag").dataset.state = s;
+  if (ready) $("needs").innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span><b>Ready.</b> ${radio("esi") ? "" : "Adding the triage level makes the estimate sharper."}</span>`;
 }
 async function panel(f, items) {
   const errs = items.filter((d) => d.level === "error"), miss = items.filter((d) => d.level === "missing");
   const id = ++reqId;
   if (errs.length) {
     last = null; setState("fix"); delete $("tag").dataset.band;
-    $("fixlist").innerHTML = errs.map((d) => `<li><button type="button" class="err" data-f="${d.field}">${d.msg.startsWith(fieldName(d.field)) ? "" : esc(fieldName(d.field)) + ": "}${esc(d.msg)}</button></li>`).join("");
+    const fields = [...new Set(errs.map((d) => d.field))];
+    $("needs").innerHTML = `<span><b>Check ${fields.length === 1 ? "this reading" : "these readings"}:</b> ${fields.map((k) => `<button type="button" class="link" data-f="${k}">${esc(fieldName(k))}</button>`).join(", ")}</span>`;
   } else if (miss.length) {
     last = null; setState("empty"); delete $("tag").dataset.band;
     const need = new Set(miss.map((d) => d.field));
-    const all = ["age", "gender", "complaints", ...VITAL.map((v) => v[0])];
-    $("todo").innerHTML = all.map((k) => need.has(k) ? `<li><button type="button" data-f="${k}">${esc(fieldName(k))}</button></li>`
-      : `<li class="done">${esc(fieldName(k))}</li>`).join("");
+    const all = ["age", "gender", "complaints", ...VITAL.map((v) => v[0])].filter((k) => need.has(k));
+    $("needs").innerHTML = `<span><b>Still needed:</b> ${all.map((k) => `<button type="button" class="link" data-f="${k}">${esc(fieldName(k))}</button>`).join(", ")}</span>`;
   } else {
     if ($("usehist").checked && SERVER) {
       if (last) setState("busy");
@@ -475,7 +474,7 @@ async function panel(f, items) {
       catch (e) {
         if (id !== reqId) return;
         last = null; setState("fix");
-        $("fixlist").innerHTML = `<li class="err">The patient record couldn’t be used just now (${esc(e.message)}). Switch “Add the patient’s record” off to get an estimate without it.</li>`;
+        $("needs").innerHTML = `<span><b>The patient record couldn’t be used just now</b> (${esc(e.message)}). Switch “Add the patient’s record” off to get an estimate without it.</span>`;
         route(); return;
       }
     } else {
@@ -486,7 +485,7 @@ async function panel(f, items) {
   }
   route();
 }
-for (const id of ["todo", "fixlist"]) document.getElementById(id).addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) focusField(b.dataset.f); });
+$("needs").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) focusField(b.dataset.f); });
 
 async function predictServer(f) {
   const t0 = performance.now();

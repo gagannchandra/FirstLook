@@ -1,6 +1,6 @@
 /* FirstLook service worker: cache-first for the app shell, everything local. Bump CACHE when assets change.
    api/ requests (the optional local backend) always go to the network and are never cached. */
-const CACHE = "firstlook-v19";
+const CACHE = "firstlook-v22";
 const ASSETS = ["./", "index.html", "css/app.css", "js/model.js", "js/charts.js", "js/app.js", "data/models.json", "data/dashboard.json",
   "manifest.webmanifest", "icon.svg",
   "fonts/atkinson-next-latin.woff2", "fonts/atkinson-next-latin-ext.woff2",

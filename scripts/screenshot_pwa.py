@@ -56,7 +56,7 @@ def main():
             page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
 
         assess(); shot("02_assess_empty")
-        page.locator("#examples button", has_text="Uncertain").click(); page.wait_for_selector("#st-ready:not([hidden])")
+        page.locator("#examples button", has_text="Uncertain").click(); page.wait_for_selector("#needs[data-state=ready]")
         shot("03_assess_ready")
         check_and_save()
         page.fill("#hnote", "Bay 3"); page.click("#hsave")
@@ -65,11 +65,11 @@ def main():
         res = {"uncertain_pct": page.inner_text("#pct"), "uncertain_confidence": page.inner_text("#conftitle")}
         shot("04_result_uncertain")
 
-        assess(); page.select_option("#acuity", "high"); page.click("#random"); page.wait_for_selector("#st-ready:not([hidden])")
+        assess(); page.select_option("#acuity", "high"); page.click("#random"); page.wait_for_selector("#needs[data-state=ready]")
         check_and_save(); res["random_high_pct"] = page.inner_text("#pct")
         shot("05_result_random_high")
 
-        assess(); page.locator("#examples button", has_text="Low risk").click(); page.wait_for_selector("#st-ready:not([hidden])")
+        assess(); page.locator("#examples button", has_text="Low risk").click(); page.wait_for_selector("#needs[data-state=ready]")
         check_and_save()
         page.click("nav a[data-p=history]"); page.wait_for_selector("#hlist .hitem")
         res["history_entries"] = page.locator("#hlist .hitem").count()

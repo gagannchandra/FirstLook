@@ -559,15 +559,19 @@ td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; m
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print { .top, .quick, .form-foot, .peek, .toast, .foot { display: none !important; } .workspace { grid-template-columns: 1fr 1fr; } .panel { position: static; } }
 
-/* ---------------------------------------------------------------- assess: readiness checklist */
-.ready { background: var(--sheet); border: 1px solid var(--rule); border-top: 6px solid var(--brand-line); border-radius: var(--r); padding: 20px 22px 22px; transition: border-color .3s; }
-.ready[data-state=ready] { border-top-color: var(--low-fill); }
-.ready[data-state=fix] { border-top-color: var(--high); }
-.ready h2 { font-size: var(--step-1); letter-spacing: -.01em; margin-bottom: 6px; }
-.ok-line { display: flex; align-items: center; gap: 10px; font-weight: 650; color: var(--low); margin-top: 4px; }
-.ok-line .ic { width: 22px; height: 22px; flex: none; padding: 3px; border-radius: 50%; background: var(--low-bg); }
-.ready .hint { margin-top: 10px; }
-.btn.block { width: 100%; justify-content: center; margin-top: 18px; }
+/* ---------------------------------------------------------------- assess: one centred column, sticky action bar */
+.workspace.solo { grid-template-columns: minmax(0, 860px); justify-content: center; }
+.workspace.solo .form-foot { position: sticky; bottom: 0; z-index: 5; gap: 8px; margin: 24px calc(-1 * clamp(18px, 3vw, 36px)) 0; padding: 14px clamp(18px, 3vw, 36px);
+  background: var(--sheet); border-top: 1px solid var(--rule); box-shadow: 0 -12px 24px -18px rgba(16, 38, 90, .25); }
+.actionbar { display: flex; justify-content: space-between; align-items: center; gap: 12px 20px; flex-wrap: wrap; }
+.needs { display: flex; align-items: center; gap: 10px; flex: 1 1 320px; margin: 0; font-size: var(--step--1); color: var(--ink-2); }
+.needs b { color: var(--ink); font-weight: 650; }
+.needs .link { font-size: inherit; min-height: 24px; }
+.needs[data-state=fix] b { color: var(--high); }
+.needs[data-state=ready] { color: var(--low); }
+.needs[data-state=ready] b { color: var(--low); }
+.needs .ic { width: 22px; height: 22px; flex: none; padding: 3px; border-radius: 50%; background: var(--low-bg); color: var(--low); }
+.actionbar .foot-row { flex: none; }
 
 /* ---------------------------------------------------------------- result page */
 .res-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 24px; flex-wrap: wrap; margin-bottom: clamp(20px, 3vw, 32px); }
@@ -594,7 +598,6 @@ td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; m
 .result .disc { margin-top: 24px; }
 @media (max-width: 1020px) {
   .res-grid { grid-template-columns: minmax(0, 1fr); }
-  #go2 { display: none; }
 }
 @media (max-width: 640px) {
   .res-actions, .res-actions .btn { width: 100%; }
@@ -602,3 +605,6 @@ td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; m
   .entered dl { grid-template-columns: 1fr; }
 }
 @media print { .res-actions { display: none !important; } .res-grid { grid-template-columns: 1fr 1fr; } }
+/* keep the undo toast clear of the sticky action bar on the form */
+body:has(#assess:not([hidden])) .toast { bottom: 104px; }
+@media (max-width: 640px) { body:has(#assess:not([hidden])) .toast { bottom: 150px; } }

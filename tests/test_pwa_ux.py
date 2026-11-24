@@ -77,7 +77,7 @@ def page(browser, base_url):
 
 def example(pg, name):
     pg.locator("#examples button", has_text=name).click()
-    pg.wait_for_selector("#st-ready:not([hidden])")
+    pg.wait_for_selector("#needs[data-state=ready]")
 
 
 def show(pg):
@@ -104,8 +104,8 @@ def test_empty_submit_shows_errors_next_to_fields_and_focuses_first(page):
 
 def test_assess_and_result_are_separate_pages(page):
     example(page, "Uncertain")
-    assert page.is_hidden("#result") and page.is_visible("#go2")  # the form page shows a checklist, not the estimate
-    page.click("#go2"); page.wait_for_selector("#result:not([hidden])")
+    assert page.is_hidden("#result") and page.is_visible("#go")  # the form page shows a checklist, not the estimate
+    page.click("#go"); page.wait_for_selector("#result:not([hidden])")
     assert page.url.endswith("#/result") and page.is_hidden("#assess")
     assert pct(page) == 44 and page.inner_text("#conftitle").startswith("Unsure")
     assert "44% chance of admission" in page.title()
@@ -134,7 +134,7 @@ def test_next_patient_clears_with_undo(page):
 
 def test_refresh_keeps_form_and_old_links_still_work(page, base_url):
     example(page, "High risk")
-    page.reload(); page.wait_for_selector("#st-ready:not([hidden])")
+    page.reload(); page.wait_for_selector("#needs[data-state=ready]")
     assert page.input_value("#age") == "82" and page.locator("#ccchips button").count() == 1
     page.goto(base_url + "#/patient"); page.wait_for_selector("#assess:not([hidden])")
     page.goto(base_url + "#/explain"); page.wait_for_selector("#result:not([hidden])")
@@ -145,7 +145,7 @@ def test_refresh_keeps_form_and_old_links_still_work(page, base_url):
 def test_clear_offers_undo(page):
     example(page, "Low risk")
     page.click("#clear")
-    assert page.input_value("#age") == "" and page.is_visible("#toast") and page.is_visible("#st-empty")
+    assert page.input_value("#age") == "" and page.is_visible("#toast") and page.get_attribute("#needs", "data-state") == "empty"
     page.click("#undo")
     assert page.input_value("#age") == "24" and not page.is_visible("#toast")
 
@@ -170,7 +170,7 @@ def test_complaint_combobox_keyboard(page):
 
 def test_random_patient_is_marked_synthetic(page):
     page.select_option("#acuity", "high"); page.click("#random")
-    page.wait_for_selector("#st-ready:not([hidden])")
+    page.wait_for_selector("#needs[data-state=ready]")
     assert page.is_visible("#exnote") and "not a real person" in page.inner_text("#exnote")
 
 
