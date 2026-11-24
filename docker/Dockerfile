@@ -13,4 +13,4 @@ COPY results/dashboard/ results/dashboard/
 EXPOSE 8501
 # Benchmark (offline proof):  docker run --rm --network none --cpus 2 --memory 2g firstlook python -m src.benchmark
 # UI (port mapping needs a network; for the offline UI demo switch Wi-Fi off instead):
-CMD ["streamlit", "run", "app/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--browser.serverAddress", "localhost"]
+CMD ["streamlit", "run", "app/streamlit_app.py", "--server.port", "8501", "--server.address", "::", "--browser.serverAddress", "localhost"]

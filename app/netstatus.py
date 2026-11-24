@@ -47,18 +47,25 @@ def online() -> bool:
 
 
 def external_sockets() -> int:
+    """Outbound connections from this process to non-loopback hosts.
+
+    Inbound connections to a port this process listens on (the browser talking to the app) are not
+    counted: behind a container port-forward (podman/pasta) they arrive from a non-loopback address.
+    """
     n = 0
     try:
         conns = psutil.Process(os.getpid()).net_connections(kind="inet")
     except (psutil.AccessDenied, AttributeError):
         return -1
+    listening = {c.laddr.port for c in conns if c.status == psutil.CONN_LISTEN}
     for c in conns:
-        if c.raddr:
-            try:
-                if not ipaddress.ip_address(c.raddr.ip).is_loopback:
-                    n += 1
-            except ValueError:
-                pass
+        if not c.raddr or c.laddr.port in listening:
+            continue
+        try:
+            if not ipaddress.ip_address(c.raddr.ip.split("%")[0]).is_loopback:
+                n += 1
+        except ValueError:
+            pass
     return n
 
 

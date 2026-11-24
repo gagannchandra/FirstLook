@@ -129,3 +129,28 @@ def test_t3lite_bundle_vector_matches_training():
     app_X = pd.concat(rows, ignore_index=True)
     assert list(app_X.columns) == [safe_name(c) if c in hist else c for c in b.features] or list(app_X.columns) == b.features
     np.testing.assert_array_equal(app_X.to_numpy(np.float32), train_X.to_numpy(np.float32))
+
+
+def test_external_socket_counter_ignores_inbound_but_counts_outbound():
+    """Inbound (to our listening port) is not 'external'; an outbound non-loopback connection is."""
+    import socket
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
+    import netstatus
+    base = netstatus.external_sockets()
+    # inbound: a server in this process accepting a connection from a non-loopback local address
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except OSError:
+        ip = "127.0.0.1"
+    if ip.startswith("127."):
+        import pytest
+        pytest.skip("no non-loopback address on this machine")
+    srv = socket.socket(); srv.bind((ip, 0)); srv.listen(1)
+    cli = socket.create_connection((ip, srv.getsockname()[1])); conn, _ = srv.accept()
+    try:
+        # server side is inbound (ignored); client side is outbound to a non-loopback IP (counted)
+        assert netstatus.external_sockets() == base + 1
+    finally:
+        conn.close(); cli.close(); srv.close()
