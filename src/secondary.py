@@ -84,7 +84,7 @@ def e10(split: str) -> pd.DataFrame:
             for frac in (0.1, 0.3, 0.5):
                 Xm = Xe.copy()
                 hit = np.flatnonzero(rng.random(len(Xm)) < frac)
-                vals = Xm[MAIN_VITALS].to_numpy()
+                vals = Xm[MAIN_VITALS].to_numpy().copy()
                 for r in hit:
                     vals[r, rng.choice(len(MAIN_VITALS), k, replace=False)] = np.nan
                 Xm[MAIN_VITALS] = vals

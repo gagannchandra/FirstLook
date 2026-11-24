@@ -1,0 +1,13 @@
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[t1] held-out A: AUC 0.822 ECE 0.051 cov 0.900 (in-dist AUC 0.868) 336s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[t1] held-out B: AUC 0.869 ECE 0.016 cov 0.898 (in-dist AUC 0.843) 433s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[t1] held-out C: AUC 0.825 ECE 0.128 cov 0.895 (in-dist AUC 0.859) 555s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[t2] held-out A: AUC 0.856 ECE 0.022 cov 0.875 (in-dist AUC 0.887) 249s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[t2] held-out B: AUC 0.886 ECE 0.033 cov 0.911 (in-dist AUC 0.866) 360s
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+[t2] held-out C: AUC 0.852 ECE 0.062 cov 0.917 (in-dist AUC 0.875) 486s
+saved 2226 rows
