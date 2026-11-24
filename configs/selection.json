@@ -1,6 +1,6 @@
 {
  "rule": "lowest val log-loss after calibration; calibrator by val ECE; thresholds NPV>=0.95 / PPV>=0.80 on val",
- "date_frozen": null,
+ "date_frozen": "2026-11-24",
  "tiers": {
   "t1": {
    "model": "lgbm",
