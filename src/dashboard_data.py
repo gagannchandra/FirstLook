@@ -64,10 +64,24 @@ def main():
         b = json.load(open(f))
         for slot, v in b["bundles"].items():
             bench.append({"setting": b["setting"], "model": slot, "size_kb": v["model_onnx_kb"], "p50_ms": v["e2e_p50_ms"],
-                          "p95_ms": v["e2e_p95_ms"], "peak_rss_mb": b["peak_rss_mb"], "net_bytes": b["net_bytes_sent_non_loopback"]})
+                          "p95_ms": v["e2e_p95_ms"], "peak_rss_mb": b["peak_rss_mb"], "net_bytes": b["net_bytes_sent_non_loopback"],
+                          "app_conns": len(b.get("app_external_connections", [])), "interfaces": b["interfaces"]})
     d["benchmark"] = bench
+    # shipped edge bundles (what the app actually runs)
+    from src.runtime import load_all
+    edge = []
+    for slot, b in load_all().items():
+        Xb = pd.read_parquet(PROC / f"{b.tier}.parquet", columns=b.features)
+        rows = rows_for(a.split)
+        pb = b.cal.predict(b.raw_proba(Xb.iloc[rows]))
+        yb = meta().y.to_numpy()[rows]
+        ci = bootstrap_ci(yb, pb, n_boot=a.n_boot)
+        cv = conformal.evaluate(pb, yb, b.conf)
+        edge.append({"slot": b.spec["slot_name"], "features": len(b.features), "size_kb": b.model_bytes / 1024,
+                     **{k: list(v) for k, v in ci.items()}, "coverage": cv["coverage"], "abstention": cv["abstention"]})
+    d["edge"] = edge
     d["footnote"] = ("All numbers are computed by the FirstLook pipeline from the Yale ED dataset (Hong et al., 2018); "
-                     "95% CIs from 1,000 bootstrap resamples. Local adaptation uses S2 (leave-one-hospital-out). "
+                     f"95% CIs from {a.n_boot:,} bootstrap resamples. Local adaptation uses S2 (leave-one-hospital-out). "
                      "Latency is end-to-end (form → result incl. explanation).")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(d))

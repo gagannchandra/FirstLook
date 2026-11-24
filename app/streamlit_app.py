@@ -323,20 +323,29 @@ def history_inputs(spec: dict):
                                                       "Send to L&D"],
                      format_func=lambda v: "No previous ED visit" if v == "No previous dispo" else v, key="f_prevdispo")
     kinds = spec.get("history_input_kind", {})
-    order = sorted(spec["history_inputs"], key=lambda h: {"binary": 0, "count": 1, "lab": 2}.get(kinds.get(h), 1))
-    binaries = [h for h in order if kinds.get(h) == "binary"]
-    if binaries:
-        st.markdown("<div class='fl-section'>Conditions on record</div>", unsafe_allow_html=True)
-        cols = st.columns(3)
-        for i, h in enumerate(binaries):
-            vals[h] = 1.0 if cols[i % 3].checkbox(hist_label(h), key=f"h_{h}") else 0.0
-    st.markdown("<div class='fl-section'>Counts and past labs</div>", unsafe_allow_html=True)
-    cols = st.columns(2)
-    for i, h in enumerate([h for h in order if kinds.get(h) != "binary"]):
+    key_fields = [h for h in ("n_edvisits", "n_admissions", "n_surgeries") if h in spec["history_inputs"]]
+    rest = [h for h in spec["history_inputs"] if h not in key_fields]
+
+    def field(col, h):
+        if kinds.get(h) == "binary":
+            return 1.0 if col.checkbox(hist_label(h), key=f"h_{h}") else 0.0
         if kinds.get(h) == "lab":
-            vals[h] = cols[i % 2].number_input(hist_label(h), value=None, step=0.1, key=f"h_{h}", placeholder="not available")
-        else:
-            vals[h] = float(cols[i % 2].number_input(hist_label(h), value=0, min_value=0, step=1, key=f"h_{h}"))
+            return col.number_input(hist_label(h), value=None, step=0.1, key=f"h_{h}", placeholder="not available")
+        return float(col.number_input(hist_label(h), value=0, min_value=0, step=1, key=f"h_{h}"))
+
+    cols = st.columns(len(key_fields) or 1)
+    for c, h in zip(cols, key_fields):
+        vals[h] = field(c, h)
+    with st.expander(f"More history — outpatient medicines, conditions, past labs ({len(rest)} fields, optional)"):
+        for group, title in (("binary", "Conditions on record"), ("count", "Outpatient medicine counts (by class)"),
+                             ("lab", "Past-year lab values")):
+            hs = [h for h in rest if kinds.get(h, "count") == group]
+            if not hs:
+                continue
+            st.markdown(f"<div class='fl-section'>{title}</div>", unsafe_allow_html=True)
+            gc = st.columns(2)
+            for i, h in enumerate(hs):
+                vals[h] = field(gc[i % 2], h)
     st.session_state.hist_vals = vals
 
 
@@ -450,11 +459,12 @@ def stat(col, k, v, s=""):
                  unsafe_allow_html=True)
 
 
-def base_layout(fig, h=300, xt="", yt=""):
+def base_layout(fig, h=320, xt="", yt=""):
     fig.update_layout(height=h, margin=dict(l=10, r=10, t=10, b=10), paper_bgcolor="white", plot_bgcolor="white",
                       font=dict(family="system-ui", color=INK, size=12),
-                      legend=dict(orientation="h", y=-0.22, x=0, font=dict(size=11)),
-                      xaxis=dict(title=xt, gridcolor="#eef0ee", zeroline=False, linecolor="#c3c2b7"),
+                      legend=dict(orientation="h", yanchor="top", y=-0.28, x=0, font=dict(size=11)),
+                      xaxis=dict(title=dict(text=xt, standoff=6, font=dict(size=11, color=MUTED)), gridcolor="#eef0ee",
+                                 zeroline=False, linecolor="#c3c2b7"),
                       yaxis=dict(title=yt, gridcolor="#eef0ee", zeroline=False, linecolor="#c3c2b7"),
                       hoverlabel=dict(bgcolor="white"))
     return fig
@@ -486,7 +496,7 @@ def screen_dashboard():
     if d is None:
         st.info("Research results not built yet — run `python -m src.dashboard_data`.")
         return
-    st.markdown(f'<div class="fl-section">Model performance · {d["eval_label"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="fl-section">Research models (best per tier) · {d["eval_label"]}</div>', unsafe_allow_html=True)
     rows = ""
     for r in d["metrics"]:
         ci = lambda k: f'<td class="ci">{r[k][1]:.3f}–{r[k][2]:.3f}</td>' if r.get(k) and r[k][1] is not None else '<td class="ci"></td>'  # noqa: E731
@@ -496,10 +506,18 @@ def screen_dashboard():
     st.markdown(f'<div class="fl-card"><table class="fl-tab"><tr><th>Tier</th><th>Selected model</th><th>ROC-AUC</th><th>95% CI</th>'
                 f'<th>PR-AUC</th><th>95% CI</th><th>Brier</th><th>ECE</th></tr>{rows}</table></div>', unsafe_allow_html=True)
 
+    if d.get("edge"):
+        st.markdown(f'<div class="fl-section">Shipped edge models (what this app runs) · {d["eval_label"]}</div>', unsafe_allow_html=True)
+        rows = "".join(f"<tr><td><b>{e['slot']}</b></td><td>{e['features']}</td><td>{e['size_kb']:.0f}</td>"
+                       f"<td>{e['auc'][0]:.3f}</td><td class='ci'>{e['auc'][1]:.3f}–{e['auc'][2]:.3f}</td>"
+                       f"<td>{e['ece'][0]:.3f}</td><td>{e['coverage']:.3f}</td><td>{100*e['abstention']:.0f}%</td></tr>" for e in d["edge"])
+        st.markdown(f'<div class="fl-card"><table class="fl-tab"><tr><th>Model</th><th>Inputs</th><th>Size KB</th><th>ROC-AUC</th>'
+                    f'<th>95% CI</th><th>ECE</th><th>Conformal coverage (α=0.10)</th><th>Uncertain</th></tr>{rows}</table></div>',
+                    unsafe_allow_html=True)
     g1, g2 = st.columns(2, gap="medium")
     with g1:
         with st.container(border=True):
-            st.markdown("**Calibration** · observed vs predicted admission rate")
+            st.markdown("**Calibration** · observed vs predicted admission rate (research models)")
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode="lines", line=dict(color="#c3c2b7", width=1), name="Perfect", hoverinfo="skip"))
             for t, cv in d["calibration"].items():
@@ -539,17 +557,25 @@ def screen_dashboard():
                     fig.add_trace(go.Scatter(x=v["n"], y=v["coverage_admit"], mode="lines+markers", name=f"Site {site} · admitted",
                                              line=dict(color=cols[site], width=2), marker=dict(size=7, line=dict(color="white", width=2)),
                                              error_y=dict(type="data", array=v["coverage_admit_sd"], thickness=1, width=3, color=cols[site])))
-                fig.add_hline(y=0.9, line_color="#4d5a58", line_width=1, annotation_text="target 0.90", annotation_font_size=10)
-                fig.update_xaxes(type="log")
-                st.plotly_chart(base_layout(fig, 300, "Local visits used (log scale; n=0 shown at 50)", "Coverage, admitted patients"),
+                fig.add_hline(y=0.9, line_color="#4d5a58", line_width=1, annotation_text="target 0.90", annotation_font_size=10,
+                              annotation_position="bottom right")
+                fig.update_xaxes(type="log", tickvals=[50, 100, 250, 500, 1000, 2000, 5000],
+                                 ticktext=["0", "100", "250", "500", "1k", "2k", "5k"])
+                st.plotly_chart(base_layout(fig, 320, "Local visits used (no retraining)", "Coverage, admitted patients"),
                                 use_container_width=True, config={"displayModeBar": False})
                 st.caption(la["caption"])
     if d.get("benchmark"):
         st.markdown('<div class="fl-section">Edge benchmark (measured)</div>', unsafe_allow_html=True)
-        rows = "".join(f"<tr><td>{r['setting']}</td><td>{r['model']}</td><td>{r['size_kb']:.0f}</td><td>{r['p50_ms']:.2f}</td>"
-                       f"<td>{r['p95_ms']:.2f}</td><td>{r['peak_rss_mb']:.0f}</td><td>{r['net_bytes']}</td></tr>" for r in d["benchmark"])
+        def net_cell(r):
+            if r.get("interfaces") == ["lo"]:
+                return f"<b>{r['net_bytes']} bytes</b> (no network interface)"
+            return f"{r.get('app_conns', 0)} app connections · {r['net_bytes']/1024:.0f} KB machine-wide"
+        rows = "".join(f"<tr><td>{r['setting']}</td><td>{r['model']}</td><td>{r['size_kb']:.0f}</td><td>{r['p50_ms']:.1f}</td>"
+                       f"<td>{r['p95_ms']:.1f}</td><td>{r['peak_rss_mb']:.0f}</td><td>{net_cell(r)}</td></tr>" for r in d["benchmark"])
         st.markdown(f'<div class="fl-card"><table class="fl-tab"><tr><th>Setting</th><th>Model</th><th>Size KB</th><th>p50 ms</th>'
-                    f'<th>p95 ms</th><th>Peak RSS MB</th><th>Net bytes</th></tr>{rows}</table></div>', unsafe_allow_html=True)
+                    f'<th>p95 ms</th><th>Peak RSS MB</th><th>Network during benchmark</th></tr>{rows}</table></div>', unsafe_allow_html=True)
+        st.caption("Host: machine-wide interface bytes include other programs on a Wi-Fi-connected laptop; the app-level "
+                   "measure is this process's connections to non-local hosts. Docker --network none has only a loopback interface.")
     st.caption(d.get("footnote", ""))
 
 

@@ -9,7 +9,7 @@ Status key: ✅ done · 🟡 in progress / partial · ❌ not done · ⬜ not st
 | P1 Setup & data | Repo, env, dataset, dictionary, leakage audit, tiers, splits | M1 Data ready | ✅ 560,486×972, 29.73% admit, no leakage flag |
 | P2 Models | E1 baseline, E2 5×3 models (Optuna on val), calibration, thresholds, E3 | M2 Models ready | ✅ val AUC T1 .857 / T2 .876 / T3 .928 |
 | P3 Research | Conformal, E5 LOHO, **E6 local-adaptation**, E7 SHAP, E10, E11, E12 | M3 Research results | ✅ (val; test numbers in P5) |
-| P4 Edge & app | E8 Pareto, ONNX/m2cgen, bundles, E9 Docker benchmark, Streamlit L1, Docker L2, (PWA L3) | M4 Prototype | ⬜ |
+| P4 Edge & app | E8 Pareto, ONNX/m2cgen, bundles, E9 Docker benchmark, Streamlit L1, Docker L2, (PWA L3) | M4 Prototype | ✅ L1 + L2 (L3 PWA: see end) |
 | P5 Final eval | Freeze, open S1 test once, Tables A–H, figures | M5 Submission | ⬜ |
 
 ## Experiments
@@ -23,8 +23,8 @@ Status key: ✅ done · 🟡 in progress / partial · ❌ not done · ⬜ not st
 | E5 | Leave-one-hospital-out + local recal | ✅ | T1 AUC 0.82–0.87 at unseen site; ECE up to 0.128 (site C) → ≤0.018 after 1,000 local visits |
 | E6 | Conformal (random split + under shift) + local-adaptation curve n=0…5000 ×20 | 🟡 | val coverage 0.900–0.904 (α=.1); under shift marginal OK, class coverage down to 0.855; repaired by 500–1000 visits. Test (Table D) in P5 |
 | E7 | SHAP global/local + stability | ✅ | top-10 stable across seeds (ρ≥0.98); less across sites (ρ 0.68–0.96) |
-| E8 | Compression Pareto front | ⬜ | |
-| E9 | Edge benchmark (size/latency/RAM/net), Docker --network none | ⬜ | |
+| E8 | Compression Pareto front | ✅ | T1: no export within 0.01 → LR (9 KB, Δ0.011, D27); T3-lite LGBM d4 t200 top-50 (215 KB, Δ0.0095) |
+| E9 | Edge benchmark (size/latency/RAM/net), Docker --network none | ✅ | Docker 2 CPU/2 GB: p95 9.4–28 ms, 188 MB RSS, 0 bytes; ORT telemetry found + disabled (D28) |
 | E10 | Missing-vitals robustness | 🟡 | val: all vitals missing −0.015 AUC; HR most costly; median impute worst. Test in P5 |
 | E11 | Subgroup / fairness | 🟡 | val: 80+ AUC gap >0.05; site C over-predicted (CITL −0.70). Test in P5 |
 | E12 | Decision-curve analysis | 🟡 | val: all tiers beat treat-all/none over 0.1–0.7. Test in P5 |
@@ -45,5 +45,5 @@ Status key: ✅ done · 🟡 in progress / partial · ❌ not done · ⬜ not st
 - M1 Data ready ✅ (supervisor sign-off of leakage audit pending — human step)
 - M2 Models ready ✅
 - M3 Research results ready ✅
-- M4 Prototype ready ⬜
+- M4 Prototype ready ✅
 - M5 Final evaluation ⬜

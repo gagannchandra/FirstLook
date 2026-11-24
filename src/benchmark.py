@@ -24,6 +24,13 @@ import numpy as np  # noqa: E402
 import psutil  # noqa: E402
 
 
+def external_conns(acc: set) -> None:
+    import ipaddress
+    for c in psutil.Process().net_connections(kind="inet"):
+        if c.raddr and not ipaddress.ip_address(c.raddr.ip).is_loopback:
+            acc.add(f"{c.raddr.ip}:{c.raddr.port}")
+
+
 def nic_bytes():
     return {n: (c.bytes_sent, c.bytes_recv) for n, c in psutil.net_io_counters(pernic=True).items()}
 
@@ -71,6 +78,7 @@ def main():
             res["cgroup_cpu_max"] = f.read().strip()
     except OSError:
         pass
+    conns: set = set()
     for slot, b in bundles.items():
         forms = synthetic_forms(b.spec, a.n)
         for f in forms[:20]:
@@ -82,14 +90,18 @@ def main():
             x = X[i % len(X)]
             t0 = time.perf_counter(); b.raw_proba(x); mt.append((time.perf_counter() - t0) * 1000)
         et = []
-        for f in forms:
+        for i, f in enumerate(forms):
             t0 = time.perf_counter(); b.predict(f); et.append((time.perf_counter() - t0) * 1000)
+            if i % 50 == 0:
+                external_conns(conns)
         res["bundles"][slot] = {
             "version": b.version, "n_features": len(b.features), "model_onnx_kb": b.model_bytes / 1024,
             "bundle_kb": b.size_bytes / 1024,
             "model_p50_ms": float(np.percentile(mt, 50)), "model_p95_ms": float(np.percentile(mt, 95)),
             "e2e_p50_ms": float(np.percentile(et, 50)), "e2e_p95_ms": float(np.percentile(et, 95)),
             "n_predictions": a.n}
+    external_conns(conns)
+    res["app_external_connections"] = sorted(conns)
     net1 = nic_bytes()
     res["peak_rss_mb"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
     res["net_bytes_by_interface"] = {n: {"sent": net1[n][0] - net0.get(n, (0, 0))[0], "recv": net1[n][1] - net0.get(n, (0, 0))[1]}
