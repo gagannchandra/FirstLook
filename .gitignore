@@ -15,3 +15,6 @@ models/variants/
 models/bundles/*_dev/
 results/figures/app/external_requests.json
 .run/
+
+# office lock files
+.~lock.*#
