@@ -44,12 +44,19 @@ All tables (A–G), the criteria and the figure list: [`results/RESULTS.md`](res
 ## Quick start
 
 ```bash
-./run.sh            # start the Streamlit app (:8599), offline web app + local API (:8600) and Docker app (:8501, if built)
-./run.sh status     # what is running
-./run.sh stop       # stop everything
-./run.sh build      # build the Docker image once (needs Docker or podman)
-./run.sh start app  # or start just one: app | web | docker
+./run.sh                  # start the Streamlit app (:8599), offline web app + local API (:8600) and Docker app (:8501, if built)
+./run.sh start web        # or start just one: app | web | docker
+./run.sh restart web      # stop + start (after a pull or a backend change); also: ./run.sh stop web
+./run.sh status           # what is running, and whether the web app can use patient records
+./run.sh logs web         # follow a log: web | app | docker
+./run.sh stop             # stop everything
+./run.sh build            # build the Docker image once (needs Docker or podman)
+./run.sh test             # run the tests (pass pytest options after it, e.g. ./run.sh test tests/test_pwa_ux.py)
+./run.sh export           # re-export models + results as JSON for the web app (frontend/data/)
+./run.sh screenshots      # offline proof + screenshots of the web app (results/figures/app/)
 ```
+
+For a demo, open **http://localhost:8600**. After an update, refresh the page once: the browser keeps an offline copy of the previous version.
 
 ## How to run everything
 
@@ -115,15 +122,27 @@ docker run --rm --network none --cpus 2 --memory 2g firstlook python -m src.edge
 ### Run the offline web app (L3) — frontend + local backend
 
 ```bash
-./run.sh start web                # or ./scripts/serve_pwa.sh — http://localhost:8600
-python scripts/screenshot_pwa.py  # proves it: saves the app, cuts the network, uses every page, saves to history
+./run.sh start web     # or ./scripts/serve_pwa.sh — http://localhost:8600
+./run.sh screenshots   # proves it: saves the app, cuts the network, uses every page, saves to History
 ```
+
+What a user sees:
+
+| Page | What it does |
+|---|---|
+| **Home** (`#/home`) | What FirstLook is, a live preview running the real model on sample patients, how it works, the three levels of detail, FAQ |
+| **Assess** (`#/assess`) | The triage form. **Quick fill** loads a sample patient (name, contact, vitals) or a **random patient** for a chosen acuity. Optional **patient name** and **contact number** (any country: 7–15 digits, `+` or `00` country prefix). A bar at the bottom lists what is still needed and holds **Check and save** |
+| **Result** (`#/result`) | The chance of admission as a number and 100 dots, the risk band, the confidence check (likely admission / likely discharge / **unsure**), what moved the estimate, what was entered, a note for History. **Edit answers** or **Next patient** |
+| **History** (`#/history`) | Every checked estimate, newest first, grouped by day: search (name, phone, complaint, note), filter by risk, reopen, delete or clear (with undo), download as CSV |
+| **About** (`#/about`) | The whole project in plain words, results and charts, privacy, limits; technical details folded away |
+
+Privacy: the name and contact number are never model inputs. History is kept in this browser only (`localStorage`, up to 200 entries) and never sent anywhere; the CSV export neutralises spreadsheet formulas.
 
 The web app is split in two (D37):
 
 | | `frontend/` | `backend/` |
 |---|---|---|
-| What | The website: home page, assessment form, result, explanation, evidence charts, about | `server.py` — a small local server (standard library only); `export.py` — writes the JSON the frontend reads |
+| What | The website: Home, Assess, Result, History and About pages (vanilla JS, self-hosted fonts) | `server.py` — a small local server (standard library only); `export.py` — writes the JSON the frontend reads |
 | Runs | In the browser. Plain HTML, CSS and JavaScript, no libraries, no CDN, strict CSP | On this machine, bound to `127.0.0.1` |
 | Models | T1 and T2 (logistic regression ported to JS; parity-tested to 1e-4) | All three, with ONNX Runtime, including the EHR-history model (T3-lite) via `POST /api/predict` |
 | Offline | Cached by a service worker; works with the network off and **without** the server | Never talks to the internet; telemetry disabled |
@@ -172,6 +191,6 @@ All commands run from the repository root (`src`, `app` and `backend` are import
 
 ## Data and ethics
 
-The dataset is de-identified and public but has no clear licence: it is used for research only, cited, and never redistributed (`data/`, `*.RData`, `*.parquet`, `*.csv` are git-ignored). Race, ethnicity, language, religion, marital status, employment and insurance are **never model inputs**; they are used only in the fairness audit. All demo patients are synthetic and hand-written (`app/examples.py`); no dataset row appears in the app, screenshots or docs.
+The dataset is de-identified and public but has no clear licence: it is used for research only, cited, and never redistributed (`data/`, `*.RData`, `*.parquet`, `*.csv` are git-ignored). Race, ethnicity, language, religion, marital status, employment and insurance are **never model inputs**; they are used only in the fairness audit. All demo visits are synthetic and hand-written (`app/examples.py`); no dataset row appears in the app, screenshots or docs. The web app's Quick fill and random patients use invented names and randomly generated 10-digit numbers, with one exception added at the author's request: the low-risk card is named after the author's professor, Dr. Veena Khandelwal, with her contact number. Her visit and readings (a routine screening with ideal vitals) are made up.
 
 **Citation:** Hong WS, Haimovich AD, Taylor RA (2018). Predicting hospital admission at emergency department triage using machine learning. *PLoS ONE* 13(7): e0201016.
