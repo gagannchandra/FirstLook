@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f6e6a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
+<title>FirstLook (offline)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root { --bg:#f6f7f5; --card:#fff; --ink:#1b2523; --ink2:#4d5a58; --muted:#7b8785; --line:#e3e6e2;
+          --accent:#0f6e6a; --low:#2e8b57; --med:#b07d24; --high:#c94040; --unc:#6b4fbb; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink);
+         padding-bottom: 56px; }
+  header { max-width: 980px; margin: 0 auto; padding: 18px 16px 6px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+  .brand { font-size: 1.45rem; font-weight: 700; } .brand span { color: var(--accent); }
+  .sub { color: var(--muted); font-size: .9rem; }
+  .pill { margin-left:auto; border:1px solid var(--line); background:#fff; border-radius:999px; padding:5px 12px; font-size:.82rem; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+  nav { max-width:980px; margin: 0 auto; padding: 4px 16px 12px; display:flex; gap:0; }
+  nav button { border:1px solid #c9cec8; background:#fff; padding:7px 16px; font-size:.92rem; cursor:pointer; color: var(--ink); }
+  nav button:first-child { border-radius:8px 0 0 8px; } nav button:last-child { border-radius:0 8px 8px 0; }
+  nav button + button { border-left: none; }
+  nav button.on { background:#e3efed; color:var(--accent); border-color: var(--accent); }
+  main { max-width:980px; margin:0 auto; padding: 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
+  .sec { font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin: 4px 0 10px; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  label { display:block; font-size:.88rem; color: var(--ink2); margin: 8px 0 4px; }
+  input[type=number], select, input[type=search] { width:100%; padding:8px 10px; border:1px solid #cfd4ce; border-radius:8px; font-size:.95rem; background:#fff; }
+  input:disabled { background:#f1f2f0; color:#9aa29f; }
+  .row { display:flex; gap:10px; align-items:flex-end; } .row > * { flex:1; }
+  .nm { flex:0 0 auto; font-size:.82rem; color: var(--ink2); white-space:nowrap; padding-bottom:9px; }
+  .ex { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 10px; }
+  .btn { border:1px solid #c9cec8; background:#fff; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:.92rem; color: var(--ink); }
+  .btn.primary { background: var(--accent); color:#fff; border-color: var(--accent); width:100%; padding: 12px; font-size: 1rem; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .chip { background: var(--accent); color:#fff; border-radius:6px; padding:3px 8px; font-size:.85rem; cursor:pointer; }
+  .opts { max-height: 160px; overflow:auto; border:1px solid var(--line); border-radius:8px; margin-top:4px; display:none; background:#fff; }
+  .opts div { padding:6px 10px; cursor:pointer; font-size:.9rem; } .opts div:hover { background:#eef5f4; }
+  .msg { border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: .92rem; }
+  .msg.err { background:#fbeaea; color:#8b2525; } .msg.warn { background:#fbf3e2; color:#7a5510; }
+  .big { font-size: 4.2rem; font-weight: 800; line-height: 1; margin: 8px 0 12px; }
+  .band { display:inline-block; border-radius:999px; padding: 5px 14px; font-weight:700; }
+  .scale { position:relative; height: 8px; border-radius: 4px; margin: 18px 0 6px; display:flex; gap:2px; }
+  .scale div { height:100%; border-radius:3px; }
+  .marker { position:absolute; top:-5px; width:3px; height:18px; background: var(--ink); border-radius:2px; }
+  .scalelab { display:flex; justify-content:space-between; font-size:.78rem; color:var(--muted); }
+  .conf { display:flex; gap:12px; align-items:flex-start; }
+  .conf.unc { border: 2px dashed var(--unc); background:#f6f3fd; }
+  .conf h3 { margin: 0 0 4px; font-size: 1.1rem; }
+  .meta { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .meta .card { margin:0; padding: 10px 12px; } .meta b { display:block; font-size:1.05rem; margin-top:3px; }
+  .meta small { color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
+  .bar { display:grid; grid-template-columns: 220px 1fr; gap: 10px; align-items:center; margin: 6px 0; font-size:.9rem; }
+  .barw { position:relative; height: 16px; } .barw .axis { position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:#c3c2b7; }
+  .barw .b { position:absolute; top:2px; height:12px; border-radius: 3px; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; } th, td { text-align:left; padding: 7px 8px; border-bottom:1px solid var(--line); }
+  th { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .hide { display:none; }
+  button, select, input { font: inherit; }
+  #go { margin: 4px 0 24px; }
+  footer { position:fixed; z-index:10; left:0; right:0; bottom:0; background:#16201f; color:#e7ecea; text-align:center; padding: 12px; font-size:.85rem; }
+  .muted { color: var(--muted); font-size: .86rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">First<span>Look</span></div>
+  <div class="sub">Admission-risk estimate at ED triage · offline web app (L3)</div>
+  <div class="pill" id="netpill"><span class="dot" id="netdot"></span><span id="nettext">…</span></div>
+</header>
+<nav id="nav">
+  <button data-p="patient" class="on">Patient</button><button data-p="result">Result</button><button data-p="explain">Explanation</button><button data-p="about">About &amp; metrics</button>
+</nav>
+<main>
+<section id="patient">
+  <div class="sec">Load a synthetic example patient</div>
+  <div class="ex" id="examples"></div>
+  <div class="muted" id="exnote"></div>
+  <div id="msgs"></div>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="sec">Patient &amp; arrival</div>
+        <div class="row"><div><label for="age">Age (years)</label><input id="age" type="number" min="18" max="110"></div>
+          <div><label for="gender">Sex</label><select id="gender"><option>Female</option><option>Male</option></select></div></div>
+        <div class="row"><div><label for="arrival">Arrival mode</label><select id="arrival"></select></div>
+          <div><label for="hour">Arrival time</label><select id="hour"></select></div></div>
+        <label for="ccsearch">Chief complaint (search, up to 3)</label>
+        <input id="ccsearch" type="search" placeholder="Type to search, e.g. chest pain" autocomplete="off">
+        <div class="opts" id="ccopts"></div>
+        <div class="chips" id="ccchips"></div>
+      </div>
+      <div class="card">
+        <div class="sec">Optional</div>
+        <label for="esi">ESI level (uses the T2 model when given)</label>
+        <select id="esi"><option value="">Not available</option><option value="1">1 · resus</option><option value="2">2 · emergent</option>
+          <option value="3">3 · urgent</option><option value="4">4 · less urgent</option><option value="5">5 · non-urgent</option></select>
+        <p class="muted">The EHR-history model (T3-lite, a tree ensemble) runs in the desktop app (L1/L2) only.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">Triage vitals — tick “not measured” if unavailable</div>
+      <div id="vitals"></div>
+      <label for="o2dev">Oxygen at triage</label>
+      <select id="o2dev"><option value="0">Room air</option><option value="1">On supplemental oxygen</option><option value="">Not recorded</option></select>
+    </div>
+  </div>
+  <button class="btn primary" id="go">Estimate admission risk →</button>
+</section>
+
+<section id="result" class="hide">
+  <div id="noresult" class="card muted">Fill in the patient form and press “Estimate admission risk”.</div>
+  <div id="resbody" class="hide">
+    <div class="grid">
+      <div class="card">
+        <div style="font-weight:600;color:var(--ink2)">Estimated admission risk</div>
+        <div class="big" id="pct"></div>
+        <span class="band" id="band"></span>
+        <div class="scale" id="scale"></div>
+        <div class="scalelab" id="scalelab"></div>
+      </div>
+      <div>
+        <div class="card conf" id="conf"><div style="font-size:1.6rem" id="conficon"></div><div><h3 id="conftitle"></h3><div id="conftext" class="muted"></div></div></div>
+        <div class="meta"><div class="card"><small>Model</small><b id="mname"></b></div><div class="card"><small>Version</small><b id="mver"></b></div>
+          <div class="card"><small>Inference</small><b id="mms"></b></div><div class="card"><small>Inputs</small><b id="mn"></b></div></div>
+      </div>
+    </div>
+    <div class="row" style="max-width:560px"><button class="btn primary" id="why">Why this estimate? →</button><button class="btn" id="newp">New patient</button></div>
+  </div>
+</section>
+
+<section id="explain" class="hide">
+  <div class="card">
+    <div class="sec">What pushed this estimate up or down (exact contributions of the logistic-regression model)</div>
+    <div id="bars" class="muted">No estimate yet.</div>
+    <p class="muted">Red pushes towards admission, blue towards discharge. Contributions are on the log-odds scale; factors below 0.05 are hidden. This explains the model, not the patient.</p>
+  </div>
+</section>
+
+<section id="about" class="hide">
+  <div class="card">
+    <div class="sec">Shipped models — S1 test set (frozen, opened once)</div>
+    <table id="mt"></table>
+    <p class="muted" id="aboutnote"></p>
+  </div>
+  <div class="card">
+    <div class="sec">Offline</div>
+    <p>All computation runs in this browser tab from files cached by the service worker. The page makes no network requests after install
+      (content-security-policy: <code>connect-src 'self'</code>). Service worker: <b id="swstate">…</b>.</p>
+  </div>
+</section>
+</main>
+<footer><b>Decision support only.</b> Not a diagnosis. Clinical judgement decides. · Research prototype — not for use with real patients.</footer>
+
+<script src="model.js"></script>
+<script>
+"use strict";
+const VITAL = [["triage_vital_hr","Heart rate (bpm)"],["triage_vital_rr","Respiratory rate (/min)"],["triage_vital_sbp","Systolic BP (mmHg)"],
+  ["triage_vital_dbp","Diastolic BP (mmHg)"],["triage_vital_o2","SpO₂ (%)"],["triage_vital_temp","Temperature (°F)"]];
+const ARR = {Car:"Car", ambulance:"Ambulance / EMS", "Walk-in":"Walk-in", Other:"Other", "Public Transportation":"Public transport", Wheelchair:"Wheelchair", Police:"Police"};
+let META = null, selected = [], last = null;
+const $ = (id) => document.getElementById(id);
+
+function show(p) {
+  for (const s of ["patient","result","explain","about"]) $(s).classList.toggle("hide", s !== p);
+  for (const b of $("nav").children) b.classList.toggle("on", b.dataset.p === p);
+  window.scrollTo(0, 0);
+}
+$("nav").onclick = (e) => { if (e.target.dataset.p) show(e.target.dataset.p); };
+
+function net() {
+  const on = navigator.onLine;
+  $("netdot").style.background = on ? "#c94040" : "#2e8b57";
+  $("nettext").textContent = (on ? "Network: ONLINE" : "Network: OFFLINE") + " · this app sends 0 requests";
+}
+addEventListener("online", net); addEventListener("offline", net);
+
+function hourBin(h) { const b = META.hour_bins; return h >= 23 || h < 3 ? b[0] : b[1 + Math.floor((h - 3) / 4)]; }
+
+function build() {
+  for (const a of META.arrival_levels) $("arrival").add(new Option(ARR[a] || a, a));
+  for (const h of META.hour_bins) $("hour").add(new Option(h.replace("-", ":00–") + ":59", h));
+  $("hour").value = hourBin(new Date().getHours());
+  $("vitals").innerHTML = VITAL.map(([k, l]) => `<div class="row"><div><label for="${k}">${l}</label><input id="${k}" type="number" step="any"></div>
+    <label class="nm"><input type="checkbox" id="${k}_nm"> Not measured</label></div>`).join("");
+  for (const [k] of VITAL) $(k + "_nm").onchange = (e) => { $(k).disabled = e.target.checked; if (e.target.checked) $(k).value = ""; };
+  const ex = $("examples");
+  for (const [key, e] of Object.entries(META.examples)) { const b = document.createElement("button"); b.className = "btn"; b.textContent = e.label; b.onclick = () => load(key); ex.appendChild(b); }
+  const c = document.createElement("button"); c.className = "btn"; c.textContent = "Clear form"; c.onclick = clearForm; ex.appendChild(c);
+  const s = $("ccsearch"), o = $("ccopts");
+  s.oninput = () => {
+    const q = s.value.trim().toLowerCase();
+    const hits = META.complaint_order.filter((c) => !selected.includes(c) && META.complaint_labels[c].toLowerCase().includes(q)).slice(0, 30);
+    o.innerHTML = hits.map((c) => `<div data-c="${c}">${META.complaint_labels[c]}</div>`).join("");
+    o.style.display = q && hits.length ? "block" : "none";
+  };
+  o.onclick = (e) => { const c = e.target.dataset.c; if (c && selected.length < 3) { selected.push(c); chips(); } s.value = ""; o.style.display = "none"; };
+  $("go").onclick = run; $("why").onclick = () => show("explain"); $("newp").onclick = () => { clearForm(); show("patient"); };
+  about();
+}
+function chips() { $("ccchips").innerHTML = selected.map((c) => `<span class="chip" data-c="${c}">${META.complaint_labels[c]} ×</span>`).join("");
+  for (const el of $("ccchips").children) el.onclick = () => { selected = selected.filter((x) => x !== el.dataset.c); chips(); }; }
+
+function clearForm() {
+  $("age").value = ""; $("esi").value = ""; $("o2dev").value = "0"; selected = []; chips(); $("exnote").textContent = ""; $("msgs").innerHTML = "";
+  for (const [k] of VITAL) { $(k).value = ""; $(k).disabled = false; $(k + "_nm").checked = false; }
+}
+function load(key) {
+  clearForm(); const f = META.examples[key].form;
+  $("age").value = f.age; $("gender").value = f.gender; $("arrival").value = f.arrivalmode; $("hour").value = f.arrivalhour_bin;
+  for (const [k] of VITAL) { if (f[k] === null) { $(k + "_nm").checked = true; $(k).disabled = true; } else $(k).value = f[k]; }
+  $("o2dev").value = f.triage_vital_o2_device === null ? "" : String(f.triage_vital_o2_device);
+  selected = [...f.complaints]; chips();
+  $("exnote").innerHTML = `Loaded synthetic example: <b>${META.examples[key].label}</b> — invented for the demo, not a real patient.`;
+}
+
+function readForm() {
+  const num = (id) => { const v = $(id).value; return v === "" ? null : Number(v); };
+  const f = { age: num("age"), gender: $("gender").value, arrivalmode: $("arrival").value, arrivalhour_bin: $("hour").value,
+    triage_vital_o2_device: $("o2dev").value === "" ? null : Number($("o2dev").value), complaints: [...selected],
+    esi: $("esi").value === "" ? null : Number($("esi").value) };
+  for (const [k] of VITAL) f[k] = $(k + "_nm").checked ? null : num(k);
+  return f;
+}
+function validate(f) {
+  const err = [], warn = [];
+  if (f.age === null) err.push("Please enter the patient's age.");
+  for (const [k] of VITAL) if (f[k] === null && !$(k + "_nm").checked) err.push(`${VITAL.find((v) => v[0] === k)[1].split(" (")[0]}: enter a value or tick “not measured”.`);
+  for (const [k, [lo, hi, name, unit]] of Object.entries(META.ranges)) {
+    const v = f[k]; if (v === null || v === undefined) continue;
+    if (v < lo || v > hi) err.push(`${name} ${v} ${unit} is outside the accepted range (${lo}–${hi} ${unit}). Please check it.`);
+    else if (META.soft[k] && (v < META.soft[k][0] || v > META.soft[k][1])) warn.push(`${name} ${v} ${unit} is unusual — please double-check it.`);
+  }
+  if (f.triage_vital_sbp !== null && f.triage_vital_dbp !== null && f.triage_vital_dbp >= f.triage_vital_sbp) err.push("Diastolic BP must be lower than systolic BP.");
+  if (!f.complaints.length) warn.push("No chief complaint selected — the estimate will be less informative.");
+  return [err, warn];
+}
+
+function run() {
+  const f = readForm(); const [err, warn] = validate(f);
+  $("msgs").innerHTML = err.map((e) => `<div class="msg err">${e}</div>`).join("") + warn.map((w) => `<div class="msg warn">${w}</div>`).join("");
+  if (err.length) { $("msgs").scrollIntoView({ behavior: "smooth" }); return; }
+  const slot = f.esi ? "t2" : "t1", m = META.models[slot];
+  const r = FirstLookModel.predict(f, m, META); last = { r, m };
+  const col = { Low: "var(--low)", Medium: "var(--med)", High: "var(--high)" }[r.band];
+  $("noresult").classList.add("hide"); $("resbody").classList.remove("hide");
+  $("pct").textContent = Math.round(r.probability * 100) + "%"; $("pct").style.color = col;
+  $("band").textContent = (r.band === "High" ? "▲ " : r.band === "Low" ? "▼ " : "● ") + r.band + " risk";
+  $("band").style.cssText = `background:${col}1f;color:${col}`;
+  const tl = m.thresholds.t_low, th = m.thresholds.t_high;
+  $("scale").innerHTML = `<div style="width:${tl*100}%;background:var(--low)"></div><div style="width:${(th-tl)*100}%;background:var(--med)"></div><div style="flex:1;background:var(--high)"></div><span class="marker" style="left:calc(${r.probability*100}% - 1px)"></span>`;
+  $("scalelab").innerHTML = `<span>0%</span><span>Low &lt; ${Math.round(tl*100)}%</span><span>High ≥ ${Math.round(th*100)}%</span><span>100%</span>`;
+  const C = { likely_admission: ["🛏", "Likely admission", "The conformal check gives a single answer at the 90% level: admission."],
+    likely_discharge: ["🏠", "Likely discharge", "The conformal check gives a single answer at the 90% level: discharge."],
+    uncertain: ["?", "Uncertain — clinician review", "At the 90% level the model cannot rule out either outcome for this patient. Use clinical judgement; do not rely on the percentage alone."] }[r.conformal];
+  $("conf").classList.toggle("unc", r.conformal === "uncertain");
+  $("conficon").textContent = C[0]; $("conftitle").textContent = C[1]; $("conftext").textContent = C[2];
+  $("conftitle").style.color = r.conformal === "uncertain" ? "var(--unc)" : "var(--ink)";
+  $("mname").textContent = m.name; $("mver").textContent = META.version; $("mms").textContent = r.ms.toFixed(2) + " ms"; $("mn").textContent = m.features.length;
+  const mx = Math.max(...r.contributions.map((d) => Math.abs(d.value)), 0.5);
+  $("bars").innerHTML = r.contributions.slice(0, 10).map((d) => {
+    const w = Math.abs(d.value) / mx * 50, left = d.value > 0 ? 50 : 50 - w;
+    return `<div class="bar"><div>${d.label}</div><div class="barw"><div class="axis"></div><div class="b" style="left:${left}%;width:${w}%;background:${d.value > 0 ? "#d64545" : "#2a78d6"}"></div></div></div>`;
+  }).join("") || "No factor above 0.05.";
+  show("result");
+}
+
+function about() {
+  const rows = Object.entries(META.models).map(([s, m]) => { const t = m.metrics || {}, c = t["conformal_alpha_0.10"] || {};
+    const f = (k) => t[k] !== undefined ? `${t[k].toFixed(3)} <span class="muted">(${t[k + "_ci"][0].toFixed(3)}–${t[k + "_ci"][1].toFixed(3)})</span>` : "—";
+    return `<tr><td><b>${m.name}</b></td><td>${m.features.length}</td><td>${f("auc")}</td><td>${f("ece")}</td><td>${c.coverage !== undefined ? c.coverage.toFixed(3) : "—"}</td><td>${c.abstention !== undefined ? Math.round(c.abstention*100) + "%" : "—"}</td></tr>`; }).join("");
+  $("mt").innerHTML = `<tr><th>Model</th><th>Inputs</th><th>ROC-AUC (95% CI)</th><th>ECE</th><th>Conformal coverage α=0.10</th><th>Uncertain</th></tr>${rows}`;
+  $("aboutnote").textContent = "Numbers are copied by scripts/build_pwa.py from each bundle's metrics.json (computed by src/final_eval.py). This web version computes the same function as the ONNX model; tests/test_pwa.py checks agreement to 1e-4.";
+}
+
+fetch("models.json").then((r) => r.json()).then((m) => { META = m; build(); net(); });
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").then(() => navigator.serviceWorker.ready).then(() => { $("swstate").textContent = "installed — works without a network"; })
+    .catch((e) => { $("swstate").textContent = "not available (" + e.message + ")"; });
+} else $("swstate").textContent = "not supported in this browser";
+</script>
+</body>
+</html>

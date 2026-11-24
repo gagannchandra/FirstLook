@@ -96,27 +96,35 @@ def e10(split: str) -> pd.DataFrame:
     df["delta_auc"] = [r.auc - base[(r.tier, r.strategy)] for r in df.itertuples()]
     df.to_csv(TABLES / f"E10_missing_vitals_{split}.csv", index=False)
 
+    plot_e10(df, split)
+    return df
+
+
+def plot_e10(df: pd.DataFrame, split: str) -> None:
     viz.setup()
-    fig, axes = viz.plt.subplots(1, 2, figsize=(11, 4.2), sharey=True)
+    base = df[df.scenario == "none (as recorded)"].set_index(["tier", "strategy"]).auc
+    worst_rand = df[df.scenario.str.contains("random") & (df.strategy == "native NaN")].delta_auc.min()
+    gap = (base.xs("native NaN", level=1) - base.xs("median impute", level=1)).mean()
+    fig, axes = viz.plt.subplots(1, 2, figsize=(11, 4.4), sharey=True)
     for ax, tier in zip(axes, ("t1", "t2")):
         d = df[(df.tier == tier) & df.scenario.str.contains("random")]
-        for i, strat in enumerate(["native NaN", "median impute", "missing indicator"]):
-            for k, ls in zip((1, 2, 3), ("-", "-", "-")):
+        for i, strat in enumerate(["native NaN", "missing indicator", "median impute"]):
+            for k in (1, 2, 3):
                 dd = d[(d.strategy == strat) & d.scenario.str.startswith(f"{k} ")]
-                fr = [int(s.split("@ ")[1].split("%")[0]) for s in dd.scenario]
+                fr = [int(x.split("@ ")[1].split("%")[0]) for x in dd.scenario]
                 ax.plot(fr, dd.auc, color=viz.SERIES[i], alpha=[1, 0.7, 0.45][k - 1], marker="o", ms=4,
-                        label=f"{strat}" if k == 1 else None)
+                        label=strat if (k == 1 and tier == "t1") else None)
                 if strat == "native NaN":
-                    ax.annotate(f"{k} vital{'s' if k > 1 else ''}", (fr[-1], dd.auc.iloc[-1]), xytext=(4, 0),
+                    ax.annotate(f"{k} vital{'s' if k > 1 else ''}", (fr[-1], dd.auc.iloc[-1]), xytext=(5, 0),
                                 textcoords="offset points", fontsize=8, color=viz.INK2, va="center")
         ax.set_title(viz.TIER_NAME[tier]); ax.set_xlabel("% of visits with vitals removed"); ax.set_xticks([10, 30, 50])
-        ax.set_xlim(5, 60)
-    axes[0].set_ylabel(f"AUC ({split})"); axes[0].legend(loc="lower left")
-    fig.suptitle("Removing vitals at random costs little AUC; strategies are close (shade = 1, 2, 3 vitals)",
-                 x=0.01, ha="left", fontweight="bold")
-    fig.tight_layout()
+        ax.set_xlim(5, 62)
+    axes[0].set_ylabel(f"AUC ({split})")
+    fig.legend(loc="lower center", ncol=3, bbox_to_anchor=(0.5, -0.04), frameon=False)
+    fig.suptitle(f"Losing vitals at random costs ≤ {abs(worst_rand):.3f} AUC; median imputation is {gap:.3f} AUC worse than "
+                 "native missing handling (shade = 1, 2, 3 vitals)", x=0.01, ha="left", fontweight="bold", fontsize=11)
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
     viz.save(fig, f"fig10_missing_vitals_{split}.png")
-    return df
 
 
 # ---------------- E11 ----------------
