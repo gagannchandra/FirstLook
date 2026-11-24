@@ -105,3 +105,27 @@ def test_examples_land_where_promised():
     assert res["missing_spo2"].missing_vitals == ["SpO₂"]
     for k, v in EXAMPLES.items():
         assert validate(v["form"])[0] == [], k
+
+
+@pytest.mark.skipif(not HAS_DATA or not (BUNDLES / "t3lite_v1").exists(), reason="data or bundle missing")
+def test_t3lite_bundle_vector_matches_training():
+    from src.runtime import Bundle
+    from src.features import safe_name
+    b = Bundle(BUNDLES / "t3lite_v1")
+    spec = load_spec()
+    hist = b.spec["history_inputs"]
+    cols = ["age", "gender", "arrivalmode", "arrivalhour_bin", "esi", "previousdispo"] + VITALS + spec["cc_columns"] + hist
+    full = pd.read_parquet(ROOT / "data" / "interim" / "full.parquet", columns=cols)
+    idx = np.random.default_rng(1).choice(len(full), 200, replace=False)
+    train_X = pd.read_parquet(PROC / "t3.parquet", columns=b.features).iloc[idx].reset_index(drop=True)
+    rows = []
+    for i in idx:
+        r = full.iloc[i]
+        f = row_to_form(r, spec["cc_columns"])
+        f["previousdispo"] = str(r["previousdispo"])
+        for h in hist:
+            f[h] = float(r[h]) if not pd.isna(r[h]) else np.nan
+        rows.append(b.vectorize(form_to_raw(f, b.spec)))
+    app_X = pd.concat(rows, ignore_index=True)
+    assert list(app_X.columns) == [safe_name(c) if c in hist else c for c in b.features] or list(app_X.columns) == b.features
+    np.testing.assert_array_equal(app_X.to_numpy(np.float32), train_X.to_numpy(np.float32))

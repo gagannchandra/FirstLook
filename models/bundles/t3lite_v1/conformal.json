@@ -1,0 +1,23 @@
+{
+ "alpha": 0.1,
+ "mondrian": true,
+ "qhat_discharge": 0.36363636363636365,
+ "qhat_admit": 0.8051854519265395,
+ "n_cal": 44839,
+ "alternatives": {
+  "0.05": {
+   "alpha": 0.05,
+   "mondrian": true,
+   "qhat_discharge": 0.5217391304347827,
+   "qhat_admit": 0.8872497365648051,
+   "n_cal": 44839
+  },
+  "0.2": {
+   "alpha": 0.2,
+   "mondrian": true,
+   "qhat_discharge": 0.2647058823529411,
+   "qhat_admit": 0.6892692560895326,
+   "n_cal": 44839
+  }
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "setting": "Docker --network none, 2 CPU, 2 GB",
+ "platform": "Linux-7.3.4-200.fc44.x86_64-x86_64-with-glibc2.41",
+ "cpu_count_visible": 12,
+ "cpu_affinity": 12,
+ "interfaces": [
+  "lo"
+ ],
+ "cold_start_ms_all_bundles": 676.7946799955098,
+ "import_and_load_ms": 527.0382789967698,
+ "bundles": {
+  "t1": {
+   "version": "v1",
+   "n_features": 222,
+   "model_onnx_kb": 9.28125,
+   "bundle_kb": 59.2138671875,
+   "model_p50_ms": 0.040479997551301494,
+   "model_p95_ms": 0.0629005047812825,
+   "e2e_p50_ms": 8.678981997945812,
+   "e2e_p95_ms": 9.385422799823573,
+   "n_predictions": 1000
+  },
+  "t2": {
+   "version": "v1",
+   "n_features": 223,
+   "model_onnx_kb": 10.1953125,
+   "bundle_kb": 61.869140625,
+   "model_p50_ms": 0.04091099981451407,
+   "model_p95_ms": 0.05266050393402111,
+   "e2e_p50_ms": 8.95117899926845,
+   "e2e_p95_ms": 9.533058200031519,
+   "n_predictions": 1000
+  },
+  "t3lite": {
+   "version": "v1",
+   "n_features": 50,
+   "model_onnx_kb": 214.87890625,
+   "bundle_kb": 621.810546875,
+   "model_p50_ms": 0.046646502596559,
+   "model_p95_ms": 0.057939499674830586,
+   "e2e_p50_ms": 26.37046800009557,
+   "e2e_p95_ms": 27.87654020357877,
+   "n_predictions": 1000
+  }
+ },
+ "cgroup_memory_max": "2147483648",
+ "cgroup_cpu_max": "200000 100000",
+ "peak_rss_mb": 189.96875,
+ "net_bytes_by_interface": {
+  "lo": {
+   "sent": 0,
+   "recv": 0
+  }
+ },
+ "net_bytes_sent_non_loopback": 0
+}

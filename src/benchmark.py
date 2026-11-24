@@ -7,6 +7,10 @@ Inputs are synthetic patients drawn uniformly inside the valid ranges (no datase
 """
 from __future__ import annotations
 
+import os
+
+os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")  # D28: no ONNX Runtime telemetry
+
 import argparse
 import json
 import os

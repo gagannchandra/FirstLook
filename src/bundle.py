@@ -86,6 +86,10 @@ def build(slot: str, variant_file: str, base_tier: str, version: str) -> dict:
         "model_features": cols, "cc_columns": all_cc, "history_columns": base_spec["history_columns"] if base_tier == "t3" else [],
         "history_inputs": hist_used, "history_default_zero": hist_default_zero,
         "history_input_medians": {raw_by_safe[c]: float(np.nanmedian(Xtr[c])) for c in hist_safe},
+        "history_input_kind": {raw_by_safe[c]: ("lab" if Xtr[c].isna().any() else
+                                                "binary" if set(np.unique(Xtr[c].dropna())) <= {0.0, 1.0} else "count")
+                                for c in hist_safe},
+        "uses_previousdispo": any(c.startswith("prevdispo=") for c in cols),
         "complaints_in_model": [c for c in cols if c.startswith("cc_")],
         "complaint_labels": {c: complaint_label(c) for c in all_cc},
         "complaint_order": sorted(all_cc, key=lambda c: -float(cc_freq.get(c, 0))),

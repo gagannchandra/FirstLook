@@ -8,6 +8,13 @@ A bundle folder (guide 04 §7) contains:
 """
 from __future__ import annotations
 
+import os
+
+# ONNX Runtime >= 1.2x sends 1DS telemetry to mobile.events.data.microsoft.com on Linux by
+# default; disable_telemetry_events() does not stop the connection, this variable does.
+# It must be set before onnxruntime is imported (DECISIONS D28).
+os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")
+
 import json
 import time
 from dataclasses import dataclass, field

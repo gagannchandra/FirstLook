@@ -3,3 +3,408 @@
   t1 V1 top-10                    k=  10 size=   2484.7KB auc=0.7942 p50=1.411ms
   t1 V4 LR top-10                 k=  10 size=      1.6KB auc=0.7872 p50=2.114ms
   t1 V2 shallow d3 t50 top-10     k=  10 size=     53.3KB auc=0.7897 p50=1.334ms
+  t1 V2 shallow d3 t100 top-10    k=  10 size=    103.0KB auc=0.7922 p50=1.122ms
+  t1 V2 shallow d3 t200 top-10    k=  10 size=    196.9KB auc=0.7933 p50=1.366ms
+  t1 V2 shallow d4 t50 top-10     k=  10 size=     94.6KB auc=0.7913 p50=1.369ms
+  t1 V2 shallow d4 t100 top-10    k=  10 size=    179.2KB auc=0.7933 p50=1.371ms
+  t1 V2 shallow d4 t200 top-10    k=  10 size=    334.7KB auc=0.7938 p50=1.375ms
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  t1 V1 top-15                    k=  15 size=   2817.1KB auc=0.8121 p50=1.481ms
+  t1 V4 LR top-15                 k=  15 size=      1.9KB auc=0.8000 p50=2.163ms
+  t1 V2 shallow d3 t50 top-15     k=  15 size=     53.4KB auc=0.8030 p50=1.163ms
+  t1 V2 shallow d3 t100 top-15    k=  15 size=    102.7KB auc=0.8076 p50=1.127ms
+  t1 V2 shallow d3 t200 top-15    k=  15 size=    198.4KB auc=0.8100 p50=1.145ms
+  t1 V2 shallow d4 t50 top-15     k=  15 size=     94.3KB auc=0.8060 p50=1.411ms
+  t1 V2 shallow d4 t100 top-15    k=  15 size=    179.1KB auc=0.8094 p50=1.450ms
+  t1 V2 shallow d4 t200 top-15    k=  15 size=    334.0KB auc=0.8110 p50=1.585ms
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  t1 V1 top-20                    k=  20 size=   4370.7KB auc=0.8212 p50=1.560ms
+  t1 V4 LR top-20                 k=  20 size=      2.2KB auc=0.8097 p50=2.212ms
+  t1 V2 shallow d3 t50 top-20     k=  20 size=     53.7KB auc=0.8066 p50=1.471ms
+  t1 V2 shallow d3 t100 top-20    k=  20 size=    103.3KB auc=0.8129 p50=1.468ms
+  t1 V2 shallow d3 t200 top-20    k=  20 size=    201.5KB auc=0.8180 p50=1.472ms
+  t1 V2 shallow d4 t50 top-20     k=  20 size=     93.4KB auc=0.8110 p50=1.464ms
+  t1 V2 shallow d4 t100 top-20    k=  20 size=    181.4KB auc=0.8162 p50=1.487ms
+  t1 V2 shallow d4 t200 top-20    k=  20 size=    342.9KB auc=0.8196 p50=1.481ms
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  t1 V1 top-30                    k=  30 size=   4228.7KB auc=0.8304 p50=1.657ms
+  t1 V4 LR top-30                 k=  30 size=      2.5KB auc=0.8177 p50=2.360ms
+  t1 V2 shallow d3 t50 top-30     k=  30 size=     53.9KB auc=0.8104 p50=1.573ms
+  t1 V2 shallow d3 t100 top-30    k=  30 size=    103.1KB auc=0.8191 p50=1.282ms
+  t1 V2 shallow d3 t200 top-30    k=  30 size=    201.8KB auc=0.8250 p50=1.574ms
+  t1 V2 shallow d4 t50 top-30     k=  30 size=     93.5KB auc=0.8156 p50=1.275ms
+  t1 V2 shallow d4 t100 top-30    k=  30 size=    177.3KB auc=0.8223 p50=1.568ms
+  t1 V2 shallow d4 t200 top-30    k=  30 size=    342.0KB auc=0.8275 p50=1.582ms
+  eval_set = _validate_eval_set_Xy(eval_set=eval_set, eval_X=eval_X, eval_y=eval_y)
+  t1 V1 top-50                    k=  50 size=   5521.5KB auc=0.8419 p50=1.875ms
+  t1 V4 LR top-50                 k=  50 size=      3.3KB auc=0.8296 p50=2.610ms
+  t1 V2 shallow d3 t50 top-50     k=  50 size=     54.4KB auc=0.8127 p50=1.767ms
+  t1 V2 shallow d3 t100 top-50    k=  50 size=    102.9KB auc=0.8240 p50=1.780ms
+  t1 V2 shallow d3 t200 top-50    k=  50 size=    200.2KB auc=0.8318 p50=1.747ms
+  t1 V2 shallow d4 t50 top-50     k=  50 size=     92.8KB auc=0.8193 p50=1.393ms
+  t1 V2 shallow d4 t100 top-50    k=  50 size=    173.7KB auc=0.8289 p50=1.769ms
+  t1 V2 shallow d4 t200 top-50    k=  50 size=    337.5KB auc=0.8360 p50=1.412ms
+[0;93m2026-11-24 08:38:30.756463267 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:30.863336656 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t50 top-10        k=  10 size=     27.7KB auc=0.7897 p50=0.029ms
+[0;93m2026-11-24 08:38:31.155440816 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:31.321270854 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t100 top-10       k=  10 size=     54.1KB auc=0.7922 p50=0.030ms
+[0;93m2026-11-24 08:38:31.627985023 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:31.906119004 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t200 top-10       k=  10 size=    104.7KB auc=0.7933 p50=0.032ms
+[0;93m2026-11-24 08:38:32.082517125 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:32.201860658 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t50 top-10        k=  10 size=     55.3KB auc=0.7913 p50=0.030ms
+[0;93m2026-11-24 08:38:32.500582272 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:32.686248754 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t100 top-10       k=  10 size=    105.1KB auc=0.7933 p50=0.031ms
+[0;93m2026-11-24 08:38:33.076574118 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:33.397658159 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t200 top-10       k=  10 size=    198.5KB auc=0.7938 p50=0.034ms
+[0;93m2026-11-24 08:38:33.551418329 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:33.651374946 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t50 top-15        k=  15 size=     27.7KB auc=0.8030 p50=0.029ms
+[0;93m2026-11-24 08:38:33.850959279 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:34.008023592 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t100 top-15       k=  15 size=     54.0KB auc=0.8076 p50=0.030ms
+[0;93m2026-11-24 08:38:34.373218564 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:34.636287940 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t200 top-15       k=  15 size=    106.0KB auc=0.8100 p50=0.032ms
+[0;93m2026-11-24 08:38:34.807006673 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:34.920825778 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t50 top-15        k=  15 size=     55.2KB auc=0.8060 p50=0.029ms
+[0;93m2026-11-24 08:38:35.155131965 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:35.338118786 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t100 top-15       k=  15 size=    105.5KB auc=0.8094 p50=0.031ms
+[0;93m2026-11-24 08:38:35.721673081 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:36.040690322 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t200 top-15       k=  15 size=    198.5KB auc=0.8110 p50=0.034ms
+[0;93m2026-11-24 08:38:36.252856206 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:36.352320727 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t50 top-20        k=  20 size=     27.7KB auc=0.8066 p50=0.028ms
+[0;93m2026-11-24 08:38:36.547461724 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:36.699252546 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t100 top-20       k=  20 size=     54.2KB auc=0.8129 p50=0.030ms
+[0;93m2026-11-24 08:38:36.999444178 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:37.258437201 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t200 top-20       k=  20 size=    107.9KB auc=0.8180 p50=0.031ms
+[0;93m2026-11-24 08:38:37.423487809 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:37.535766334 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t50 top-20        k=  20 size=     54.4KB auc=0.8110 p50=0.029ms
+[0;93m2026-11-24 08:38:37.823658609 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:38.001220838 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t100 top-20       k=  20 size=    106.9KB auc=0.8162 p50=0.031ms
+[0;93m2026-11-24 08:38:38.383179089 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:38.696627600 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t200 top-20       k=  20 size=    204.5KB auc=0.8196 p50=0.035ms
+[0;93m2026-11-24 08:38:38.851449928 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:38.953089690 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t50 top-30        k=  30 size=     27.6KB auc=0.8104 p50=0.028ms
+[0;93m2026-11-24 08:38:39.138879241 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:39.283434909 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t100 top-30       k=  30 size=     53.8KB auc=0.8191 p50=0.030ms
+[0;93m2026-11-24 08:38:39.629182663 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:39.872991889 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t200 top-30       k=  30 size=    107.9KB auc=0.8250 p50=0.032ms
+[0;93m2026-11-24 08:38:40.037391614 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:40.145663097 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t50 top-30        k=  30 size=     54.3KB auc=0.8155 p50=0.029ms
+[0;93m2026-11-24 08:38:40.363218147 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:40.532141727 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t100 top-30       k=  30 size=    103.9KB auc=0.8223 p50=0.031ms
+[0;93m2026-11-24 08:38:40.892585611 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:41.185111135 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t200 top-30       k=  30 size=    203.9KB auc=0.8275 p50=0.035ms
+[0;93m2026-11-24 08:38:41.400492427 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:41.505616789 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t50 top-50        k=  50 size=     27.7KB auc=0.8127 p50=0.028ms
+[0;93m2026-11-24 08:38:41.694579650 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:41.840457359 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t100 top-50       k=  50 size=     53.3KB auc=0.8240 p50=0.029ms
+[0;93m2026-11-24 08:38:42.108209937 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:42.346275165 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d3 t200 top-50       k=  50 size=    106.4KB auc=0.8318 p50=0.031ms
+[0;93m2026-11-24 08:38:42.513150030 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:42.627118492 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t50 top-50        k=  50 size=     53.5KB auc=0.8193 p50=0.029ms
+[0;93m2026-11-24 08:38:42.895745859 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:43.054296080 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t100 top-50       k=  50 size=    101.1KB auc=0.8289 p50=0.031ms
+[0;93m2026-11-24 08:38:43.395720603 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:38:43.663166769 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t1 V3 ONNX d4 t200 top-50       k=  50 size=    200.5KB auc=0.8360 p50=0.034ms
+  t3 V0 full                      k= 976 size=  12451.7KB auc=0.9279 p50=76.537ms
+  t3 V1 top-10                    k=  10 size=   2661.0KB auc=0.9061 p50=1.566ms
+  t3 V4 LR top-10                 k=  10 size=      1.6KB auc=0.8938 p50=2.126ms
+  t3 V2 shallow d3 t50 top-10     k=  10 size=     53.2KB auc=0.9001 p50=1.113ms
+  t3 V2 shallow d3 t100 top-10    k=  10 size=    102.9KB auc=0.9040 p50=1.363ms
+  t3 V2 shallow d3 t200 top-10    k=  10 size=    200.4KB auc=0.9049 p50=1.400ms
+  t3 V2 shallow d4 t50 top-10     k=  10 size=     95.1KB auc=0.9026 p50=1.361ms
+  t3 V2 shallow d4 t100 top-10    k=  10 size=    183.8KB auc=0.9049 p50=1.375ms
+  t3 V2 shallow d4 t200 top-10    k=  10 size=    348.3KB auc=0.9055 p50=1.108ms
+  t3 V1 top-15                    k=  15 size=   3514.2KB auc=0.9112 p50=1.982ms
+  t3 V4 LR top-15                 k=  15 size=      1.8KB auc=0.9000 p50=2.159ms
+  t3 V2 shallow d3 t50 top-15     k=  15 size=     53.4KB auc=0.9036 p50=1.406ms
+  t3 V2 shallow d3 t100 top-15    k=  15 size=    103.5KB auc=0.9076 p50=1.411ms
+  t3 V2 shallow d3 t200 top-15    k=  15 size=    201.7KB auc=0.9092 p50=1.419ms
+  t3 V2 shallow d4 t50 top-15     k=  15 size=     95.6KB auc=0.9062 p50=1.414ms
+  t3 V2 shallow d4 t100 top-15    k=  15 size=    184.4KB auc=0.9091 p50=1.422ms
+  t3 V2 shallow d4 t200 top-15    k=  15 size=    354.1KB auc=0.9102 p50=1.415ms
+  t3 V1 top-20                    k=  20 size=   4015.2KB auc=0.9154 p50=2.343ms
+  t3 V4 LR top-20                 k=  20 size=      2.1KB auc=0.9045 p50=2.247ms
+  t3 V2 shallow d3 t50 top-20     k=  20 size=     53.8KB auc=0.9069 p50=1.468ms
+  t3 V2 shallow d3 t100 top-20    k=  20 size=    103.8KB auc=0.9110 p50=1.468ms
+  t3 V2 shallow d3 t200 top-20    k=  20 size=    201.5KB auc=0.9129 p50=1.481ms
+  t3 V2 shallow d4 t50 top-20     k=  20 size=     95.7KB auc=0.9095 p50=1.470ms
+  t3 V2 shallow d4 t100 top-20    k=  20 size=    185.8KB auc=0.9127 p50=1.477ms
+  t3 V2 shallow d4 t200 top-20    k=  20 size=    352.6KB auc=0.9141 p50=1.476ms
+  t3 V1 top-30                    k=  30 size=   5826.9KB auc=0.9188 p50=3.053ms
+  t3 V4 LR top-30                 k=  30 size=      2.5KB auc=0.9077 p50=2.314ms
+  t3 V2 shallow d3 t50 top-30     k=  30 size=     54.1KB auc=0.9079 p50=1.251ms
+  t3 V2 shallow d3 t100 top-30    k=  30 size=    104.2KB auc=0.9132 p50=1.567ms
+  t3 V2 shallow d3 t200 top-30    k=  30 size=    203.0KB auc=0.9156 p50=1.580ms
+  t3 V2 shallow d4 t50 top-30     k=  30 size=     96.4KB auc=0.9112 p50=1.744ms
+  t3 V2 shallow d4 t100 top-30    k=  30 size=    186.8KB auc=0.9153 p50=1.562ms
+  t3 V2 shallow d4 t200 top-30    k=  30 size=    350.9KB auc=0.9170 p50=1.284ms
+  t3 V1 top-50                    k=  50 size=   8591.1KB auc=0.9215 p50=5.019ms
+  t3 V4 LR top-50                 k=  50 size=      3.4KB auc=0.9097 p50=2.612ms
+  t3 V2 shallow d3 t50 top-50     k=  50 size=     54.8KB auc=0.9080 p50=1.428ms
+  t3 V2 shallow d3 t100 top-50    k=  50 size=    105.0KB auc=0.9137 p50=1.773ms
+  t3 V2 shallow d3 t200 top-50    k=  50 size=    204.8KB auc=0.9169 p50=1.787ms
+  t3 V2 shallow d4 t50 top-50     k=  50 size=     97.1KB auc=0.9109 p50=1.776ms
+  t3 V2 shallow d4 t100 top-50    k=  50 size=    187.5KB auc=0.9160 p50=1.781ms
+  t3 V2 shallow d4 t200 top-50    k=  50 size=    359.9KB auc=0.9184 p50=1.784ms
+[0;93m2026-11-24 08:44:50.447884276 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:50.696547101 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t50 top-10        k=  10 size=     27.7KB auc=0.9001 p50=0.029ms
+[0;93m2026-11-24 08:44:51.028947197 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:51.324054028 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t100 top-10       k=  10 size=     54.5KB auc=0.9040 p50=0.029ms
+[0;93m2026-11-24 08:44:51.688345418 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:52.075956437 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t200 top-10       k=  10 size=    108.2KB auc=0.9049 p50=0.032ms
+[0;93m2026-11-24 08:44:52.323265701 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:52.588450677 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t50 top-10        k=  10 size=     56.0KB auc=0.9026 p50=0.029ms
+[0;93m2026-11-24 08:44:52.892347609 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:53.213150546 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t100 top-10       k=  10 size=    109.3KB auc=0.9049 p50=0.031ms
+[0;93m2026-11-24 08:44:53.726992395 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:54.166611484 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t200 top-10       k=  10 size=    209.6KB auc=0.9055 p50=0.035ms
+[0;93m2026-11-24 08:44:54.402355910 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:54.651659588 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t50 top-15        k=  15 size=     27.6KB auc=0.9036 p50=0.029ms
+[0;93m2026-11-24 08:44:54.926576508 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:55.226896008 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t100 top-15       k=  15 size=     54.5KB auc=0.9076 p50=0.030ms
+[0;93m2026-11-24 08:44:55.592024877 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:55.979542723 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t200 top-15       k=  15 size=    108.5KB auc=0.9092 p50=0.032ms
+[0;93m2026-11-24 08:44:56.282977384 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:56.545002565 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t50 top-15        k=  15 size=     56.0KB auc=0.9062 p50=0.029ms
+[0;93m2026-11-24 08:44:56.848068429 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:57.167566967 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t100 top-15       k=  15 size=    109.1KB auc=0.9091 p50=0.031ms
+[0;93m2026-11-24 08:44:57.611402908 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:58.044294448 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t200 top-15       k=  15 size=    212.7KB auc=0.9102 p50=0.035ms
+[0;93m2026-11-24 08:44:58.334879478 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:58.586877113 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t50 top-20        k=  20 size=     27.7KB auc=0.9069 p50=0.029ms
+[0;93m2026-11-24 08:44:58.861913786 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:59.158447555 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t100 top-20       k=  20 size=     54.5KB auc=0.9110 p50=0.030ms
+[0;93m2026-11-24 08:44:59.521975503 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:44:59.917753031 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t200 top-20       k=  20 size=    108.1KB auc=0.9129 p50=0.032ms
+[0;93m2026-11-24 08:45:00.166352969 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:00.427556049 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t50 top-20        k=  20 size=     56.0KB auc=0.9095 p50=0.030ms
+[0;93m2026-11-24 08:45:00.801924436 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:01.123387292 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t100 top-20       k=  20 size=    109.8KB auc=0.9127 p50=0.032ms
+[0;93m2026-11-24 08:45:01.569549486 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:02.011938122 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t200 top-20       k=  20 size=    211.3KB auc=0.9141 p50=0.035ms
+[0;93m2026-11-24 08:45:02.245399507 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:02.498779447 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t50 top-30        k=  30 size=     27.6KB auc=0.9079 p50=0.029ms
+[0;93m2026-11-24 08:45:02.773666681 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:03.070431962 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t100 top-30       k=  30 size=     54.5KB auc=0.9132 p50=0.030ms
+[0;93m2026-11-24 08:45:03.495510389 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:03.886789009 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t200 top-30       k=  30 size=    108.7KB auc=0.9156 p50=0.032ms
+[0;93m2026-11-24 08:45:04.130820239 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:04.392071248 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t50 top-30        k=  30 size=     56.0KB auc=0.9112 p50=0.029ms
+[0;93m2026-11-24 08:45:04.699110161 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:05.036348227 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t100 top-30       k=  30 size=    110.1KB auc=0.9153 p50=0.031ms
+[0;93m2026-11-24 08:45:05.480292240 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:05.925037114 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t200 top-30       k=  30 size=    209.6KB auc=0.9170 p50=0.034ms
+[0;93m2026-11-24 08:45:06.226759086 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:06.494641164 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t50 top-50        k=  50 size=     27.7KB auc=0.9080 p50=0.029ms
+[0;93m2026-11-24 08:45:06.773287720 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:07.074855555 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t100 top-50       k=  50 size=     54.5KB auc=0.9137 p50=0.031ms
+[0;93m2026-11-24 08:45:07.444801635 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:07.848792560 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d3 t200 top-50       k=  50 size=    109.2KB auc=0.9169 p50=0.032ms
+[0;93m2026-11-24 08:45:08.100659112 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:08.369519833 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t50 top-50        k=  50 size=     56.0KB auc=0.9109 p50=0.030ms
+[0;93m2026-11-24 08:45:08.745496645 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:09.078416549 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t100 top-50       k=  50 size=    109.8KB auc=0.9160 p50=0.031ms
+[0;93m2026-11-24 08:45:09.528517949 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+[0;93m2026-11-24 08:45:09.982889983 [W:onnxruntime:, execution_frame.cc:943 VerifyOutputSizes] Expected shape from model of {1} does not match actual shape of {56049} for output label[m
+  t3 V3 ONNX d4 t200 top-50       k=  50 size=    214.9KB auc=0.9184 p50=0.034ms
+tier                   variant   k  n_features    size_kb  p50_ms  p95_ms  peak_ram_mb  val_auc  depth  trees  onnx_max_abs_diff  m2cgen_js_kb                              m2cgen_error
+  t1                   V0 full 222         222 10236.3682  3.6375  3.8378       0.5236   0.8575    NaN    NaN                NaN           NaN                                       NaN
+  t1                 V1 top-10  10          10  2484.6963  1.4112  1.4551       0.4905   0.7942    NaN    NaN                NaN           NaN                                       NaN
+  t1              V4 LR top-10  10          10     1.5762  2.1137  2.2273       0.9055   0.7872    NaN    NaN                NaN           NaN                                       NaN
+  t1  V2 shallow d3 t50 top-10  10          10    53.3242  1.3341  1.3792       0.4917   0.7897    3.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t100 top-10  10          10   103.0127  1.1221  1.3885       0.4902   0.7922    3.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t200 top-10  10          10   196.9209  1.3660  1.6088       0.5185   0.7933    3.0  200.0                NaN           NaN                                       NaN
+  t1  V2 shallow d4 t50 top-10  10          10    94.6201  1.3692  1.3916       0.4923   0.7913    4.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t100 top-10  10          10   179.1934  1.3706  1.3936       0.4907   0.7933    4.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t200 top-10  10          10   334.7285  1.3749  1.4295       0.4893   0.7938    4.0  200.0                NaN           NaN                                       NaN
+  t1                 V1 top-15  15          15  2817.1426  1.4808  1.5067       0.5012   0.8121    NaN    NaN                NaN           NaN                                       NaN
+  t1              V4 LR top-15  15          15     1.8936  2.1634  2.2686       0.9212   0.8000    NaN    NaN                NaN           NaN                                       NaN
+  t1  V2 shallow d3 t50 top-15  15          15    53.4375  1.1630  1.4619       0.4882   0.8030    3.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t100 top-15  15          15   102.7168  1.1271  1.4680       0.4906   0.8076    3.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t200 top-15  15          15   198.4248  1.1453  1.7336       0.5012   0.8100    3.0  200.0                NaN           NaN                                       NaN
+  t1  V2 shallow d4 t50 top-15  15          15    94.2539  1.4107  1.4902       0.4921   0.8060    4.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t100 top-15  15          15   179.0986  1.4504  1.4906       0.4927   0.8094    4.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t200 top-15  15          15   334.0293  1.5849  1.6096       0.5041   0.8110    4.0  200.0                NaN           NaN                                       NaN
+  t1                 V1 top-20  20          20  4370.7207  1.5595  1.5987       0.4908   0.8212    NaN    NaN                NaN           NaN                                       NaN
+  t1              V4 LR top-20  20          20     2.1523  2.2120  2.3681       0.9662   0.8097    NaN    NaN                NaN           NaN                                       NaN
+  t1  V2 shallow d3 t50 top-20  20          20    53.6807  1.4707  1.4912       0.4922   0.8066    3.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t100 top-20  20          20   103.3418  1.4681  1.4934       0.4983   0.8129    3.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t200 top-20  20          20   201.5029  1.4716  1.5079       0.4929   0.8180    3.0  200.0                NaN           NaN                                       NaN
+  t1  V2 shallow d4 t50 top-20  20          20    93.3682  1.4645  1.4910       0.4886   0.8110    4.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t100 top-20  20          20   181.3613  1.4872  1.6271       0.5179   0.8162    4.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t200 top-20  20          20   342.8867  1.4810  1.5228       0.4897   0.8196    4.0  200.0                NaN           NaN                                       NaN
+  t1                 V1 top-30  30          30  4228.7021  1.6569  1.7052       0.4886   0.8304    NaN    NaN                NaN           NaN                                       NaN
+  t1              V4 LR top-30  30          30     2.5195  2.3597  2.4706       1.0436   0.8177    NaN    NaN                NaN           NaN                                       NaN
+  t1  V2 shallow d3 t50 top-30  30          30    53.8672  1.5728  1.6257       0.4987   0.8104    3.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t100 top-30  30          30   103.0605  1.2816  2.0839       0.4933   0.8191    3.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t200 top-30  30          30   201.8291  1.5744  1.5982       0.4880   0.8250    3.0  200.0                NaN           NaN                                       NaN
+  t1  V2 shallow d4 t50 top-30  30          30    93.4873  1.2752  1.5818       0.4935   0.8156    4.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t100 top-30  30          30   177.2764  1.5684  1.5923       0.5008   0.8223    4.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t200 top-30  30          30   342.0225  1.5819  1.6328       0.4873   0.8275    4.0  200.0                NaN           NaN                                       NaN
+  t1                 V1 top-50  50          50  5521.4814  1.8748  2.0410       0.4881   0.8419    NaN    NaN                NaN           NaN                                       NaN
+  t1              V4 LR top-50  50          50     3.2666  2.6100  2.7632       1.2332   0.8296    NaN    NaN                NaN           NaN                                       NaN
+  t1  V2 shallow d3 t50 top-50  50          50    54.4268  1.7666  1.7911       0.4880   0.8127    3.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t100 top-50  50          50   102.9268  1.7798  1.8105       0.4922   0.8240    3.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d3 t200 top-50  50          50   200.2402  1.7471  1.8179       0.4899   0.8318    3.0  200.0                NaN           NaN                                       NaN
+  t1  V2 shallow d4 t50 top-50  50          50    92.8027  1.3927  1.7114       0.5015   0.8193    4.0   50.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t100 top-50  50          50   173.6729  1.7686  1.8738       0.4923   0.8289    4.0  100.0                NaN           NaN                                       NaN
+  t1 V2 shallow d4 t200 top-50  50          50   337.5439  1.4123  1.6345       0.4892   0.8360    4.0  200.0                NaN           NaN                                       NaN
+  t1     V3 ONNX d3 t50 top-10  10          10    27.6699  0.0287  0.0375       0.5987   0.7897    3.0   50.0             0.0113           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t100 top-10  10          10    54.0977  0.0297  0.0377       0.5876   0.7922    3.0  100.0             0.0215           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t200 top-10  10          10   104.6553  0.0323  0.0422       0.5937   0.7933    3.0  200.0             0.0211           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d4 t50 top-10  10          10    55.3301  0.0296  0.0359       0.5934   0.7913    4.0   50.0             0.0102           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t100 top-10  10          10   105.1416  0.0310  0.0412       0.5946   0.7933    4.0  100.0             0.0272           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t200 top-10  10          10   198.5098  0.0342  0.0428       0.5833   0.7938    4.0  200.0             0.0709           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d3 t50 top-15  15          15    27.6699  0.0288  0.0372       0.5938   0.8030    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t100 top-15  15          15    54.0264  0.0303  0.0371       0.5937   0.8076    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t200 top-15  15          15   105.9619  0.0318  0.0398       0.5945   0.8100    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d4 t50 top-15  15          15    55.1875  0.0292  0.0397       0.5936   0.8060    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t100 top-15  15          15   105.4980  0.0306  0.0376       0.5938   0.8094    4.0  100.0             0.0166           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t200 top-15  15          15   198.4834  0.0344  0.0411       0.6035   0.8110    4.0  200.0             0.0228           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d3 t50 top-20  20          20    27.6699  0.0284  0.0359       0.5942   0.8066    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t100 top-20  20          20    54.2402  0.0298  0.0384       0.5899   0.8129    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t200 top-20  20          20   107.8652  0.0314  0.0365       0.5939   0.8180    3.0  200.0             0.0263           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d4 t50 top-20  20          20    54.4033  0.0294  0.0358       0.6032   0.8110    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t100 top-20  20          20   106.8525  0.0305  0.0370       0.5941   0.8162    4.0  100.0             0.0121           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t200 top-20  20          20   204.4648  0.0348  0.0450       0.5911   0.8196    4.0  200.0             0.0219           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d3 t50 top-30  30          30    27.5986  0.0281  0.0351       0.5938   0.8104    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t100 top-30  30          30    53.8125  0.0302  0.0406       0.5954   0.8191    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t200 top-30  30          30   107.8887  0.0324  0.0408       0.5942   0.8250    3.0  200.0             0.0071           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d4 t50 top-30  30          30    54.3320  0.0287  0.0367       0.5925   0.8155    4.0   50.0             0.0110           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t100 top-30  30          30   103.9297  0.0311  0.0404       0.5941   0.8223    4.0  100.0             0.0114           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t200 top-30  30          30   203.8838  0.0346  0.0418       0.6025   0.8275    4.0  200.0             0.0119           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d3 t50 top-50  50          50    27.6699  0.0281  0.0329       0.5945   0.8127    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t100 top-50  50          50    53.3135  0.0289  0.0368       0.5927   0.8240    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d3 t200 top-50  50          50   106.4307  0.0311  0.0373       0.5939   0.8318    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1     V3 ONNX d4 t50 top-50  50          50    53.5479  0.0292  0.0351       0.6020   0.8193    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t100 top-50  50          50   101.1494  0.0307  0.0401       0.5946   0.8289    4.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t1    V3 ONNX d4 t200 top-50  50          50   200.5244  0.0337  0.0428       0.5943   0.8360    4.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3                   V0 full 976         976 12451.6641 76.5367 80.2831      84.8914   0.9279    NaN    NaN                NaN           NaN                                       NaN
+  t3                 V1 top-10  10          10  2661.0312  1.5658  1.6941       1.9052   0.9061    NaN    NaN                NaN           NaN                                       NaN
+  t3              V4 LR top-10  10          10     1.5986  2.1256  2.2371       0.9063   0.8938    NaN    NaN                NaN           NaN                                       NaN
+  t3  V2 shallow d3 t50 top-10  10          10    53.1514  1.1126  1.7536       0.4904   0.9001    3.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t100 top-10  10          10   102.8623  1.3628  1.4028       0.4931   0.9040    3.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t200 top-10  10          10   200.4141  1.3998  1.4445       0.5171   0.9049    3.0  200.0                NaN           NaN                                       NaN
+  t3  V2 shallow d4 t50 top-10  10          10    95.0557  1.3614  1.3800       0.4942   0.9026    4.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t100 top-10  10          10   183.7861  1.3750  1.4398       0.4930   0.9049    4.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t200 top-10  10          10   348.2900  1.1075  1.3359       0.4934   0.9055    4.0  200.0                NaN           NaN                                       NaN
+  t3                 V1 top-15  15          15  3514.2422  1.9818  2.1250       2.7164   0.9112    NaN    NaN                NaN           NaN                                       NaN
+  t3              V4 LR top-15  15          15     1.8076  2.1590  2.3624       0.9179   0.9000    NaN    NaN                NaN           NaN                                       NaN
+  t3  V2 shallow d3 t50 top-15  15          15    53.3828  1.4058  1.4482       0.4909   0.9036    3.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t100 top-15  15          15   103.4902  1.4114  1.4787       0.5022   0.9076    3.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t200 top-15  15          15   201.6846  1.4187  1.4646       0.4920   0.9092    3.0  200.0                NaN           NaN                                       NaN
+  t3  V2 shallow d4 t50 top-15  15          15    95.5986  1.4144  1.5066       0.4900   0.9062    4.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t100 top-15  15          15   184.4150  1.4216  1.5388       0.5180   0.9091    4.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t200 top-15  15          15   354.0791  1.4154  1.4399       0.4884   0.9102    4.0  200.0                NaN           NaN                                       NaN
+  t3                 V1 top-20  20          20  4015.1953  2.3433  2.4419       3.6361   0.9154    NaN    NaN                NaN           NaN                                       NaN
+  t3              V4 LR top-20  20          20     2.0723  2.2470  2.3803       0.9836   0.9045    NaN    NaN                NaN           NaN                                       NaN
+  t3  V2 shallow d3 t50 top-20  20          20    53.7549  1.4676  1.5198       0.4934   0.9069    3.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t100 top-20  20          20   103.7930  1.4684  1.4905       0.4931   0.9110    3.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t200 top-20  20          20   201.5186  1.4813  1.5929       0.5038   0.9129    3.0  200.0                NaN           NaN                                       NaN
+  t3  V2 shallow d4 t50 top-20  20          20    95.7373  1.4699  1.5189       0.4897   0.9095    4.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t100 top-20  20          20   185.8086  1.4769  1.4955       0.4926   0.9127    4.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t200 top-20  20          20   352.6279  1.4761  1.5008       0.4913   0.9141    4.0  200.0                NaN           NaN                                       NaN
+  t3                 V1 top-30  30          30  5826.9375  3.0529  3.2273       5.3762   0.9188    NaN    NaN                NaN           NaN                                       NaN
+  t3              V4 LR top-30  30          30     2.5039  2.3137  2.4825       1.0440   0.9077    NaN    NaN                NaN           NaN                                       NaN
+  t3  V2 shallow d3 t50 top-30  30          30    54.0566  1.2514  1.4630       0.5033   0.9079    3.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t100 top-30  30          30   104.1924  1.5668  1.5939       0.4905   0.9132    3.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t200 top-30  30          30   203.0107  1.5799  1.6280       0.4910   0.9156    3.0  200.0                NaN           NaN                                       NaN
+  t3  V2 shallow d4 t50 top-30  30          30    96.3584  1.7443  1.8059       0.5094   0.9112    4.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t100 top-30  30          30   186.7949  1.5623  1.5924       0.4885   0.9153    4.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t200 top-30  30          30   350.8555  1.2840  1.3774       0.4870   0.9170    4.0  200.0                NaN           NaN                                       NaN
+  t3                 V1 top-50  50          50  8591.1250  5.0194  5.3392       8.9194   0.9215    NaN    NaN                NaN           NaN                                       NaN
+  t3              V4 LR top-50  50          50     3.4062  2.6121  2.7624       1.2246   0.9097    NaN    NaN                NaN           NaN                                       NaN
+  t3  V2 shallow d3 t50 top-50  50          50    54.7979  1.4280  2.3602       0.4872   0.9080    3.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t100 top-50  50          50   105.0000  1.7734  1.8088       0.4892   0.9137    3.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d3 t200 top-50  50          50   204.7861  1.7869  1.9423       0.5017   0.9169    3.0  200.0                NaN           NaN                                       NaN
+  t3  V2 shallow d4 t50 top-50  50          50    97.1436  1.7756  1.7996       0.4912   0.9109    4.0   50.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t100 top-50  50          50   187.4727  1.7809  1.8046       0.4895   0.9160    4.0  100.0                NaN           NaN                                       NaN
+  t3 V2 shallow d4 t200 top-50  50          50   359.8779  1.7837  1.8085       0.4920   0.9184    4.0  200.0                NaN           NaN                                       NaN
+  t3     V3 ONNX d3 t50 top-10  10          10    27.6699  0.0288  0.0348       0.6016   0.9001    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t100 top-10  10          10    54.4541  0.0294  0.0370       0.5928   0.9040    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t200 top-10  10          10   108.2334  0.0316  0.0386       0.5903   0.9049    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d4 t50 top-10  10          10    55.9717  0.0289  0.0360       0.5899   0.9026    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t100 top-10  10          10   109.2764  0.0315  0.0402       0.6003   0.9049    4.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t200 top-10  10          10   209.6406  0.0349  0.0436       0.5927   0.9055    4.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d3 t50 top-15  15          15    27.5986  0.0293  0.0385       0.5928   0.9036    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t100 top-15  15          15    54.4541  0.0304  0.0399       0.5932   0.9076    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t200 top-15  15          15   108.4531  0.0316  0.0391       0.6031   0.9092    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d4 t50 top-15  15          15    56.0430  0.0289  0.0361       0.5932   0.9062    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t100 top-15  15          15   109.0625  0.0310  0.0344       0.5848   0.9091    4.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t200 top-15  15          15   212.7344  0.0346  0.0431       0.6001   0.9102    4.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d3 t50 top-20  20          20    27.6699  0.0287  0.0354       0.5882   0.9069    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t100 top-20  20          20    54.4541  0.0299  0.0378       0.5874   0.9110    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t200 top-20  20          20   108.0791  0.0317  0.0381       0.5828   0.9129    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d4 t50 top-20  20          20    55.9717  0.0301  0.0373       0.5816   0.9095    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t100 top-20  20          20   109.7754  0.0317  0.0410       0.5939   0.9127    4.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t200 top-20  20          20   211.3096  0.0346  0.0447       0.5942   0.9141    4.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d3 t50 top-30  30          30    27.5986  0.0288  0.0358       0.5932   0.9079    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t100 top-30  30          30    54.4541  0.0303  0.0392       0.6027   0.9132    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t200 top-30  30          30   108.6699  0.0320  0.0384       0.5941   0.9156    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d4 t50 top-30  30          30    56.0430  0.0294  0.0386       0.5934   0.9112    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t100 top-30  30          30   110.0605  0.0310  0.0409       0.5931   0.9153    4.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t200 top-30  30          30   209.6299  0.0337  0.0429       0.6035   0.9170    4.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d3 t50 top-50  50          50    27.6699  0.0288  0.0393       0.5937   0.9080    3.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t100 top-50  50          50    54.4541  0.0306  0.0413       0.5941   0.9137    3.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d3 t200 top-50  50          50   109.1895  0.0325  0.0414       0.5937   0.9169    3.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3     V3 ONNX d4 t50 top-50  50          50    55.9717  0.0305  0.0396       0.6034   0.9109    4.0   50.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t100 top-50  50          50   109.8467  0.0311  0.0393       0.5864   0.9160    4.0  100.0             0.0000           NaN Model 'lightgbm_Booster' is not supported
+  t3    V3 ONNX d4 t200 top-50  50          50   214.8789  0.0343  0.0430       0.5941   0.9184    4.0  200.0             0.0000           NaN Model 'lightgbm_Booster' is not supported

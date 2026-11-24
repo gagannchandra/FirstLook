@@ -6,6 +6,10 @@ No network calls: the model runs in-process via ONNX Runtime.
 """
 from __future__ import annotations
 
+import os
+
+os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")  # D28: no ONNX Runtime telemetry
+
 import datetime as dt
 import json
 import os
@@ -188,7 +192,8 @@ def collect_form() -> dict:
     f["triage_vital_o2_device"] = {"Room air": 0, "On supplemental oxygen": 1}.get(ss.f_o2dev)
     if ss.f_use_hist:
         for h, val in ss.get("hist_vals", {}).items():
-            f[h] = val
+            f[h] = np.nan if val is None else val
+        f["previousdispo"] = ss.get("f_prevdispo", "No previous dispo")
     return f
 
 
@@ -292,15 +297,46 @@ def screen_patient():
     st.button("Estimate admission risk  →", type="primary", on_click=run_prediction, use_container_width=True)
 
 
+HIST_LABEL = {"n_edvisits": "ED visits in the past year", "n_admissions": "Hospital admissions in the past year",
+              "n_surgeries": "Past surgeries / procedures on record", "asthma": "Asthma", "hyperlipidem": "Hyperlipidaemia",
+              "alcoholrelateddisorders": "Alcohol-related disorder", "neutrophils_median": "Neutrophils — median of past-year labs",
+              "rdw_last": "RDW — most recent past-year lab", "meds_elect/caloric/h2o": "electrolytes / caloric / water"}
+
+
+def hist_label(h: str) -> str:
+    if h in HIST_LABEL and not h.startswith("meds_"):
+        return HIST_LABEL[h]
+    if h.startswith("meds_"):
+        name = HIST_LABEL.get(h, h[5:].replace("drugs", " drugs").replace("/", " / "))
+        return f"Outpatient meds: {name}"
+    return h.replace("_", " ").capitalize()
+
+
 def history_inputs(spec: dict):
+    """History fields used by the T3-lite model. Counts default to 0 (= none on record, as in the data);
+    lab values default to blank (= no prior lab), never to an invented value."""
     vals = {}
-    st.caption("Leave a field at its default if unknown. Counts cover the past year.")
+    st.caption("Counts cover the past year; leave at 0 if none on record. Leave lab values blank if unavailable.")
+    if spec.get("uses_previousdispo"):
+        st.selectbox("Outcome of previous ED visit", ["No previous dispo", "Discharge", "Admit", "Transfer to Another Facility",
+                                                      "LWBS after Triage", "AMA", "Eloped", "LWBS before Triage", "Observation",
+                                                      "Send to L&D"],
+                     format_func=lambda v: "No previous ED visit" if v == "No previous dispo" else v, key="f_prevdispo")
+    kinds = spec.get("history_input_kind", {})
+    order = sorted(spec["history_inputs"], key=lambda h: {"binary": 0, "count": 1, "lab": 2}.get(kinds.get(h), 1))
+    binaries = [h for h in order if kinds.get(h) == "binary"]
+    if binaries:
+        st.markdown("<div class='fl-section'>Conditions on record</div>", unsafe_allow_html=True)
+        cols = st.columns(3)
+        for i, h in enumerate(binaries):
+            vals[h] = 1.0 if cols[i % 3].checkbox(hist_label(h), key=f"h_{h}") else 0.0
+    st.markdown("<div class='fl-section'>Counts and past labs</div>", unsafe_allow_html=True)
     cols = st.columns(2)
-    for i, h in enumerate(spec["history_inputs"]):
-        label = h.replace("meds_", "Outpatient meds: ").replace("n_edvisits", "ED visits, past year") \
-            .replace("n_admissions", "Admissions, past year").replace("n_surgeries", "Past surgeries/procedures").replace("_", " ")
-        default = 0.0 if spec["history_default_zero"].get(h) else float(spec["history_input_medians"].get(h, 0.0))
-        vals[h] = cols[i % 2].number_input(label, value=default, step=1.0, key=f"h_{h}")
+    for i, h in enumerate([h for h in order if kinds.get(h) != "binary"]):
+        if kinds.get(h) == "lab":
+            vals[h] = cols[i % 2].number_input(hist_label(h), value=None, step=0.1, key=f"h_{h}", placeholder="not available")
+        else:
+            vals[h] = float(cols[i % 2].number_input(hist_label(h), value=0, min_value=0, step=1, key=f"h_{h}"))
     st.session_state.hist_vals = vals
 
 

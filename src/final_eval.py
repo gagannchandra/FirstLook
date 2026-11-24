@@ -9,6 +9,10 @@ Refuses to run unless configs/selection.json has date_frozen (src/common.py guar
 """
 from __future__ import annotations
 
+import os
+
+os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")  # D28: no ONNX Runtime telemetry
+
 import json
 
 import joblib

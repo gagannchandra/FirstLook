@@ -1,0 +1,26 @@
+{
+ "validation": {
+  "auc": 0.9181182692417279,
+  "prauc": 0.8440194083663992,
+  "brier": 0.09923166934877367,
+  "logloss": 0.3201991995097507,
+  "ece": 0.004144106023694706,
+  "cal_slope": 0.9800584440346792,
+  "citl": 0.00784871528966273,
+  "sens_at_90spec": 0.7518602976476236,
+  "spec_at_90sens": 0.7047099149422369
+ },
+ "validation_conformal_alpha_0.10": {
+  "coverage": 0.9070634623276062,
+  "coverage_admit": 0.9135261641862698,
+  "coverage_discharge": 0.9043290592865304,
+  "abstention": 0.18872772038751806,
+  "empty_rate": 0.0,
+  "answered": 0.8112722796124819,
+  "error_answered": 0.11455653053594599,
+  "error_all": 0.1368088636728577
+ },
+ "onnx_parity_max_abs_diff": 3.389826683797281e-07,
+ "test": null,
+ "note": "test metrics are added once, in Phase 5"
+}

@@ -118,7 +118,11 @@ def build_features(raw: pd.DataFrame, tier: str, spec: dict | None = None) -> pd
     if tier == "t3":
         parts.append(_onehot(raw["previousdispo"], PREVDISPO_LEVELS, "prevdispo"))
         hist_cols = spec["history_columns"]
-        hist = raw.reindex(columns=hist_cols).apply(pd.to_numeric, errors="coerce").astype(np.float32)
+        hist = raw.reindex(columns=hist_cols)
+        obj = [c for c in hist.columns if hist[c].dtype == object]
+        if obj:  # only non-numeric columns need element-wise coercion
+            hist[obj] = hist[obj].apply(pd.to_numeric, errors="coerce")
+        hist = hist.astype(np.float32)
         hist.columns = [safe_name(c) for c in hist_cols]
         parts.append(hist)
     X = pd.concat(parts, axis=1)

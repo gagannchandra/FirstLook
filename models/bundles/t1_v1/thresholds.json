@@ -1,0 +1,5 @@
+{
+ "t_low": 0.11032656663724624,
+ "t_high": 0.6788793103448275,
+ "rule": "t_low: NPV>=0.95, t_high: PPV>=0.80 on S1 validation"
+}

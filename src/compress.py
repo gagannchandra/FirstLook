@@ -15,6 +15,10 @@ Usage: python -m src.compress
 """
 from __future__ import annotations
 
+import os
+
+os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")  # D28: no ONNX Runtime telemetry
+
 import io
 import json
 import os
@@ -141,7 +145,7 @@ def shap_rank(tier: str) -> list[str]:
 
 
 def build(tier_name: str, base_tier: str, features_full: list[str], ranking: list[str], X: pd.DataFrame,
-          v0_model, family: str, params: dict) -> list[dict]:
+          v0_model, family: str, params: dict, k_list=None) -> list[dict]:
     md = meta(); y = md.y.to_numpy()
     tr, va, ca = rows_for("train"), rows_for("val"), rows_for("cal")
     out = []
@@ -161,7 +165,7 @@ def build(tier_name: str, base_tier: str, features_full: list[str], ranking: lis
     if v0_model is not None:
         record("V0 full", len(features_full), v0_model, features_full, model_bytes(v0_model),
                lambda Z: v0_model.predict_proba(Z)[:, 1])
-    for k in K_LIST:
+    for k in (k_list or K_LIST):
         cols = ranking[:k]
         m, _ = fit_model(family, params, X.iloc[tr][cols], y[tr], X.iloc[va][cols], y[va])
         record(f"V1 top-{k}", k, m, cols, model_bytes(m), lambda Z, m=m: m.predict_proba(Z)[:, 1])
@@ -191,7 +195,7 @@ def build(tier_name: str, base_tier: str, features_full: list[str], ranking: lis
         (ART / f"{tier_name}_V3_k{r['k']}_d{r['depth']}_t{r['trees']}.onnx").write_bytes(raw)
         try:
             import m2cgen
-            js = m2cgen.export_to_javascript(m2.booster_)
+            js = m2cgen.export_to_javascript(m2)
             rec["m2cgen_js_kb"] = len(js.encode()) / 1024
         except Exception as e:  # noqa: BLE001
             rec["m2cgen_js_kb"] = None; rec["m2cgen_error"] = str(e)[:80]
@@ -199,6 +203,9 @@ def build(tier_name: str, base_tier: str, features_full: list[str], ranking: lis
 
 
 def main() -> None:
+    import sys
+    if "--t1-all" in sys.argv:
+        return extend_t1_all()
     sel = selection()["tiers"]
     rows = []
     # ---- T1 ----
@@ -222,8 +229,24 @@ def main() -> None:
     del X
     df = pd.DataFrame(rows)
     df.to_csv(TABLES / "E8_compression_val.csv", index=False)
+    pareto(df)
 
-    # Pareto plot
+
+def extend_t1_all() -> None:
+    """D27: no T1 variant with k <= 50 met the tolerance, so add k = all 222 features (append)."""
+    sel = selection()["tiers"]
+    X = pd.read_parquet(PROC / "t1.parquet")
+    fam = sel["t1"]["model"]
+    params = json.loads((LOGS / f"best_t1_{fam}.json").read_text())["best_params"]
+    rows = build("t1", "t1", list(X.columns), list(X.columns), X, None, fam, params, k_list=[X.shape[1]])
+    old = pd.read_csv(TABLES / "E8_compression_val.csv")
+    old = old[~((old.tier == "t1") & (old.k == X.shape[1]) & (old.variant != "V0 full"))]
+    df = pd.concat([old, pd.DataFrame(rows)], ignore_index=True)
+    df.to_csv(TABLES / "E8_compression_val.csv", index=False)
+    pareto(df)
+
+
+def pareto(df: pd.DataFrame) -> None:
     viz.setup()
     fig, axes = viz.plt.subplots(1, 2, figsize=(11, 4.2), sharey=False)
     for ax, tier in zip(axes, ("t1", "t3")):
