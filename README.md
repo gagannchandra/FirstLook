@@ -41,6 +41,16 @@ Shipped edge bundles (what the apps run):
 All tables (A–G), the criteria and the figure list: [`results/RESULTS.md`](results/RESULTS.md). App screenshots: [`results/figures/app/`](results/figures/app/).
 
 
+## Quick start
+
+```bash
+./run.sh            # start the Streamlit app (:8599), offline web app (:8600) and Docker app (:8501, if built)
+./run.sh status     # what is running
+./run.sh stop       # stop everything
+./run.sh build      # build the Docker image once (needs Docker or podman)
+./run.sh start app  # or start just one: app | web | docker
+```
+
 ## How to run everything
 
 Requirements: Linux/macOS, [uv](https://docs.astral.sh/uv/) (or Python 3.12 + pip), ~12 GB RAM for T3 training, Docker or Podman for L2.
