@@ -17,11 +17,11 @@ EXAMPLES = {
     },
     "low": {
         "label": "Low risk",
-        "hint": "24 y, walk-in, sore throat, normal vitals",
-        "form": {"age": 24, "gender": "Male", "arrivalmode": "Walk-in", "arrivalhour_bin": "15-18",
-                 "triage_vital_hr": 78, "triage_vital_sbp": 122, "triage_vital_dbp": 76, "triage_vital_rr": 16,
-                 "triage_vital_o2": 99, "triage_vital_o2_device": 0, "triage_vital_temp": 98.6,
-                 "complaints": ["cc_sorethroat"]},
+        "hint": "54 y, walk-in, routine medical screening, ideal vitals",
+        "form": {"age": 54, "gender": "Female", "arrivalmode": "Walk-in", "arrivalhour_bin": "07-10",
+                 "triage_vital_hr": 70, "triage_vital_sbp": 116, "triage_vital_dbp": 74, "triage_vital_rr": 14,
+                 "triage_vital_o2": 99, "triage_vital_o2_device": 0, "triage_vital_temp": 98.4,
+                 "complaints": ["cc_medicalscreening"]},
     },
     "uncertain": {
         "label": "Uncertain",

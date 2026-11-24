@@ -165,7 +165,7 @@
     <section class="quick" aria-labelledby="quick-l">
       <div class="quick-head">
         <h2 id="quick-l" class="quick-l">Quick fill</h2>
-        <p class="hint">Sample patients for trying FirstLook. Every name and number is invented.</p>
+        <p class="hint">Sample patients for trying FirstLook. The visits and readings are made up.</p>
       </div>
       <div class="samples" id="examples"></div>
       <div class="rand-row">
@@ -185,7 +185,8 @@
           <input id="pname" name="pname" type="text" maxlength="60" autocomplete="off" spellcheck="false" aria-describedby="err-pname">
           <p class="msg" id="err-pname" hidden></p></div>
         <div class="f"><label class="l" for="pphone">Contact number <span class="opt">optional</span></label>
-          <input id="pphone" name="pphone" type="tel" inputmode="tel" maxlength="20" autocomplete="off" aria-describedby="pphone-help err-pphone">
+          <input id="pphone" name="pphone" type="tel" inputmode="tel" maxlength="24" autocomplete="off" placeholder="+44 20 7946 0958" aria-describedby="pphone-fmt pphone-help err-pphone">
+          <p class="hint" id="pphone-fmt">Any country. Start with + and the country code, e.g. +91.</p>
           <p class="msg" id="err-pphone" hidden></p></div>
         <p class="hint ident-help" id="pphone-help">Kept with the saved estimate on this device only. FirstLook doesn’t use them to work out the estimate.</p>
       </div>

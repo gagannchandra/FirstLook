@@ -133,11 +133,13 @@ const formSig = () => JSON.stringify(snapshot());
 const sig = () => JSON.stringify({ f: formSig(), note: $("hnote").value.trim() });
 function hBadge() { const n = hAll().length; $("hcount").textContent = n; $("hcount").hidden = !n; }
 function who(f, name = $("pname").value.trim()) { return `${name ? `${name}, ` : ""}${f.gender ?? "?"}, ${f.age ?? "?"}. ${f.complaints.map((c) => META.complaint_labels[c]).join(", ")}`; }
-/* Invented identities for the sample and random patients. 555-01xx numbers are reserved for fiction. */
-const SAMPLE_ID = { high: ["Margaret Hale", "555-0142"], low: ["Daniel Okafor", "555-0117"], uncertain: ["Priya Raman", "555-0163"], missing_spo2: ["George Whitfield", "555-0188"] };
-const FAKE_FIRST = { Female: ["Anna", "Rosa", "Leela", "Grace", "Nadia", "Helen", "Mei", "Sofia", "Joan", "Amara"], Male: ["Tom", "Arjun", "Samuel", "Luis", "Omar", "Peter", "Kenji", "Victor", "Hugo", "Ben"] };
-const FAKE_LAST = ["Carter", "Iyer", "Novak", "Mensah", "Lindqvist", "Moreau", "Tanaka", "Reyes", "Byrne", "Haddad", "Kowalski", "Fraser"];
-const fakeId = (seed, sex) => [`${FAKE_FIRST[sex ?? "Female"][seed % 10]} ${FAKE_LAST[Math.floor(seed / 10) % FAKE_LAST.length]}`, `555-01${String(seed % 100).padStart(2, "0")}`];
+/* Identities for the sample and random patients. Numbers are random 10-digit Indian-style mobiles (6-9 first), made up
+   each time a patient is loaded; only Dr. Veena Khandelwal's card has a fixed number. */
+const SAMPLE_ID = { high: ["Sunita Devi", null], low: ["Dr. Veena Khandelwal", "9413350811"], uncertain: ["Rekha Sharma", null], missing_spo2: ["Ramesh Kumar", null] };
+const randomMobile = () => { const d = crypto.getRandomValues(new Uint8Array(10)); return `${6 + (d[0] % 4)}${[...d.slice(1)].map((x) => x % 10).join("")}`; };
+const FAKE_FIRST = { Female: ["Ananya", "Lakshmi", "Meera", "Kavya", "Fatima", "Sunita", "Deepa", "Harpreet", "Asha", "Neha"], Male: ["Arjun", "Rahul", "Vikram", "Imran", "Karthik", "Sanjay", "Rajesh", "Manoj", "Gurpreet", "Anil"] };
+const FAKE_LAST = ["Sharma", "Iyer", "Reddy", "Patel", "Khan", "Singh", "Nair", "Das", "Gupta", "Menon", "Joshi", "Rao"];
+const fakeId = (seed, sex) => [`${FAKE_FIRST[sex ?? "Female"][seed % 10]} ${FAKE_LAST[Math.floor(seed / 10) % FAKE_LAST.length]}`, randomMobile()];
 function saveEstimate() {
   if (!last) return false;
   const s = sig(), list = hAll(), r = last.r;
@@ -381,8 +383,9 @@ function fill(f) {
 }
 function load(key) {
   const e = META.examples[key];
-  const [nm, ph] = SAMPLE_ID[key] ?? ["", ""];
-  withUndo(`Loaded ${nm || `“${e.label}”`}.`, () => { fill(e.form); $("pname").value = nm; $("pphone").value = ph; note(`<b>Sample patient: ${esc(e.label)}.</b> Invented for the demo, not a real person.`); });
+  const [nm, fixed] = SAMPLE_ID[key] ?? ["", ""], ph = nm ? fixed ?? randomMobile() : "";
+  withUndo(`Loaded ${nm || `“${e.label}”`}.`, () => { fill(e.form); $("pname").value = nm; $("pphone").value = ph; note(key === "low" ? `<b>Sample patient: ${esc(e.label)}.</b> A routine check-up with ideal readings. The visit is made up for the demo.`
+    : `<b>Sample patient: ${esc(e.label)}.</b> Invented for the demo, not a real person.`); });
 }
 function randomFill() {
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] % 100000, esiOn = radio("esi") !== "";
@@ -408,6 +411,17 @@ function readForm() {
 }
 
 /** Every finding about the form: {field, level: error|warning|missing, msg}. */
+/** International phone numbers (E.164: at most 15 digits including the country code). Accepts "+44 20 7946 0958",
+ *  "0044 20…", "+1 (555) 010-0142", "98450.00000"; separators are spaces, dots, dashes and brackets. */
+function phoneMsg(raw) {
+  const s = raw.trim(); if (!s) return "";
+  if (!/^\+?[\d\s().-]+$/.test(s)) return "Use digits, with spaces, dots, dashes or brackets between them. Start with + for a country code.";
+  if ((s.match(/[()]/g) ?? []).length % 2) return "Check the brackets in the number.";
+  const digits = s.replace(/\D/g, "").replace(/^00/, ""); // 00 is the international prefix in many countries, like +
+  if (digits.length < 7) return "This number is too short. Phone numbers have at least 7 digits.";
+  if (digits.length > 15) return "This number is too long. International numbers have at most 15 digits, including the country code.";
+  return "";
+}
 function findings(f) {
   const out = [];
   for (const d of M.validateFields(f, META)) {
@@ -419,8 +433,8 @@ function findings(f) {
     const v = f[h.key];
     if (h.kind === "count" && v !== null && (v < 0 || !Number.isInteger(v) || v > 500)) out.push({ field: hid(h.key), level: "error", msg: "Enter a whole number from 0 to 500." });
   }
-  const ph = $("pphone").value.trim();
-  if (ph && !/^\+?[\d\s()-]{6,20}$/.test(ph)) out.push({ field: "pphone", level: "error", msg: "Enter a phone number using digits, spaces, + or -." });
+  const pm = phoneMsg($("pphone").value);
+  if (pm) out.push({ field: "pphone", level: "error", msg: pm });
   const order = ["pname", "pphone", "age", "gender", "complaints", ...VITAL.map((v) => v[0])];
   return out.sort((a, b) => (order.indexOf(a.field) + 1 || 99) - (order.indexOf(b.field) + 1 || 99));
 }

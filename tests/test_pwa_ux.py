@@ -110,7 +110,7 @@ def test_assess_and_result_are_separate_pages(page):
     assert pct(page) == 44 and page.inner_text("#conftitle").startswith("Unsure")
     assert "44% chance of admission" in page.title()
     assert page.get_attribute("nav a[data-p=assess]", "aria-current") == "page"
-    assert page.inner_text("#res-who").startswith("Priya Raman, Female, 58. Abdominal pain")
+    assert page.inner_text("#res-who").startswith("Rekha Sharma, Female, 58. Abdominal pain")
     page.click("#res-edit"); page.wait_for_selector("#assess:not([hidden])")
     page.fill("#age", "90"); show(page)
     assert pct(page) != 44
@@ -147,7 +147,7 @@ def test_clear_offers_undo(page):
     page.click("#clear")
     assert page.input_value("#age") == "" and page.is_visible("#toast") and page.get_attribute("#needs", "data-state") == "empty"
     page.click("#undo")
-    assert page.input_value("#age") == "24" and not page.is_visible("#toast")
+    assert page.input_value("#age") == "54" and not page.is_visible("#toast")
 
 
 def test_skip_link_focuses_content_and_keeps_the_page(page):
@@ -322,7 +322,8 @@ def test_history_delete_clear_undo_csv_and_persistence(page):
 
 def test_name_and_contact_are_optional_validated_and_saved(page):
     example(page, "High risk")  # sample patients come with an invented name and a 555-01xx number
-    assert page.input_value("#pname") == "Margaret Hale" and page.input_value("#pphone") == "555-0142"
+    ph = page.input_value("#pphone")
+    assert page.input_value("#pname") == "Sunita Devi" and len(ph) == 10 and ph[0] in "6789"
     page.fill("#pname", ""); page.fill("#pphone", "")
     page.wait_for_selector("#needs[data-state=ready]")  # neither is required
     page.fill("#pphone", "call me"); page.focus("#age")
@@ -338,11 +339,30 @@ def test_name_and_contact_are_optional_validated_and_saved(page):
     assert '"\'=HYPERLINK(1)","+91 98450 00000"' in rows[1]  # a typed formula is neutralised; a phone number is not
 
 
+def test_every_quick_fill_contact_is_10_digits(page):
+    for card in page.locator("#examples button").all():
+        card.click(); ph = page.input_value("#pphone")
+        assert len(ph) == 10 and ph.isdigit() and ph[0] in "6789", ph
+    page.locator("#examples button", has_text="High risk").click(); a = page.input_value("#pphone")
+    page.locator("#examples button", has_text="High risk").click(); assert page.input_value("#pphone") != a  # randomised
+    page.locator("#examples button", has_text="Veena").click(); assert page.input_value("#pphone") == "9413350811"
+
+
 def test_random_patient_gets_an_invented_identity_matching_sex(page):
     page.click("#random"); page.wait_for_selector("#needs[data-state=ready]")
     sex = page.evaluate("document.querySelector('input[name=gender]:checked').value")
     name, phone = page.input_value("#pname"), page.input_value("#pphone")
-    assert name and phone.startswith("555-01")
+    assert name and len(phone) == 10 and phone.isdigit() and phone[0] in "6789"
     first = name.split()[0]
-    assert first in (["Anna", "Rosa", "Leela", "Grace", "Nadia", "Helen", "Mei", "Sofia", "Joan", "Amara"] if sex == "Female"
-                     else ["Tom", "Arjun", "Samuel", "Luis", "Omar", "Peter", "Kenji", "Victor", "Hugo", "Ben"])
+    assert first in (["Ananya", "Lakshmi", "Meera", "Kavya", "Fatima", "Sunita", "Deepa", "Harpreet", "Asha", "Neha"] if sex == "Female"
+                     else ["Arjun", "Rahul", "Vikram", "Imran", "Karthik", "Sanjay", "Rajesh", "Manoj", "Gurpreet", "Anil"])
+
+
+@pytest.mark.parametrize("number,ok", [
+    ("+91 98450 00000", True), ("+44 20 7946 0958", True), ("+1 (555) 010-0142", True), ("0044 20 7946 0958", True),
+    ("+81 3-1234-5678", True), ("+61.2.5550.1234", True), ("555-0142", True), ("+971 4 123 4567", True),
+    ("12345", False), ("+1234567890123456", False), ("+91 98450 0000x", False), ("98+450", False), ("+44 (20 7946 0958", False),
+])
+def test_contact_accepts_international_numbers(page, number, ok):
+    page.fill("#pphone", number); page.focus("#age")
+    until(lambda: page.is_visible("#err-pphone") != ok)
