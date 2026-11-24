@@ -1,0 +1,14 @@
+{
+ "tier": "t3",
+ "model": "lr",
+ "n_trials": 15,
+ "tune_rows": 80709,
+ "tune_sec": 182,
+ "fit_sec": 55,
+ "best_params": {
+  "C": 0.0020348415037403367,
+  "class_weight": null
+ },
+ "val_logloss": 0.3249673545360565,
+ "val_auc": 0.917775387162111
+}
