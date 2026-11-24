@@ -1,4 +1,4 @@
-/* FirstLook web app. One workspace: the form on the left, a live estimate on the right.
+/* FirstLook web app. Assess (the form and a readiness checklist) and Result (the estimate) are separate pages.
    T1/T2 run in the browser (js/model.js); when the local backend answers (backend/server.py, same origin) the
    record model T3-lite runs through POST api/predict. */
 "use strict";
@@ -20,17 +20,16 @@ const CONF = {
   likely_discharge: ["#i-home", "Likely discharge", "FirstLook is confident about this patient: its check points to going home."],
   uncertain: ["#i-split", "Unsure — use your judgement", "Patients like this one could go either way. Rely on your clinical judgement, not the percentage."],
 };
-const PAGES = ["home", "assess", "history", "about"];
+const PAGES = ["home", "assess", "result", "history", "about"];
 const LEVEL = { t1: "Triage data only", t2: "Triage data and triage level", t3lite: "Triage data, triage level and patient record" };
 const STORE = "firstlook.form.v3";
 let META = null, DASH = null, SERVER = null, selected = [], last = null, submitted = false, panelTimer = 0, sayTimer = 0, reqId = 0;
-let undoFn = null, undoTimer = 0, showAll = false, savedSig = null;
+let undoFn = null, undoTimer = 0, showAll = false, savedSig = null, savedId = null;
 const touched = new Set();
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const announce = (msg) => { $("live").textContent = ""; requestAnimationFrame(() => { $("live").textContent = msg; }); };
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const narrow = matchMedia("(max-width: 1020px)");
 const pct = (p) => Math.min(99, Math.max(1, Math.round(p * 100))); // never claim 0% or 100%: it is an estimate
 const hid = (k) => "h_" + k.replace(/[^a-z0-9]/gi, "_");
 const radio = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value ?? null;
@@ -40,15 +39,16 @@ const hourBin = (h) => { const b = META.hour_bins; return h >= 23 || h < 3 ? b[0
 /* ---------------------------------------------------------------- routing */
 function route() {
   const p = (location.hash.match(/^#\/(\w+)/) ?? [])[1];
-  const page = p === "evidence" ? "about" : ["patient", "result", "explain"].includes(p) ? "assess" : PAGES.includes(p) ? p : "home"; // old links still work
+  const page = p === "evidence" ? "about" : p === "patient" ? "assess" : p === "explain" ? "result" : PAGES.includes(p) ? p : "home"; // old links still work
   for (const s of PAGES) $(s).hidden = s !== page;
-  for (const a of $("nav").children) a.dataset.p === page ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
-  const name = { home: "Home", assess: "Assess", history: "History", about: "About the project" }[page];
-  document.title = page === "home" ? "FirstLook · Admission chance at triage" : page === "assess" && last ? `${pct(last.r.probability)}% chance of admission · FirstLook` : `${name} · FirstLook`;
+  const navp = page === "result" ? "assess" : page;
+  for (const a of $("nav").children) a.dataset.p === navp ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
+  const name = { home: "Home", assess: "Assess", result: "Estimate", history: "History", about: "About the project" }[page];
+  document.title = page === "home" ? "FirstLook · Admission chance at triage" : page === "result" && last ? `${pct(last.r.probability)}% chance of admission · FirstLook` : `${name} · FirstLook`;
   preview.active(page === "home");
   if (page === "about") evidence();
   if (page === "history") renderHistory();
-  peek();
+  if (page === "result") { $("res-none").hidden = !!last; $("res-body").hidden = !last; }
 }
 /* in-page links to About sections (#ab-…, or data-to) scroll there without breaking the page route */
 document.addEventListener("click", (e) => {
@@ -129,25 +129,33 @@ function home() {
 const HKEY = "firstlook.history.v1", HMAX = 200;
 const hAll = () => { try { const v = JSON.parse(localStorage.getItem(HKEY) ?? "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
 const hPut = (list) => { try { localStorage.setItem(HKEY, JSON.stringify(list.slice(0, HMAX))); return true; } catch { return false; } };
-const sig = () => JSON.stringify({ ...snapshot(), note: "" , hnote: $("hnote").value.trim() });
+const formSig = () => JSON.stringify(snapshot());
+const sig = () => JSON.stringify({ f: formSig(), note: $("hnote").value.trim() });
 function hBadge() { const n = hAll().length; $("hcount").textContent = n; $("hcount").hidden = !n; }
 function who(f) { return `${f.gender ?? "?"}, ${f.age ?? "?"}. ${f.complaints.map((c) => META.complaint_labels[c]).join(", ")}`; }
 function saveEstimate() {
   if (!last) return false;
   const s = sig(), list = hAll(), r = last.r;
   if (savedSig === s && list.length) { toast("Already in history."); return true; }
+  const prev = savedId && list.find((e) => e.id === savedId);
+  if (prev && JSON.parse(savedSig).f === formSig()) { // same patient, only the note changed: update that entry
+    prev.note = $("hnote").value.trim();
+    if (!hPut(list)) { toast("Couldn’t save: this browser’s storage is full or switched off."); return false; }
+    savedSig = s; saveState(); toast("Note saved."); return true;
+  }
   const entry = { id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, at: Date.now(), p: r.probability, band: r.band, conformal: r.conformal,
     slot: last.slot, note: $("hnote").value.trim(), who: who(last.f), age: last.f.age, sex: last.f.gender,
     complaints: last.f.complaints.map((c) => META.complaint_labels[c]), top: r.contributions.slice(0, 3).map((d) => ({ label: d.label, up: d.value > 0 })), form: snapshot() };
   if (!hPut([entry, ...list])) { toast("Couldn’t save: this browser’s storage is full or switched off."); return false; }
-  savedSig = s; hBadge(); saveState(); toast("Saved to history.");
+  savedSig = s; savedId = entry.id; hBadge(); saveState(); toast("Saved to history.");
   return true;
 }
 function saveState() {
   const t = new Date(hAll()[0]?.at ?? Date.now());
   const isSaved = !!last && savedSig === sig();
   $("hsaved").hidden = !isSaved; $("hsaved").textContent = `Saved to history at ${t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`;
-  $("hsave").textContent = isSaved ? "Saved" : "Save to history"; $("hsave").disabled = isSaved;
+  const noteOnly = !!last && !isSaved && !!savedSig && JSON.parse(savedSig).f === formSig() && hAll().some((e) => e.id === savedId);
+  $("hsave").textContent = isSaved ? "Saved" : noteOnly ? "Save note" : "Save to history"; $("hsave").disabled = isSaved;
 }
 const dayLabel = (t) => { const d = new Date(t), today = new Date(); const k = (x) => x.toDateString();
   const y = new Date(today); y.setDate(today.getDate() - 1);
@@ -177,13 +185,14 @@ function historyUI() {
   hBadge();
   $("hsave").onclick = saveEstimate;
   $("hnote").addEventListener("input", () => { saveState(); });
+  $("hnote").addEventListener("keydown", (e) => { if (e.key === "Enter" && !$("hsave").disabled) { e.preventDefault(); saveEstimate(); } });
   $("hist-q").addEventListener("input", renderHistory);
   $("hist-band").addEventListener("change", renderHistory);
   $("hlist").addEventListener("click", (e) => {
     const o = e.target.closest("[data-open]")?.dataset.open, d = e.target.closest("[data-del]")?.dataset.del;
     if (o) { const en = hAll().find((x) => x.id === o); if (!en) return;
       withUndo("Opened a saved estimate.", () => { apply(en.form); touched.clear(); submitted = false; $("hnote").value = en.note ?? ""; });
-      savedSig = sig(); saveState(); location.hash = "#/assess"; }
+      savedSig = sig(); savedId = en.id; saveState(); location.hash = "#/result"; }
     if (d) { const before = hAll(); hPut(before.filter((x) => x.id !== d)); hBadge(); renderHistory();
       toast("Deleted from history.", () => { hPut(before); hBadge(); renderHistory(); }); }
   });
@@ -228,6 +237,7 @@ function build() {
   $("usehist").addEventListener("change", () => { $("histbox").hidden = !$("usehist").checked; changed(true); });
   $("random").onclick = randomFill;
   $("clear").onclick = () => withUndo("Form cleared.", clearForm);
+  $("res-new").onclick = () => { withUndo("Ready for the next patient.", clearForm); location.hash = "#/assess"; };
   $("undo").onclick = undo;
   $("morefactors").onclick = () => { showAll = !showAll; renderFactors(); };
   restore(); update(true);
@@ -337,7 +347,7 @@ function note(html) { $("exnote").innerHTML = html; $("exnote").hidden = !html; 
 
 function clearForm() {
   apply({ hour: hourBin(new Date().getHours()) }); for (const id of histIds()) if (id === "h_prevdispo") $(id).selectedIndex = 0;
-  touched.clear(); submitted = false; last = null; $("hnote").value = ""; savedSig = null;
+  touched.clear(); submitted = false; last = null; $("hnote").value = ""; savedSig = null; savedId = null;
 }
 /** One toast for the whole app. With onUndo it offers Undo for 8 seconds. */
 function toast(msg, onUndo = null) {
@@ -439,19 +449,21 @@ function update(now) {
   if (now) panel(f, items); else panelTimer = setTimeout(() => panel(f, items), 250);
 }
 
-/* ---------------------------------------------------------------- estimate panel */
+/* ---------------------------------------------------------------- checklist (assess) and estimate (result) */
 function setState(s) {
-  $("tag").dataset.state = s;
-  $("st-empty").hidden = s !== "empty"; $("st-fix").hidden = s !== "fix"; $("st-result").hidden = s !== "result" && s !== "busy";
+  const ready = s === "result" || s === "busy";
+  $("readycard").dataset.state = ready ? "ready" : s; $("tag").dataset.state = s;
+  $("st-empty").hidden = s !== "empty"; $("st-fix").hidden = s !== "fix"; $("st-ready").hidden = !ready;
+  $("readyhint").hidden = !!(radio("esi") && $("usehist").checked);
 }
 async function panel(f, items) {
   const errs = items.filter((d) => d.level === "error"), miss = items.filter((d) => d.level === "missing");
   const id = ++reqId;
   if (errs.length) {
-    last = null; setState("fix"); delete $("tag").dataset.band; $("mname").textContent = "";
+    last = null; setState("fix"); delete $("tag").dataset.band;
     $("fixlist").innerHTML = errs.map((d) => `<li><button type="button" class="err" data-f="${d.field}">${d.msg.startsWith(fieldName(d.field)) ? "" : esc(fieldName(d.field)) + ": "}${esc(d.msg)}</button></li>`).join("");
   } else if (miss.length) {
-    last = null; setState("empty"); delete $("tag").dataset.band; $("mname").textContent = "";
+    last = null; setState("empty"); delete $("tag").dataset.band;
     const need = new Set(miss.map((d) => d.field));
     const all = ["age", "gender", "complaints", ...VITAL.map((v) => v[0])];
     $("todo").innerHTML = all.map((k) => need.has(k) ? `<li><button type="button" data-f="${k}">${esc(fieldName(k))}</button></li>`
@@ -464,7 +476,7 @@ async function panel(f, items) {
         if (id !== reqId) return;
         last = null; setState("fix");
         $("fixlist").innerHTML = `<li class="err">The patient record couldn’t be used just now (${esc(e.message)}). Switch “Add the patient’s record” off to get an estimate without it.</li>`;
-        peek(); return;
+        route(); return;
       }
     } else {
       const slot = f.esi ? "t2" : "t1", m = META.models[slot];
@@ -472,7 +484,7 @@ async function panel(f, items) {
     }
     render();
   }
-  route(); peek();
+  route();
 }
 for (const id of ["todo", "fixlist"]) document.getElementById(id).addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (b) focusField(b.dataset.f); });
 
@@ -488,7 +500,7 @@ async function predictServer(f) {
 function render() {
   const { r, m, slot, engine, kind } = last, p = pct(r.probability);
   setState("result"); $("tag").dataset.band = r.band;
-  $("mname").textContent = "";
+  renderInputs();
   $("pct").textContent = p;
   $("pctsay").innerHTML = `About <b>${p} in 100</b> similar patients were admitted. <b>${r.band} risk.</b>`;
   // icon array: 20 × 5, filled column by column so the admitted share reads like a bar
@@ -506,7 +518,18 @@ function render() {
   $("exnote2").textContent = "Longer bars mattered more. These are patterns in past patients, not causes.";
   renderFactors(); saveState();
   clearTimeout(sayTimer);
-  sayTimer = setTimeout(() => announce(`Chance of admission ${p} percent, ${r.band.toLowerCase()}. ${t}.`), 1200);
+  if (!$("result").hidden) sayTimer = setTimeout(() => announce(`Chance of admission ${p} percent, ${r.band.toLowerCase()}. ${t}.`), 600);
+}
+/* result page: who the patient is and exactly what was entered, so the estimate can be checked against the chart */
+function renderInputs() {
+  const f = last.f, arr = document.querySelector('input[name="arrival"]:checked')?.parentElement.textContent.trim();
+  const hour = $("hour").selectedOptions[0]?.textContent;
+  $("res-who").textContent = `${who(f)}. ${arr ? `Arrived by ${arr.toLowerCase()}, ` : ""}${hour ?? ""}.`;
+  const rows = [["Age", `${f.age} years`], ["Sex", f.gender], ["Arrived by", arr], ["Arrival time", hour],
+    ["Chief complaint", f.complaints.map((c) => META.complaint_labels[c]).join(", ")],
+    ...VITAL.map(([k, name, unit]) => [name, $(k + "_nm").checked ? "Not measured" : `${$(k).value}${unit ? NB + unit : ""}`]),
+    ["Triage level (ESI)", f.esi ? String(f.esi) : "Not set"], ["Patient record", $("usehist").checked && SERVER ? "Added" : "Not added"]];
+  $("res-input").innerHTML = rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v ?? "")}</dd></div>`).join("");
 }
 const strength = (v) => { const a = Math.abs(v); return a >= 0.5 ? "Strong" : a >= 0.2 ? "Moderate" : "Slight"; };
 function renderFactors() {
@@ -528,19 +551,8 @@ async function check() {
   showMessages(items); clearTimeout(panelTimer); await panel(f, items);
   if (bad.length) { focusField(bad[0].field); announce(`${bad.length} field${bad.length > 1 ? "s need" : " needs"} attention. ${bad[0].msg}`); return; }
   saveEstimate();
-  if (narrow.matches) { $("estimate").scrollIntoView({ behavior: reduced ? "auto" : "smooth" }); $("estimate").focus({ preventScroll: true }); }
+  location.hash = "#/result";
 }
-
-/* mobile: a bar with the live number while the estimate is off screen */
-let estVisible = false;
-function peek() {
-  const show = narrow.matches && !$("assess").hidden && !estVisible;
-  $("peek").hidden = !show; if (!show) return;
-  if (last) $("peektext").innerHTML = `<span class="swatch" style="background:var(--${{ Low: "low-fill", Medium: "med-fill", High: "high" }[last.r.band]})"></span>${pct(last.r.probability)}% admission risk`;
-  else { const n = findings(readForm()).filter((d) => d.level !== "warning").length; $("peektext").textContent = `${n} field${n === 1 ? "" : "s"} still needed`; }
-}
-if ("IntersectionObserver" in self) new IntersectionObserver(([e]) => { estVisible = e.isIntersecting; peek(); }).observe($("estimate"));
-narrow.addEventListener("change", peek);
 
 /* ---------------------------------------------------------------- evidence */
 let evDone = false;

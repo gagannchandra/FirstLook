@@ -28,6 +28,7 @@
   <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18V6M3 14h18v4M21 14v-2a3 3 0 00-3-3h-7v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="10.5" r="2" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
   <symbol id="i-split" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 3.5v17" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5l4.5 4.5M12 12l3.5 3.5M12 4.5l7 7" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <a class="skip" href="#main">Skip to content</a>
@@ -67,7 +68,7 @@
           <div class="array" id="pv-array" aria-hidden="true"></div>
           <p class="demo-verdict" id="pv-verdict"></p>
           <ol class="factors" id="pv-f"></ol>
-          <a class="link" id="pv-open" href="#/assess">Open this patient</a>
+          <a class="link" id="pv-open" href="#/result">Open this patient</a>
         </div>
       </figure>
     </div>
@@ -79,7 +80,7 @@
         <p>There is nothing to install and no account. Open the page on the computer or phone you already use.</p></div>
       <ol class="plain-steps">
         <li><b>Type what you measured.</b> Age, sex, how they arrived, the main complaint and six vital signs. If a reading wasn’t taken, tick “Not measured”.</li>
-        <li><b>Read the chance of admission.</b> It updates as you type. A hundred dots show the same number for a quick glance across the room.</li>
+        <li><b>Read the chance of admission.</b> Select “Check and save” and the estimate opens on its own page. A hundred dots show the same number for a quick glance across the room.</li>
         <li><b>See how sure it is, and why.</b> “Likely admission”, “likely discharge” or “unsure”, with the readings that weighed most.</li>
         <li><b>Save it if you want to come back.</b> Saved estimates stay in History on this device only.</li>
       </ol>
@@ -147,7 +148,7 @@
   <ol class="hlist" id="hlist"></ol>
   <div class="hempty" id="hempty" hidden>
     <p class="big-q">Nothing saved yet</p>
-    <p>When an estimate is ready, choose <b>Save to history</b> in the estimate panel. It will appear here so you can reopen it later.</p>
+    <p>Each time you select <b>Check and save</b>, the estimate is kept here so you can reopen it later.</p>
     <a class="btn primary" href="#/assess">Start an assessment</a>
   </div>
 </section>
@@ -158,7 +159,7 @@
   <form id="pform" class="sheet" novalidate autocomplete="off">
     <div class="sheet-head">
       <h1 id="t-assess">Triage assessment</h1>
-      <p class="lede">Enter what you measured. The estimate updates as you type and nothing leaves this device.</p>
+      <p class="lede">Enter what you measured, then select “Check and save” to see the estimate. Nothing leaves this device.</p>
     </div>
 
     <div class="quick" aria-labelledby="quick-l">
@@ -236,51 +237,83 @@
     </div>
   </form>
 
-  <aside class="panel" id="estimate" aria-labelledby="t-est" tabindex="-1">
-    <div class="tag" id="tag" data-state="empty">
-      <div class="tag-head"><h2 id="t-est">Admission estimate</h2><span class="model" id="mname"></span></div>
-
+  <aside class="panel" id="ready" aria-labelledby="t-ready">
+    <div class="card ready" id="readycard" data-state="empty">
+      <h2 id="t-ready">Before you check</h2>
       <div id="st-empty" class="st">
-        <p class="big-q">Who is in front of you?</p>
-        <p>Fill in the form and the estimate appears here. Still needed:</p>
+        <p>FirstLook needs these. Select one to jump to it.</p>
         <ul class="todo" id="todo"></ul>
-        <details class="howto"><summary>How to read an estimate</summary>
-          <p><b>The number means what it says.</b> 30% means about 30 in 100 similar patients were admitted.</p>
-          <p><b>A confidence check comes with it.</b> It says “likely admission”, “likely discharge”, or “unsure” when the patient could go either way.</p>
-          <p><b>“What moved it”</b> shows what FirstLook weighed most. These are patterns in past patients, not causes.</p></details>
       </div>
-
       <div id="st-fix" class="st" hidden>
-        <p class="big-q">Check these readings</p>
+        <p>Check these readings first.</p>
         <ul class="todo" id="fixlist"></ul>
       </div>
-
-      <div id="st-result" class="st" hidden>
-        <div class="readout">
-          <p class="pct"><b class="num" id="pct">–</b><span>%</span></p>
-          <p class="pct-say" id="pctsay"></p>
-        </div>
-        <div class="array" id="array" aria-hidden="true"></div>
-        <div class="scale" id="scale" aria-hidden="true"></div>
-        <div class="verdict" id="verdict"><svg class="ic" aria-hidden="true"><use id="vicon" href="#i-split"/></svg><div><p class="v-t" id="conftitle"></p><p class="v-d" id="conftext"></p></div></div>
-        <div class="why">
-          <h3>What moved it</h3>
-          <ol class="factors" id="factors"></ol>
-          <button type="button" class="link" id="morefactors" aria-expanded="false" hidden>Show all factors</button>
-          <p class="hint" id="exnote2"></p>
-        </div>
-        <dl class="meta"><div><dt>Based on</dt><dd id="mtier"></dd></div><div><dt>Worked out on</dt><dd id="mengine"></dd></div><div><dt>Took</dt><dd class="num" id="mms"></dd></div></dl>
-        <div class="save">
-          <label class="l" for="hnote">Note <span class="hint">optional, e.g. bay or initials</span></label>
-          <div class="save-row"><input id="hnote" type="text" maxlength="60" autocomplete="off"><button type="button" class="btn sun" id="hsave">Save to history</button></div>
-          <p class="hint" id="hsaved" hidden></p>
-        </div>
+      <div id="st-ready" class="st" hidden>
+        <p class="ok-line"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Everything needed is filled in.</p>
+        <p class="hint" id="readyhint">Adding the triage level, or the patient’s record, makes the estimate sharper.</p>
       </div>
+      <button type="submit" form="pform" class="btn primary block" id="go2">Check and save</button>
     </div>
     <p class="disc">Decision support only. Clinical judgement decides.</p>
   </aside>
   </div>
-  <a class="peek" id="peek" href="#estimate" hidden><span id="peektext"></span><b>View estimate</b></a>
+</section>
+
+<!-- ================================================================ RESULT -->
+<section id="result" class="wrap page result" aria-labelledby="t-result" hidden>
+  <div id="res-none" class="hempty">
+    <h1 class="big-q">No estimate yet</h1>
+    <p>Fill in the triage assessment first. The estimate appears here when you select “Check and save”.</p>
+    <a class="btn primary" href="#/assess">Start an assessment</a>
+  </div>
+
+  <div id="res-body" hidden>
+    <header class="res-head">
+      <div>
+        <h1 id="t-result">Admission estimate</h1>
+        <p class="res-who" id="res-who"></p>
+      </div>
+      <div class="res-actions">
+        <a class="btn" href="#/assess" id="res-edit">Edit answers</a>
+        <button type="button" class="btn primary" id="res-new">Next patient</button>
+      </div>
+    </header>
+
+    <div class="res-grid">
+      <div class="tag" id="tag" tabindex="-1">
+        <div id="st-result">
+          <div class="readout">
+            <p class="pct"><b class="num" id="pct">–</b><span>%</span></p>
+            <p class="pct-say" id="pctsay"></p>
+          </div>
+          <div class="array" id="array" aria-hidden="true"></div>
+          <div class="scale" id="scale" aria-hidden="true"></div>
+          <div class="verdict" id="verdict"><svg class="ic" aria-hidden="true"><use id="vicon" href="#i-split"/></svg><div><p class="v-t" id="conftitle"></p><p class="v-d" id="conftext"></p></div></div>
+          <dl class="meta"><div><dt>Based on</dt><dd id="mtier"></dd></div><div><dt>Worked out on</dt><dd id="mengine"></dd></div><div><dt>Took</dt><dd class="num" id="mms"></dd></div></dl>
+        </div>
+      </div>
+
+      <div class="res-side">
+        <section class="why" aria-labelledby="t-why">
+          <h2 id="t-why">What moved it</h2>
+          <ol class="factors" id="factors"></ol>
+          <button type="button" class="link" id="morefactors" aria-expanded="false" hidden>Show all factors</button>
+          <p class="hint" id="exnote2"></p>
+        </section>
+        <section class="save" aria-labelledby="t-save">
+          <h2 id="t-save">History</h2>
+          <label class="l" for="hnote">Note <span class="hint">optional, e.g. bay or initials</span></label>
+          <div class="save-row"><input id="hnote" type="text" maxlength="60" autocomplete="off"><button type="button" class="btn sun" id="hsave">Save to history</button></div>
+          <p class="hint" id="hsaved" hidden></p>
+        </section>
+        <details class="entered">
+          <summary>What was entered</summary>
+          <dl id="res-input"></dl>
+        </details>
+      </div>
+    </div>
+    <p class="disc">Decision support only. Not a diagnosis. Clinical judgement decides.</p>
+  </div>
 </section>
 
 <!-- ================================================================ ABOUT: the whole project in plain words -->
@@ -311,7 +344,7 @@
     <ol class="steps">
       <li><b>The nurse enters what they measured.</b> Age, sex, how the patient arrived, the main complaint, and six vital signs. A reading that wasn’t taken can be marked “Not measured”.</li>
       <li><b>FirstLook compares the patient with past ones.</b> It has learned from over half a million earlier emergency visits which patterns tended to end in admission.</li>
-      <li><b>It shows a chance of admission and how sure it is.</b> The estimate updates as you type, together with the main reasons behind it.</li>
+      <li><b>It shows a chance of admission and how sure it is.</b> Each estimate comes with the main reasons behind it, and is saved to History on this device.</li>
       <li><b>The nurse decides.</b> FirstLook is a second opinion, never the decision.</li>
     </ol>
   </section>

@@ -2,7 +2,7 @@
 then cut the browser's network, reload and use every page. Any request that leaves localhost is recorded.
 
 Usage: python scripts/screenshot_pwa.py [--url http://localhost:8600/index.html] [--out results/figures/app]
-Writes pwa_01_home … pwa_07_history_mobile .png and pwa_offline_check.json to --out.
+Writes pwa_01_home … pwa_08_result_mobile .png and pwa_offline_check.json to --out.
 """
 import argparse
 import json
@@ -48,32 +48,41 @@ def main():
         page.locator("#pv-tabs button", has_text="High").click()
         shot("01_home")
 
-        page.evaluate("location.hash = '#/assess'"); page.wait_for_selector("#assess:not([hidden])")
-        shot("02_assess_empty")
-        page.locator("#examples button", has_text="Uncertain").click(); page.wait_for_selector("#st-result:not([hidden])")
-        page.fill("#hnote", "Bay 3"); page.click("#go")
+        def assess():
+            page.evaluate("location.hash = '#/assess'"); page.wait_for_selector("#assess:not([hidden])")
+
+        def check_and_save():
+            page.click("#go"); page.wait_for_selector("#result:not([hidden])")
+            page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
+
+        assess(); shot("02_assess_empty")
+        page.locator("#examples button", has_text="Uncertain").click(); page.wait_for_selector("#st-ready:not([hidden])")
+        shot("03_assess_ready")
+        check_and_save()
+        page.fill("#hnote", "Bay 3"); page.click("#hsave")
         page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
-        res = {"uncertain_pct": page.inner_text("#pct").replace("\n", ""), "uncertain_confidence": page.inner_text("#conftitle")}
-        shot("03_assess_uncertain")
+        page.evaluate("document.querySelector('details.entered').open = true")
+        res = {"uncertain_pct": page.inner_text("#pct"), "uncertain_confidence": page.inner_text("#conftitle")}
+        shot("04_result_uncertain")
 
-        page.select_option("#acuity", "high"); page.click("#random"); page.wait_for_selector("#st-result:not([hidden])")
-        page.click("#go"); page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
-        res["random_high_pct"] = page.inner_text("#pct").replace("\n", "")
-        shot("04_assess_random_high")
+        assess(); page.select_option("#acuity", "high"); page.click("#random"); page.wait_for_selector("#st-ready:not([hidden])")
+        check_and_save(); res["random_high_pct"] = page.inner_text("#pct")
+        shot("05_result_random_high")
 
-        page.locator("#examples button", has_text="Low risk").click(); page.wait_for_selector("#st-result:not([hidden])")
-        page.click("#go"); page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
+        assess(); page.locator("#examples button", has_text="Low risk").click(); page.wait_for_selector("#st-ready:not([hidden])")
+        check_and_save()
         page.click("nav a[data-p=history]"); page.wait_for_selector("#hlist .hitem")
         res["history_entries"] = page.locator("#hlist .hitem").count()
-        shot("05_history")
+        shot("06_history")
 
         page.click("nav a[data-p=about]"); page.wait_for_selector("#c-cal svg")
         page.evaluate("document.querySelectorAll('details.tech').forEach(d => d.open = true)")
-        shot("06_about")
+        shot("07_about")
 
         page.set_viewport_size({"width": 390, "height": 844})
-        page.click("nav a[data-p=history]"); page.wait_for_selector("#hlist .hitem")
-        shot("07_history_mobile")
+        page.evaluate("location.hash = '#/history'"); page.wait_for_selector("#hlist .hitem")
+        page.locator("#hlist [data-open]").first.click(); page.wait_for_selector("#result:not([hidden])")
+        shot("08_result_mobile")
 
         res.update({"network_pill": page.inner_text("#nettext"), "offline_failed_requests": offline_failed,
                     "external_requests": ext, "page_errors": errors})
