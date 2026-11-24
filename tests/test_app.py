@@ -154,3 +154,30 @@ def test_external_socket_counter_ignores_inbound_but_counts_outbound():
         assert netstatus.external_sockets() == base + 1
     finally:
         conn.close(); cli.close(); srv.close()
+
+
+def test_random_patients_are_valid_and_follow_acuity():
+    """Random autofill: every form passes validation with no warnings, is reproducible from its seed,
+    and acuity orders the predicted risk (high > medium > low on average)."""
+    import sys
+    from pathlib import Path
+    import numpy as np
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
+    from random_patient import random_patient
+    from validation import validate
+    from src.runtime import load_all
+    b = load_all()["t1"]
+    cc = b.spec["complaint_order"]
+    risk = {}
+    for acuity in ("low", "medium", "high"):
+        ps = []
+        for seed in range(150):
+            f, m = random_patient(seed, acuity, allow_missing=seed % 2 == 0, valid_complaints=cc)
+            errors, warnings = validate(f)
+            assert not errors, (seed, acuity, errors)
+            assert not [w for w in warnings if "unusual" in w], (seed, acuity, warnings)
+            assert all(c in cc for c in f["complaints"]) and f["complaints"]
+            assert random_patient(seed, acuity, seed % 2 == 0, cc) == (f, m)  # reproducible
+            ps.append(b.predict(f).probability)
+        risk[acuity] = float(np.mean(ps))
+    assert risk["low"] < risk["medium"] < risk["high"], risk

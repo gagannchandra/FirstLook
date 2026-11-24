@@ -17,6 +17,7 @@ from src.features import ARRIVAL_LEVELS, HOUR_BINS, VITALS  # noqa: E402
 sys.path.insert(0, str(ROOT / "app"))
 from examples import EXAMPLES  # noqa: E402  (synthetic patients only)
 from validation import RANGES, SOFT  # noqa: E402
+from random_patient import HOUR_BINS as RP_HOURS, MISSABLE, PROFILES  # noqa: E402
 
 OUT = ROOT / "app" / "pwa" / "models.json"
 
@@ -42,6 +43,8 @@ def main():
     out["examples"] = {k: {"label": v["label"], "form": v["form"]} for k, v in EXAMPLES.items()}
     out["ranges"] = {k: list(v) for k, v in RANGES.items()}
     out["soft"] = {k: list(v) for k, v in SOFT.items()}
+    # random-patient profiles: one source of truth (app/random_patient.py), consumed by model.js randomPatient()
+    out["random"] = {"profiles": PROFILES, "hour_bins": RP_HOURS, "missable": MISSABLE}
     OUT.write_text(json.dumps(out))
     print(f"wrote {OUT} ({OUT.stat().st_size / 1024:.0f} KB)")
 

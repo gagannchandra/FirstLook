@@ -32,7 +32,7 @@ def click_button(page, text):
 
 
 def nav(page, name):
-    page.locator('[data-testid="stButtonGroup"]').first.get_by_role("radio", name=name, exact=True).click()
+    page.locator('[data-testid="stButtonGroup"]').first.get_by_role("radio", name=name, exact=False).click()
     wait_idle(page)
 
 
@@ -78,11 +78,20 @@ def main():
         nav(page, "Patient")
         click_button(page, "High risk")
         page.get_by_text("ESI level available", exact=True).click(); wait_idle(page)
-        page.locator('[data-testid="stButtonGroup"]').nth(1).get_by_role("radio", name="2 · emergent").click(); wait_idle(page)
+        page.get_by_role("radio", name="2 · emergent").click(); wait_idle(page)
         page.get_by_text("EHR history available", exact=True).click(); wait_idle(page)
         shot(page, out / "01d_patient_esi_history.png", a.width, a.height)
         click_button(page, "Estimate admission risk")
         shot(page, out / "02_result_t3lite.png", a.width, a.height)
+        # random synthetic patient (autofill)
+        nav(page, "Patient")
+        click_button(page, "Clear form")
+        page.locator(".st-key-rand_acuity").get_by_text("High", exact=True).click(); wait_idle(page)
+        page.get_by_text("Include a missing vital", exact=True).click(); wait_idle(page)
+        click_button(page, "Random patient")
+        shot(page, out / "01e_patient_random.png", a.width, a.height)
+        click_button(page, "Estimate admission risk")
+        shot(page, out / "02_result_random.png", a.width, a.height)
         nav(page, "Dashboard"); wait_idle(page, 2.5)
         shot(page, out / "04_dashboard.png", a.width, a.height)
         br.close()

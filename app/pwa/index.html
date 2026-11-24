@@ -9,149 +9,241 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
-  :root { --bg:#f6f7f5; --card:#fff; --ink:#1b2523; --ink2:#4d5a58; --muted:#7b8785; --line:#e3e6e2;
-          --accent:#0f6e6a; --low:#2e8b57; --med:#b07d24; --high:#c94040; --unc:#6b4fbb; }
+  :root {
+    --bg:#f3f5f4; --card:#fff; --ink:#111a19; --ink2:#47534f; --muted:#76817e; --line:#e3e7e5;
+    --accent:#0f6e6a; --accent-soft:#e7f2f1;
+    /* dataviz status palette (always with icon + label) and diverging pair */
+    --low:#0ca30c; --low-bg:#e9f6e9; --med:#fab219; --med-bg:#fff5dc; --high:#d03b3b; --high-bg:#fcebeb;
+    --unc:#6250d6; --unc-bg:#f1effc; --raise:#e34948; --lower:#2a78d6;
+    --shadow: 0 1px 2px rgba(17,26,25,.04), 0 6px 20px -8px rgba(17,26,25,.10);
+    --r: 16px;
+  }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink);
-         padding-bottom: 56px; }
-  header { max-width: 980px; margin: 0 auto; padding: 18px 16px 6px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
-  .brand { font-size: 1.45rem; font-weight: 700; } .brand span { color: var(--accent); }
-  .sub { color: var(--muted); font-size: .9rem; }
-  .pill { margin-left:auto; border:1px solid var(--line); background:#fff; border-radius:999px; padding:5px 12px; font-size:.82rem; }
-  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
-  nav { max-width:980px; margin: 0 auto; padding: 4px 16px 12px; display:flex; gap:0; }
-  nav button { border:1px solid #c9cec8; background:#fff; padding:7px 16px; font-size:.92rem; cursor:pointer; color: var(--ink); }
-  nav button:first-child { border-radius:8px 0 0 8px; } nav button:last-child { border-radius:0 8px 8px 0; }
-  nav button + button { border-left: none; }
-  nav button.on { background:#e3efed; color:var(--accent); border-color: var(--accent); }
-  main { max-width:980px; margin:0 auto; padding: 0 16px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
-  .sec { font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; margin: 4px 0 10px; }
-  .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-  label { display:block; font-size:.88rem; color: var(--ink2); margin: 8px 0 4px; }
-  input[type=number], select, input[type=search] { width:100%; padding:8px 10px; border:1px solid #cfd4ce; border-radius:8px; font-size:.95rem; background:#fff; }
-  input:disabled { background:#f1f2f0; color:#9aa29f; }
-  .row { display:flex; gap:10px; align-items:flex-end; } .row > * { flex:1; }
-  .nm { flex:0 0 auto; font-size:.82rem; color: var(--ink2); white-space:nowrap; padding-bottom:9px; }
-  .ex { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 10px; }
-  .btn { border:1px solid #c9cec8; background:#fff; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:.92rem; color: var(--ink); }
-  .btn.primary { background: var(--accent); color:#fff; border-color: var(--accent); width:100%; padding: 12px; font-size: 1rem; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
-  .chip { background: var(--accent); color:#fff; border-radius:6px; padding:3px 8px; font-size:.85rem; cursor:pointer; }
-  .opts { max-height: 160px; overflow:auto; border:1px solid var(--line); border-radius:8px; margin-top:4px; display:none; background:#fff; }
-  .opts div { padding:6px 10px; cursor:pointer; font-size:.9rem; } .opts div:hover { background:#eef5f4; }
-  .msg { border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: .92rem; }
-  .msg.err { background:#fbeaea; color:#8b2525; } .msg.warn { background:#fbf3e2; color:#7a5510; }
-  .big { font-size: 4.2rem; font-weight: 800; line-height: 1; margin: 8px 0 12px; }
-  .band { display:inline-block; border-radius:999px; padding: 5px 14px; font-weight:700; }
-  .scale { position:relative; height: 8px; border-radius: 4px; margin: 18px 0 6px; display:flex; gap:2px; }
-  .scale div { height:100%; border-radius:3px; }
-  .marker { position:absolute; top:-5px; width:3px; height:18px; background: var(--ink); border-radius:2px; }
-  .scalelab { display:flex; justify-content:space-between; font-size:.78rem; color:var(--muted); }
-  .conf { display:flex; gap:12px; align-items:flex-start; }
-  .conf.unc { border: 2px dashed var(--unc); background:#f6f3fd; }
-  .conf h3 { margin: 0 0 4px; font-size: 1.1rem; }
-  .meta { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .meta .card { margin:0; padding: 10px 12px; } .meta b { display:block; font-size:1.05rem; margin-top:3px; }
-  .meta small { color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; }
-  .bar { display:grid; grid-template-columns: 220px 1fr; gap: 10px; align-items:center; margin: 6px 0; font-size:.9rem; }
-  .barw { position:relative; height: 16px; } .barw .axis { position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:#c3c2b7; }
-  .barw .b { position:absolute; top:2px; height:12px; border-radius: 3px; }
-  table { width:100%; border-collapse:collapse; font-size:.9rem; } th, td { text-align:left; padding: 7px 8px; border-bottom:1px solid var(--line); }
-  th { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-  .hide { display:none; }
-  button, select, input { font: inherit; }
+  html { -webkit-font-smoothing: antialiased; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; background:var(--bg);
+         color:var(--ink); padding-bottom: 64px; font-size: 15px; }
+  button, select, input { font: inherit; color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 18px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* app bar */
+  .bar { position: sticky; top: 0; z-index: 20; padding-top: 12px; background: linear-gradient(var(--bg) 70%, transparent); }
+  .appbar { display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,.88); backdrop-filter: blur(8px);
+            border:1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); flex-wrap: wrap; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand b { font-size:1.25rem; letter-spacing:-.02em; } .brand b span { color: var(--accent); }
+  .brand small { display:block; color:var(--muted); font-size:.8rem; margin-top:2px; }
+  nav { display:inline-flex; background:#e9eeec; padding:4px; border-radius:12px; gap:2px; margin-left: 12px; }
+  nav button { border:0; background:transparent; padding:7px 14px; border-radius:9px; font-weight:600; color:var(--ink2); cursor:pointer; }
+  nav button.on { background:#fff; color:var(--accent); box-shadow: 0 1px 3px rgba(17,26,25,.12); }
+  .pill { margin-left:auto; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background:#fff; border-radius:999px;
+          padding:6px 12px; font-size:.8rem; font-weight:600; color:var(--ink2); }
+  .dot { width:9px; height:9px; border-radius:50%; position:relative; }
+  .dot::after { content:""; position:absolute; inset:-4px; border-radius:50%; background:inherit; opacity:.35; animation: pulse 2s infinite; }
+  @keyframes pulse { from { transform:scale(.6); opacity:.45 } to { transform:scale(1.6); opacity:0 } }
+  @media (prefers-reduced-motion: reduce) { .dot::after { animation: none; } * { transition: none !important; } }
+
+  main { padding-top: 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px; box-shadow: var(--shadow); margin-bottom:14px; }
+  .h { display:flex; align-items:center; gap:9px; margin-bottom: 6px; }
+  .h .n { width:24px; height:24px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-weight:750; font-size:.8rem;
+          display:inline-flex; align-items:center; justify-content:center; }
+  .h .t { font-weight:700; } .h .s { margin-left:auto; color:var(--muted); font-size:.82rem; }
+  .eyebrow { font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; margin: 0 0 10px; }
+  .grid { display:grid; grid-template-columns: 1fr 1.08fr; gap: 16px; }
+  @media (max-width: 820px) { .grid, .qf { grid-template-columns: 1fr !important; } nav { margin-left:0; } .pill { margin-left:0; } }
+
+  /* quick fill */
+  .qf { display:grid; grid-template-columns: 1fr 1fr; gap: 22px; background: linear-gradient(135deg, #fff 0%, #f2f8f7 100%); }
+  .btns { display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .btn { border:1px solid var(--line); background:#fff; border-radius:10px; padding:9px 12px; cursor:pointer; font-weight:600;
+         transition: transform .15s, border-color .15s, color .15s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .btn.dark { background: var(--ink); color:#fff; border-color: var(--ink); } .btn.dark:hover { color:#fff; filter: brightness(1.3); }
+  .btn.primary { background: var(--accent); color:#fff; border-color: var(--accent); box-shadow: 0 6px 16px -6px rgba(15,110,106,.55); }
+  .btn.primary:hover { color:#fff; filter: brightness(1.07); }
+  .btn.big { width:100%; padding: 13px; font-size: 1.02rem; }
+  .chips { display:flex; flex-wrap: wrap; gap: 6px; }
+  .chip-t { border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 14px; cursor:pointer; font-weight:600; color: var(--ink2); }
+  .chip-t[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .rrow { display:flex; align-items:center; gap: 12px; margin-top: 12px; }
+  .rrow .btn { margin-left:auto; min-width: 170px; }
+  .tag { display:inline-flex; gap:6px; align-items:center; font-size:.82rem; color:var(--ink2); background:var(--accent-soft); border-radius:999px;
+         padding: 5px 12px; grid-column: 1 / -1; justify-self: start; }
+
+  /* form */
+  label.l { display:block; font-size:.86rem; color: var(--ink2); margin: 10px 0 5px; }
+  input[type=number], select, input[type=search] { width:100%; padding:9px 11px; border:1px solid #cfd5d2; border-radius:10px; font-size:.95rem; background:#fff;
+         transition: border-color .15s, box-shadow .15s; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15,110,106,.15); }
+  input:disabled { background:#f1f3f2; color:#9aa29f; }
+  .row { display:flex; gap:10px; align-items:flex-end; } .row > div { flex:1; }
+  .nm { flex: 0 0 auto; font-size:.84rem; color: var(--ink2); white-space:nowrap; padding-bottom:10px; display:flex; gap:6px; align-items:center; }
+  .opts { max-height: 180px; overflow:auto; border:1px solid var(--line); border-radius:10px; margin-top:4px; display:none; background:#fff; box-shadow: var(--shadow); }
+  .opts div { padding:7px 11px; cursor:pointer; } .opts div:hover, .opts div.act { background:var(--accent-soft); }
+  .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .tags span { background:var(--accent); color:#fff; border-radius:8px; padding:4px 9px; font-size:.86rem; cursor:pointer; }
+  .progress { display:flex; align-items:center; gap: 12px; color: var(--ink2); font-size:.86rem; margin: 4px 0 10px; }
+  .progress .track { flex:1; height:6px; background:#e3e8e6; border-radius:4px; overflow:hidden; }
+  .progress .fill { height:100%; background: var(--accent); border-radius:4px; transition: width .3s; }
+  .msg { border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: .9rem; }
+  .msg.err { background:#fbeaea; color:#8b2525; } .msg.warn { background:#fdf4df; color:#6b4b00; }
   #go { margin: 4px 0 24px; }
-  footer { position:fixed; z-index:10; left:0; right:0; bottom:0; background:#16201f; color:#e7ecea; text-align:center; padding: 12px; font-size:.85rem; }
-  .muted { color: var(--muted); font-size: .86rem; }
+
+  /* result */
+  .summary { display:flex; flex-wrap:wrap; gap:6px; margin-bottom: 14px; }
+  .summary span { background:#fff; border:1px solid var(--line); border-radius:999px; padding:4px 11px; font-size:.82rem; color:var(--ink2); }
+  .summary span.miss { border-style: dashed; color: var(--muted); }
+  .hero .lab { display:flex; justify-content:space-between; color: var(--ink2); font-weight:600; font-size:.92rem; }
+  .big { font-size: 4.6rem; font-weight: 780; line-height: 1; margin: 10px 0 14px; letter-spacing: -.03em; }
+  .big small { font-size: 2rem; color: var(--ink2); }
+  .band { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding: 6px 14px; font-weight:700; }
+  .meter { position:relative; margin-top: 34px; }
+  .segs { display:flex; gap:2px; height:10px; } .segs div:first-child { border-radius:5px 0 0 5px; } .segs div:last-child { border-radius:0 5px 5px 0; }
+  .mark { position:absolute; top:-6px; width:4px; height:22px; background:var(--ink); border-radius:2px; border:2px solid #fff; margin-left:-4px; box-sizing: content-box; }
+  .bubble { position:absolute; top:-30px; transform: translateX(-50%); background: var(--ink); color:#fff; font-size:.75rem; font-weight:700; padding:2px 7px; border-radius:6px; }
+  .mlab { display:flex; justify-content:space-between; font-size:.76rem; color:var(--muted); margin-top: 8px; }
+  .conf { display:flex; gap:14px; align-items:flex-start; }
+  .conf .ico { width:40px; height:40px; border-radius:12px; background: var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex: 0 0 auto; }
+  .conf.unc { border: 2px dashed var(--unc); background: var(--unc-bg); box-shadow: none; } .conf.unc .ico { background:#fff; }
+  .conf h3 { margin: 0 0 4px; font-size: 1.1rem; } .conf p { margin:0; color: var(--ink2); font-size:.9rem; line-height:1.45; }
+  .meta { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .meta div { background:#fff; border:1px solid var(--line); border-radius:12px; padding: 9px 12px; }
+  .meta small { color: var(--muted); font-size:.68rem; text-transform: uppercase; letter-spacing:.06em; font-weight:700; }
+  .meta b { display:block; margin-top: 3px; }
+  .factor { display:flex; gap:10px; align-items:center; padding: 8px 0; border-bottom: 1px solid #f0f2f1; }
+  .factor:last-child { border-bottom: 0; }
+  .arrow { width:26px; height:26px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex:0 0 auto; }
+  .factor .v { margin-left:auto; color: var(--muted); font-size:.82rem; }
+  .actions { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* explanation bars (diverging, centred axis, value labels in ink) */
+  .bar-row { display:grid; grid-template-columns: minmax(150px, 34%) 1fr; gap: 12px; align-items:center; margin: 8px 0; font-size:.9rem; }
+  .bar-row .name { text-align:right; color: var(--ink2); }
+  .track2 { position:relative; height: 20px; } .track2 .axis { position:absolute; left:50%; top:-4px; bottom:-4px; width:1px; background:#c3c2b7; }
+  .track2 .b { position:absolute; top:3px; height:14px; border-radius:4px; }
+  .track2 .val { position:absolute; top:1px; font-size:.75rem; color: var(--ink2); }
+  .muted { color: var(--muted); font-size:.86rem; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; font-variant-numeric: tabular-nums; }
+  th, td { text-align:left; padding: 9px 8px; border-bottom:1px solid #f0f2f1; } tr:last-child td { border-bottom: 0; }
+  th { font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .hide { display:none !important; }
+  footer { position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--ink); color:#eef2f1; text-align:center; padding: 11px; font-size:.84rem; }
+  code { background:#eef1f0; padding:1px 5px; border-radius:5px; }
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">First<span>Look</span></div>
-  <div class="sub">Admission-risk estimate at ED triage · offline web app (L3)</div>
-  <div class="pill" id="netpill"><span class="dot" id="netdot"></span><span id="nettext">…</span></div>
-</header>
-<nav id="nav">
-  <button data-p="patient" class="on">Patient</button><button data-p="result">Result</button><button data-p="explain">Explanation</button><button data-p="about">About &amp; metrics</button>
-</nav>
-<main>
+<div class="bar"><div class="wrap">
+  <div class="appbar">
+    <div class="brand"><img src="icon.svg" width="30" height="30" alt=""><div><b>First<span>Look</span></b><small>ED admission risk · offline web app</small></div></div>
+    <nav id="nav" aria-label="Screens">
+      <button data-p="patient" class="on">① Patient</button><button data-p="result">② Result</button><button data-p="explain">③ Explanation</button><button data-p="about">About</button>
+    </nav>
+    <div class="pill" role="status"><span class="dot" id="netdot"></span><span id="nettext">…</span></div>
+  </div>
+</div></div>
+
+<main class="wrap">
 <section id="patient">
-  <div class="sec">Load a synthetic example patient</div>
-  <div class="ex" id="examples"></div>
-  <div class="muted" id="exnote"></div>
-  <div id="msgs"></div>
+  <div class="card qf">
+    <div>
+      <div class="eyebrow">Quick fill · synthetic example patients</div>
+      <div class="btns" id="examples"></div>
+    </div>
+    <div>
+      <div class="eyebrow">Random synthetic patient · choose acuity</div>
+      <div class="chips" id="acuity" role="group" aria-label="Acuity">
+        <button class="chip-t" data-a="" aria-pressed="true">Any</button><button class="chip-t" data-a="low" aria-pressed="false">Low</button>
+        <button class="chip-t" data-a="medium" aria-pressed="false">Medium</button><button class="chip-t" data-a="high" aria-pressed="false">High</button>
+      </div>
+      <div class="rrow">
+        <label class="nm" style="padding:0"><input type="checkbox" id="rmiss"> Include a missing vital</label>
+        <button class="btn dark" id="random" title="Fills every field with plausible, invented values for the chosen acuity">🎲 Random patient</button>
+      </div>
+    </div>
+    <div class="tag hide" id="exnote"></div>
+  </div>
+
   <div class="grid">
     <div>
       <div class="card">
-        <div class="sec">Patient &amp; arrival</div>
-        <div class="row"><div><label for="age">Age (years)</label><input id="age" type="number" min="18" max="110"></div>
-          <div><label for="gender">Sex</label><select id="gender"><option>Female</option><option>Male</option></select></div></div>
-        <div class="row"><div><label for="arrival">Arrival mode</label><select id="arrival"></select></div>
-          <div><label for="hour">Arrival time</label><select id="hour"></select></div></div>
-        <label for="ccsearch">Chief complaint (search, up to 3)</label>
-        <input id="ccsearch" type="search" placeholder="Type to search, e.g. chest pain" autocomplete="off">
-        <div class="opts" id="ccopts"></div>
-        <div class="chips" id="ccchips"></div>
+        <div class="h"><span class="n">1</span><span class="t">Patient &amp; arrival</span></div>
+        <div class="row"><div><label class="l" for="age">Age (years)</label><input id="age" type="number" min="18" max="110" placeholder="e.g. 54"></div>
+          <div><label class="l" for="gender">Sex</label><select id="gender"><option value="">Select…</option><option>Female</option><option>Male</option></select></div></div>
+        <div class="row"><div><label class="l" for="arrival">Arrival mode</label><select id="arrival"></select></div>
+          <div><label class="l" for="hour">Arrival time</label><select id="hour"></select></div></div>
+        <label class="l" for="ccsearch">Chief complaint (search, up to 3)</label>
+        <input id="ccsearch" type="search" placeholder="Type to search — e.g. chest pain, fall, fever" autocomplete="off"
+               role="combobox" aria-expanded="false" aria-controls="ccopts">
+        <div class="opts" id="ccopts" role="listbox"></div>
+        <div class="tags" id="ccchips"></div>
       </div>
       <div class="card">
-        <div class="sec">Optional</div>
-        <label for="esi">ESI level (uses the T2 model when given)</label>
+        <div class="h"><span class="n">3</span><span class="t">Optional</span><span class="s">improves accuracy</span></div>
+        <label class="l" for="esi">ESI level (uses the T2 model when given)</label>
         <select id="esi"><option value="">Not available</option><option value="1">1 · resus</option><option value="2">2 · emergent</option>
           <option value="3">3 · urgent</option><option value="4">4 · less urgent</option><option value="5">5 · non-urgent</option></select>
         <p class="muted">The EHR-history model (T3-lite, a tree ensemble) runs in the desktop app (L1/L2) only.</p>
       </div>
     </div>
     <div class="card">
-      <div class="sec">Triage vitals — tick “not measured” if unavailable</div>
+      <div class="h"><span class="n">2</span><span class="t">Triage vitals</span><span class="s" id="vcount"></span></div>
       <div id="vitals"></div>
-      <label for="o2dev">Oxygen at triage</label>
+      <label class="l" for="o2dev">Oxygen at triage</label>
       <select id="o2dev"><option value="0">Room air</option><option value="1">On supplemental oxygen</option><option value="">Not recorded</option></select>
     </div>
   </div>
-  <button class="btn primary" id="go">Estimate admission risk →</button>
+  <div class="progress"><span id="ptext"></span><div class="track"><div class="fill" id="pfill"></div></div></div>
+  <div id="msgs"></div>
+  <button class="btn primary big" id="go">Estimate admission risk →</button>
 </section>
 
 <section id="result" class="hide">
   <div id="noresult" class="card muted">Fill in the patient form and press “Estimate admission risk”.</div>
   <div id="resbody" class="hide">
+    <div class="summary" id="summary"></div>
     <div class="grid">
-      <div class="card">
-        <div style="font-weight:600;color:var(--ink2)">Estimated admission risk</div>
-        <div class="big" id="pct"></div>
-        <span class="band" id="band"></span>
-        <div class="scale" id="scale"></div>
-        <div class="scalelab" id="scalelab"></div>
+      <div>
+        <div class="card hero">
+          <div class="lab"><span>Estimated admission risk</span><span class="muted" id="mname2"></span></div>
+          <div class="big num" id="pct"></div>
+          <span class="band" id="band"></span>
+          <div class="meter" id="meter"></div>
+        </div>
+        <div class="actions"><button class="btn primary" id="why">Why this estimate? →</button><button class="btn" id="newp">New patient</button></div>
       </div>
       <div>
-        <div class="card conf" id="conf"><div style="font-size:1.6rem" id="conficon"></div><div><h3 id="conftitle"></h3><div id="conftext" class="muted"></div></div></div>
-        <div class="meta"><div class="card"><small>Model</small><b id="mname"></b></div><div class="card"><small>Version</small><b id="mver"></b></div>
-          <div class="card"><small>Inference</small><b id="mms"></b></div><div class="card"><small>Inputs</small><b id="mn"></b></div></div>
+        <div class="card conf" id="conf"><div class="ico" id="conficon"></div><div><h3 id="conftitle"></h3><p id="conftext"></p></div></div>
+        <div class="meta"><div><small>Model</small><b id="mname"></b></div><div><small>Version</small><b id="mver"></b></div>
+          <div><small>Inference</small><b class="num" id="mms"></b></div><div><small>Inputs</small><b class="num" id="mn"></b></div></div>
+        <div class="eyebrow">Top factors</div>
+        <div class="card" id="topf" style="padding:6px 16px"></div>
       </div>
     </div>
-    <div class="row" style="max-width:560px"><button class="btn primary" id="why">Why this estimate? →</button><button class="btn" id="newp">New patient</button></div>
   </div>
 </section>
 
 <section id="explain" class="hide">
+  <div class="summary" id="summary2"></div>
   <div class="card">
-    <div class="sec">What pushed this estimate up or down (exact contributions of the logistic-regression model)</div>
+    <div class="h"><span class="n">?</span><span class="t">What moved this estimate</span><span class="s" id="exsub"></span></div>
     <div id="bars" class="muted">No estimate yet.</div>
-    <p class="muted">Red pushes towards admission, blue towards discharge. Contributions are on the log-odds scale; factors below 0.05 are hidden. This explains the model, not the patient.</p>
+    <div class="mlab" style="margin:10px 0 0 calc(34% + 12px)"><span>← lowers estimated risk</span><span>raises estimated risk →</span></div>
+    <p class="muted">Exact contributions of the logistic-regression model, on the log-odds scale; factors below 0.05 are hidden.
+      These explain the model, not the patient — associations, not causes.</p>
   </div>
 </section>
 
 <section id="about" class="hide">
   <div class="card">
-    <div class="sec">Shipped models — S1 test set (frozen, opened once)</div>
+    <div class="eyebrow">Shipped models — S1 test set (frozen, opened once)</div>
     <table id="mt"></table>
     <p class="muted" id="aboutnote"></p>
   </div>
   <div class="card">
-    <div class="sec">Offline</div>
+    <div class="eyebrow">Offline</div>
     <p>All computation runs in this browser tab from files cached by the service worker. The page makes no network requests after install
-      (content-security-policy: <code>connect-src 'self'</code>). Service worker: <b id="swstate">…</b>.</p>
+      (content-security-policy <code>connect-src 'self'</code>). Service worker: <b id="swstate">…</b>.</p>
   </div>
 </section>
 </main>
@@ -160,68 +252,134 @@
 <script src="model.js"></script>
 <script>
 "use strict";
-const VITAL = [["triage_vital_hr","Heart rate (bpm)"],["triage_vital_rr","Respiratory rate (/min)"],["triage_vital_sbp","Systolic BP (mmHg)"],
-  ["triage_vital_dbp","Diastolic BP (mmHg)"],["triage_vital_o2","SpO₂ (%)"],["triage_vital_temp","Temperature (°F)"]];
-const ARR = {Car:"Car", ambulance:"Ambulance / EMS", "Walk-in":"Walk-in", Other:"Other", "Public Transportation":"Public transport", Wheelchair:"Wheelchair", Police:"Police"};
-let META = null, selected = [], last = null;
+const VITAL = [["triage_vital_hr", "Heart rate", "bpm", "typical 60–100"], ["triage_vital_rr", "Respiratory rate", "/min", "typical 12–20"],
+  ["triage_vital_sbp", "Systolic BP", "mmHg", "typical 100–140"], ["triage_vital_dbp", "Diastolic BP", "mmHg", "typical 60–90"],
+  ["triage_vital_o2", "SpO₂", "%", "typical 95–100"], ["triage_vital_temp", "Temperature", "°F", "typical 97–99.5"]];
+const SHORT = { triage_vital_hr: "HR", triage_vital_rr: "RR", triage_vital_sbp: "SBP", triage_vital_dbp: "DBP", triage_vital_o2: "SpO₂", triage_vital_temp: "Temp" };
+const ARR = { Car: "Private car / taxi", ambulance: "Ambulance / EMS", "Walk-in": "Walk-in", Other: "Other",
+  "Public Transportation": "Public transport", Wheelchair: "Wheelchair", Police: "Police" };
+const BAND = { Low: ["var(--low)", "var(--low-bg)", "●"], Medium: ["var(--med)", "var(--med-bg)", "◆"], High: ["var(--high)", "var(--high-bg)", "▲"] };
+const CONF = {
+  likely_admission: ["🛏️", "Likely admission", "The conformal check gives a single answer at the 90% level: admission."],
+  likely_discharge: ["🏠", "Likely discharge", "The conformal check gives a single answer at the 90% level: discharge."],
+  uncertain: ["⚠️", "Uncertain — clinician review", "Both outcomes remain plausible at the 90% confidence level. Use clinical judgement; do not rely on the percentage alone."],
+};
+let META = null, selected = [], acuity = "";
 const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 function show(p) {
-  for (const s of ["patient","result","explain","about"]) $(s).classList.toggle("hide", s !== p);
+  for (const s of ["patient", "result", "explain", "about"]) $(s).classList.toggle("hide", s !== p);
   for (const b of $("nav").children) b.classList.toggle("on", b.dataset.p === p);
-  window.scrollTo(0, 0);
+  scrollTo({ top: 0, behavior: "smooth" });
 }
-$("nav").onclick = (e) => { if (e.target.dataset.p) show(e.target.dataset.p); };
+$("nav").addEventListener("click", (e) => { const p = e.target.closest("button")?.dataset.p; if (p) show(p); });
 
 function net() {
   const on = navigator.onLine;
-  $("netdot").style.background = on ? "#c94040" : "#2e8b57";
-  $("nettext").textContent = (on ? "Network: ONLINE" : "Network: OFFLINE") + " · this app sends 0 requests";
+  $("netdot").style.background = on ? "var(--high)" : "var(--low)";
+  $("nettext").textContent = (on ? "Online" : "Offline") + " · this app sends 0 requests";
 }
 addEventListener("online", net); addEventListener("offline", net);
 
-function hourBin(h) { const b = META.hour_bins; return h >= 23 || h < 3 ? b[0] : b[1 + Math.floor((h - 3) / 4)]; }
+const hourBin = (h) => { const b = META.hour_bins; return h >= 23 || h < 3 ? b[0] : b[1 + Math.floor((h - 3) / 4)]; };
 
 function build() {
-  for (const a of META.arrival_levels) $("arrival").add(new Option(ARR[a] || a, a));
+  for (const a of META.arrival_levels) $("arrival").add(new Option(ARR[a] ?? a, a));
   for (const h of META.hour_bins) $("hour").add(new Option(h.replace("-", ":00–") + ":59", h));
   $("hour").value = hourBin(new Date().getHours());
-  $("vitals").innerHTML = VITAL.map(([k, l]) => `<div class="row"><div><label for="${k}">${l}</label><input id="${k}" type="number" step="any"></div>
-    <label class="nm"><input type="checkbox" id="${k}_nm"> Not measured</label></div>`).join("");
-  for (const [k] of VITAL) $(k + "_nm").onchange = (e) => { $(k).disabled = e.target.checked; if (e.target.checked) $(k).value = ""; };
+  $("vitals").innerHTML = VITAL.map(([k, l, u, typ]) => `<div class="row"><div><label class="l" for="${k}">${l} (${u})</label>
+      <input id="${k}" type="number" step="any" placeholder="${typ}" data-typ="${typ}"></div>
+      <label class="nm"><input type="checkbox" id="${k}_nm"> Not measured</label></div>`).join("");
+  for (const [k] of VITAL) {
+    $(k + "_nm").addEventListener("change", (e) => setMissing(k, e.target.checked));
+    $(k).addEventListener("input", progress);
+  }
+  for (const id of ["age", "gender"]) $(id).addEventListener("input", progress);
   const ex = $("examples");
-  for (const [key, e] of Object.entries(META.examples)) { const b = document.createElement("button"); b.className = "btn"; b.textContent = e.label; b.onclick = () => load(key); ex.appendChild(b); }
-  const c = document.createElement("button"); c.className = "btn"; c.textContent = "Clear form"; c.onclick = clearForm; ex.appendChild(c);
-  const s = $("ccsearch"), o = $("ccopts");
-  s.oninput = () => {
-    const q = s.value.trim().toLowerCase();
-    const hits = META.complaint_order.filter((c) => !selected.includes(c) && META.complaint_labels[c].toLowerCase().includes(q)).slice(0, 30);
-    o.innerHTML = hits.map((c) => `<div data-c="${c}">${META.complaint_labels[c]}</div>`).join("");
-    o.style.display = q && hits.length ? "block" : "none";
-  };
-  o.onclick = (e) => { const c = e.target.dataset.c; if (c && selected.length < 3) { selected.push(c); chips(); } s.value = ""; o.style.display = "none"; };
+  for (const [key, e] of Object.entries(META.examples)) {
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = e.label; b.onclick = () => load(key); ex.appendChild(b);
+  }
+  const c = document.createElement("button"); c.className = "btn"; c.textContent = "↺ Clear form"; c.onclick = clearForm; ex.appendChild(c);
+  $("acuity").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    acuity = b.dataset.a; for (const x of $("acuity").children) x.setAttribute("aria-pressed", String(x === b));
+  });
+  $("random").onclick = randomFill;
+  combobox();
   $("go").onclick = run; $("why").onclick = () => show("explain"); $("newp").onclick = () => { clearForm(); show("patient"); };
-  about();
+  about(); progress();
 }
-function chips() { $("ccchips").innerHTML = selected.map((c) => `<span class="chip" data-c="${c}">${META.complaint_labels[c]} ×</span>`).join("");
-  for (const el of $("ccchips").children) el.onclick = () => { selected = selected.filter((x) => x !== el.dataset.c); chips(); }; }
+
+/** Searchable complaint combobox with keyboard support (↑ ↓ Enter Esc). */
+function combobox() {
+  const s = $("ccsearch"), o = $("ccopts");
+  let hits = [], act = 0;
+  const render = () => {
+    o.innerHTML = hits.map((c, i) => `<div role="option" data-c="${c}" class="${i === act ? "act" : ""}">${esc(META.complaint_labels[c])}</div>`).join("");
+    const open = hits.length > 0 && s.value.trim() !== "";
+    o.style.display = open ? "block" : "none"; s.setAttribute("aria-expanded", String(open));
+  };
+  const add = (c) => { if (c && selected.length < 3 && !selected.includes(c)) { selected = [...selected, c]; chips(); } s.value = ""; hits = []; render(); };
+  s.addEventListener("input", () => {
+    const q = s.value.trim().toLowerCase(); act = 0;
+    hits = META.complaint_order.filter((c) => !selected.includes(c) && META.complaint_labels[c].toLowerCase().includes(q)).slice(0, 30);
+    render();
+  });
+  s.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { act = Math.min(act + 1, hits.length - 1); render(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { act = Math.max(act - 1, 0); render(); e.preventDefault(); }
+    else if (e.key === "Enter") { add(hits[act]); e.preventDefault(); }
+    else if (e.key === "Escape") { hits = []; render(); }
+  });
+  o.addEventListener("mousedown", (e) => { add(e.target.dataset.c); e.preventDefault(); });
+}
+function chips() {
+  $("ccchips").innerHTML = selected.map((c) => `<span data-c="${c}" title="Remove">${esc(META.complaint_labels[c])} ×</span>`).join("");
+  for (const el of $("ccchips").children) el.onclick = () => { selected = selected.filter((x) => x !== el.dataset.c); chips(); };
+  progress();
+}
+function setMissing(k, on) {
+  $(k + "_nm").checked = on; $(k).disabled = on; if (on) $(k).value = "";
+  $(k).placeholder = on ? "not measured" : $(k).dataset.typ; progress();
+}
+function progress() {
+  const vit = VITAL.filter(([k]) => $(k + "_nm").checked || $(k).value !== "").length;
+  const req = [$("age").value !== "", $("gender").value !== "", selected.length > 0].filter(Boolean).length;
+  const done = vit + req, total = VITAL.length + 3;
+  $("vcount").textContent = `${vit}/${VITAL.length} entered or marked`;
+  $("ptext").innerHTML = `<b>${done}</b> of ${total} core fields complete`;
+  $("pfill").style.width = `${(100 * done / total).toFixed(0)}%`;
+}
+function note(html) { $("exnote").innerHTML = html; $("exnote").classList.toggle("hide", !html); }
 
 function clearForm() {
-  $("age").value = ""; $("esi").value = ""; $("o2dev").value = "0"; selected = []; chips(); $("exnote").textContent = ""; $("msgs").innerHTML = "";
-  for (const [k] of VITAL) { $(k).value = ""; $(k).disabled = false; $(k + "_nm").checked = false; }
+  $("age").value = ""; $("gender").value = ""; $("esi").value = ""; $("o2dev").value = "0"; selected = []; chips(); note(""); $("msgs").innerHTML = "";
+  for (const [k] of VITAL) { $(k).value = ""; setMissing(k, false); }
+  progress();
+}
+function fill(f) {
+  $("age").value = f.age; $("gender").value = f.gender; $("arrival").value = f.arrivalmode; $("hour").value = f.arrivalhour_bin;
+  for (const [k] of VITAL) { setMissing(k, f[k] === null); if (f[k] !== null) $(k).value = f[k]; }
+  $("o2dev").value = f.triage_vital_o2_device === null ? "" : String(f.triage_vital_o2_device);
+  selected = [...f.complaints]; chips(); $("msgs").innerHTML = "";
 }
 function load(key) {
-  clearForm(); const f = META.examples[key].form;
-  $("age").value = f.age; $("gender").value = f.gender; $("arrival").value = f.arrivalmode; $("hour").value = f.arrivalhour_bin;
-  for (const [k] of VITAL) { if (f[k] === null) { $(k + "_nm").checked = true; $(k).disabled = true; } else $(k).value = f[k]; }
-  $("o2dev").value = f.triage_vital_o2_device === null ? "" : String(f.triage_vital_o2_device);
-  selected = [...f.complaints]; chips();
-  $("exnote").innerHTML = `Loaded synthetic example: <b>${META.examples[key].label}</b> — invented for the demo, not a real patient.`;
+  clearForm(); fill(META.examples[key].form);
+  note(`🧪 <b>Synthetic example:</b> ${esc(META.examples[key].label)} — invented for the demo, not a real patient`);
+}
+function randomFill() {
+  const seed = crypto.getRandomValues(new Uint32Array(1))[0] % 100000;
+  const esiOn = $("esi").value !== "";
+  const { form, meta } = FirstLookModel.randomPatient(seed, acuity || null, $("rmiss").checked, META);
+  clearForm(); fill(form);
+  if (esiOn) $("esi").value = String(meta.esi);
+  note(`🎲 <b>Random synthetic patient:</b> ${meta.acuity} acuity · seed ${seed} — invented for the demo, not a real patient`);
 }
 
 function readForm() {
   const num = (id) => { const v = $(id).value; return v === "" ? null : Number(v); };
-  const f = { age: num("age"), gender: $("gender").value, arrivalmode: $("arrival").value, arrivalhour_bin: $("hour").value,
+  const f = { age: num("age"), gender: $("gender").value || null, arrivalmode: $("arrival").value, arrivalhour_bin: $("hour").value,
     triage_vital_o2_device: $("o2dev").value === "" ? null : Number($("o2dev").value), complaints: [...selected],
     esi: $("esi").value === "" ? null : Number($("esi").value) };
   for (const [k] of VITAL) f[k] = $(k + "_nm").checked ? null : num(k);
@@ -230,7 +388,8 @@ function readForm() {
 function validate(f) {
   const err = [], warn = [];
   if (f.age === null) err.push("Please enter the patient's age.");
-  for (const [k] of VITAL) if (f[k] === null && !$(k + "_nm").checked) err.push(`${VITAL.find((v) => v[0] === k)[1].split(" (")[0]}: enter a value or tick “not measured”.`);
+  if (!f.gender) err.push("Please select the patient's sex.");
+  for (const [k, l] of VITAL) if (f[k] === null && !$(k + "_nm").checked) err.push(`${l}: enter a value or tick “not measured”.`);
   for (const [k, [lo, hi, name, unit]] of Object.entries(META.ranges)) {
     const v = f[k]; if (v === null || v === undefined) continue;
     if (v < lo || v > hi) err.push(`${name} ${v} ${unit} is outside the accepted range (${lo}–${hi} ${unit}). Please check it.`);
@@ -241,48 +400,79 @@ function validate(f) {
   return [err, warn];
 }
 
+function summary(f) {
+  const c = [`${f.age} y · ${f.gender === "Female" ? "F" : "M"}`, ARR[f.arrivalmode] ?? f.arrivalmode, ...f.complaints.map((x) => META.complaint_labels[x])]
+    .map((t) => `<span>${esc(t)}</span>`);
+  for (const [k, , u] of VITAL) c.push(f[k] === null ? `<span class="miss">${SHORT[k]} not measured</span>` : `<span>${SHORT[k]} ${f[k]}${u === "%" ? "" : " "}${u}</span>`);
+  if (f.triage_vital_o2_device === 1) c.push("<span>on O₂</span>");
+  if (f.esi) c.push(`<span>ESI ${f.esi}</span>`);
+  return c.join("");
+}
+function factorRows(items) {
+  return items.map((d) => { const up = d.value > 0;
+    return `<div class="factor"><span class="arrow" style="color:${up ? "var(--raise)" : "var(--lower)"};background:${up ? "#fdecec" : "#e8f1fc"}">${up ? "↑" : "↓"}</span>
+      <b>${esc(d.label)}</b><span class="v num">${d.value > 0 ? "+" : ""}${d.value.toFixed(2)}</span></div>`; }).join("");
+}
+
 function run() {
   const f = readForm(); const [err, warn] = validate(f);
-  $("msgs").innerHTML = err.map((e) => `<div class="msg err">${e}</div>`).join("") + warn.map((w) => `<div class="msg warn">${w}</div>`).join("");
-  if (err.length) { $("msgs").scrollIntoView({ behavior: "smooth" }); return; }
+  $("msgs").innerHTML = err.map((e) => `<div class="msg err">✋ ${esc(e)}</div>`).join("") + warn.map((w) => `<div class="msg warn">⚠️ ${esc(w)}</div>`).join("");
+  if (err.length) { $("msgs").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
   const slot = f.esi ? "t2" : "t1", m = META.models[slot];
-  const r = FirstLookModel.predict(f, m, META); last = { r, m };
-  const col = { Low: "var(--low)", Medium: "var(--med)", High: "var(--high)" }[r.band];
+  const r = FirstLookModel.predict(f, m, META);
+  const [col, bg, ico] = BAND[r.band];
   $("noresult").classList.add("hide"); $("resbody").classList.remove("hide");
-  $("pct").textContent = Math.round(r.probability * 100) + "%"; $("pct").style.color = col;
-  $("band").textContent = (r.band === "High" ? "▲ " : r.band === "Low" ? "▼ " : "● ") + r.band + " risk";
-  $("band").style.cssText = `background:${col}1f;color:${col}`;
-  const tl = m.thresholds.t_low, th = m.thresholds.t_high;
-  $("scale").innerHTML = `<div style="width:${tl*100}%;background:var(--low)"></div><div style="width:${(th-tl)*100}%;background:var(--med)"></div><div style="flex:1;background:var(--high)"></div><span class="marker" style="left:calc(${r.probability*100}% - 1px)"></span>`;
-  $("scalelab").innerHTML = `<span>0%</span><span>Low &lt; ${Math.round(tl*100)}%</span><span>High ≥ ${Math.round(th*100)}%</span><span>100%</span>`;
-  const C = { likely_admission: ["🛏", "Likely admission", "The conformal check gives a single answer at the 90% level: admission."],
-    likely_discharge: ["🏠", "Likely discharge", "The conformal check gives a single answer at the 90% level: discharge."],
-    uncertain: ["?", "Uncertain — clinician review", "At the 90% level the model cannot rule out either outcome for this patient. Use clinical judgement; do not rely on the percentage alone."] }[r.conformal];
+  $("summary").innerHTML = $("summary2").innerHTML = summary(f);
+  $("pct").innerHTML = `${Math.round(r.probability * 100)}<small>%</small>`;
+  $("band").innerHTML = `<span style="color:${col}">${ico}</span>${r.band} risk`; $("band").style.background = bg;
+  const tl = m.thresholds.t_low, th = m.thresholds.t_high, x = Math.min(Math.max(r.probability * 100, 1), 99);
+  $("meter").innerHTML = `<div class="bubble num" style="left:${x}%">${Math.round(r.probability * 100)}%</div>
+    <div class="segs"><div style="width:${tl * 100}%;background:var(--low)"></div><div style="width:${(th - tl) * 100}%;background:var(--med)"></div><div style="flex:1;background:var(--high)"></div></div>
+    <div class="mark" style="left:${x}%"></div><div class="mlab"><span>0%</span><span>Low &lt; ${Math.round(tl * 100)}%</span><span>High ≥ ${Math.round(th * 100)}%</span><span>100%</span></div>`;
+  const [ci, ct, cd] = CONF[r.conformal];
   $("conf").classList.toggle("unc", r.conformal === "uncertain");
-  $("conficon").textContent = C[0]; $("conftitle").textContent = C[1]; $("conftext").textContent = C[2];
+  $("conficon").textContent = ci; $("conftitle").textContent = ct; $("conftext").textContent = cd;
   $("conftitle").style.color = r.conformal === "uncertain" ? "var(--unc)" : "var(--ink)";
-  $("mname").textContent = m.name; $("mver").textContent = META.version; $("mms").textContent = r.ms.toFixed(2) + " ms"; $("mn").textContent = m.features.length;
-  const mx = Math.max(...r.contributions.map((d) => Math.abs(d.value)), 0.5);
-  $("bars").innerHTML = r.contributions.slice(0, 10).map((d) => {
-    const w = Math.abs(d.value) / mx * 50, left = d.value > 0 ? 50 : 50 - w;
-    return `<div class="bar"><div>${d.label}</div><div class="barw"><div class="axis"></div><div class="b" style="left:${left}%;width:${w}%;background:${d.value > 0 ? "#d64545" : "#2a78d6"}"></div></div></div>`;
+  $("mname").textContent = slot.toUpperCase(); $("mname2").textContent = m.name; $("mver").textContent = META.version;
+  $("mms").textContent = `${r.ms.toFixed(2)} ms`; $("mn").textContent = m.features.length;
+  $("topf").innerHTML = factorRows(r.contributions.slice(0, 3)) || '<div class="muted">No factor above 0.05.</div>';
+  $("exsub").textContent = `${Math.round(r.probability * 100)}% · ${r.band} risk`;
+  const top = r.contributions.slice(0, 10).sort((a, b) => b.value - a.value);
+  const mx = Math.max(...top.map((d) => Math.abs(d.value)), 0.5) * 1.15;
+  $("bars").innerHTML = top.map((d) => {
+    const w = Math.abs(d.value) / mx * 50, left = d.value > 0 ? 50 : 50 - w, lab = `${d.value > 0 ? "+" : ""}${d.value.toFixed(2)}`;
+    const vpos = d.value > 0 ? `left:calc(${50 + w}% + 5px)` : `right:calc(${50 + w}% + 5px)`;
+    return `<div class="bar-row"><div class="name">${esc(d.label)}</div><div class="track2"><div class="axis"></div>
+      <div class="b" style="left:${left}%;width:${w}%;background:${d.value > 0 ? "var(--raise)" : "var(--lower)"}"></div>
+      <span class="val num" style="${vpos}">${lab}</span></div></div>`;
   }).join("") || "No factor above 0.05.";
   show("result");
 }
 
 function about() {
-  const rows = Object.entries(META.models).map(([s, m]) => { const t = m.metrics || {}, c = t["conformal_alpha_0.10"] || {};
+  const rows = Object.entries(META.models).map(([, m]) => { const t = m.metrics ?? {}, c = t["conformal_alpha_0.10"] ?? {};
     const f = (k) => t[k] !== undefined ? `${t[k].toFixed(3)} <span class="muted">(${t[k + "_ci"][0].toFixed(3)}–${t[k + "_ci"][1].toFixed(3)})</span>` : "—";
-    return `<tr><td><b>${m.name}</b></td><td>${m.features.length}</td><td>${f("auc")}</td><td>${f("ece")}</td><td>${c.coverage !== undefined ? c.coverage.toFixed(3) : "—"}</td><td>${c.abstention !== undefined ? Math.round(c.abstention*100) + "%" : "—"}</td></tr>`; }).join("");
+    return `<tr><td><b>${esc(m.name)}</b></td><td>${m.features.length}</td><td>${f("auc")}</td><td>${f("ece")}</td>
+      <td>${c.coverage?.toFixed(3) ?? "—"}</td><td>${c.abstention !== undefined ? Math.round(c.abstention * 100) + "%" : "—"}</td></tr>`; }).join("");
   $("mt").innerHTML = `<tr><th>Model</th><th>Inputs</th><th>ROC-AUC (95% CI)</th><th>ECE</th><th>Conformal coverage α=0.10</th><th>Uncertain</th></tr>${rows}`;
   $("aboutnote").textContent = "Numbers are copied by scripts/build_pwa.py from each bundle's metrics.json (computed by src/final_eval.py). This web version computes the same function as the ONNX model; tests/test_pwa.py checks agreement to 1e-4.";
 }
 
-fetch("models.json").then((r) => r.json()).then((m) => { META = m; build(); net(); });
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").then(() => navigator.serviceWorker.ready).then(() => { $("swstate").textContent = "installed — works without a network"; })
-    .catch((e) => { $("swstate").textContent = "not available (" + e.message + ")"; });
-} else $("swstate").textContent = "not supported in this browser";
+async function init() {
+  try {
+    const res = await fetch("models.json");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    META = await res.json(); build(); net();
+  } catch (e) {
+    document.querySelector("main").innerHTML = `<div class="card msg err">Could not load the model files (${esc(e.message)}).</div>`;
+  }
+  if (!("serviceWorker" in navigator)) { $("swstate").textContent = "not supported in this browser"; return; }
+  try {
+    await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready;
+    $("swstate").textContent = "installed — works without a network";
+  } catch (e) { $("swstate").textContent = `not available (${e.message})`; }
+}
+init();
 </script>
 </body>
 </html>

@@ -60,3 +60,33 @@ def test_pwa_assets_are_self_contained():
         assert "http://" not in s.replace("http://www.w3.org", "") and "https://" not in s, "no external URLs"
     for asset in ("model.js", "models.json", "manifest.webmanifest", "icon.svg"):
         assert asset in sw
+
+
+def test_js_random_patients_valid_reproducible_and_ordered():
+    """PWA random autofill: valid against the shared ranges, reproducible from the seed, risk ordered by acuity."""
+    js = f"""
+    const M = require({json.dumps(str(PWA / 'model.js'))});
+    const meta = require({json.dumps(str(PWA / 'models.json'))});
+    const out = {{bad: [], mean: {{}}, repro: true}};
+    for (const a of ["low", "medium", "high"]) {{
+      let s = 0;
+      for (let seed = 0; seed < 300; seed++) {{
+        const {{ form }} = M.randomPatient(seed, a, seed % 2 === 0, meta);
+        if (JSON.stringify(M.randomPatient(seed, a, seed % 2 === 0, meta).form) !== JSON.stringify(form)) out.repro = false;
+        for (const [k, [lo, hi]] of Object.entries(meta.ranges)) {{
+          const v = form[k]; if (v === null || v === undefined) continue;
+          const soft = meta.soft[k];
+          if (v < lo || v > hi || (soft && (v < soft[0] || v > soft[1]))) out.bad.push([a, seed, k, v]);
+        }}
+        if (form.triage_vital_dbp >= form.triage_vital_sbp) out.bad.push([a, seed, "dbp>=sbp"]);
+        if (!form.complaints.length || !form.complaints.every(c => meta.complaint_order.includes(c))) out.bad.push([a, seed, "cc"]);
+        s += M.predict(form, meta.models.t1, meta).probability;
+      }}
+      out.mean[a] = s / 300;
+    }}
+    console.log(JSON.stringify(out));
+    """
+    res = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert res["bad"] == [], res["bad"][:5]
+    assert res["repro"]
+    assert res["mean"]["low"] < res["mean"]["medium"] < res["mean"]["high"], res["mean"]

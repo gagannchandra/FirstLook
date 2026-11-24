@@ -93,7 +93,7 @@ FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.dashboard_data --split test
 # or: .venv/bin/streamlit run app/streamlit_app.py
 ```
 
-Switch Wi-Fi off and use it: nothing in the prediction path touches the network. The dashboard shows the live network state measured from the OS. Screenshots: `python scripts/screenshot_app.py --url http://localhost:8599`.
+On the Patient screen, **Quick fill** loads one of four synthetic example patients, or **Random patient** fills every field with a new invented patient for the chosen acuity (low / medium / high, optionally with a missing vital); the seed is shown so a case can be reproduced. Switch Wi-Fi off and use it: nothing in the prediction path touches the network. The dashboard shows the live network state measured from the OS. Screenshots: `python scripts/screenshot_app.py --url http://localhost:8599`.
 
 ### Run the app in Docker (L2)
 
@@ -109,7 +109,7 @@ docker run --rm --network none --cpus 2 --memory 2g firstlook python -m src.benc
 python scripts/screenshot_pwa.py  # proves it: installs the service worker, cuts the network, reloads, predicts
 ```
 
-Plain HTML + JavaScript, no libraries or CDN. Runs the nurse-only (T1) and +ESI (T2) models; the EHR-history model runs in L1/L2 only (D33).
+Plain HTML + JavaScript, no libraries or CDN; includes the same example and random-patient autofill. Runs the nurse-only (T1) and +ESI (T2) models; the EHR-history model runs in L1/L2 only (D33).
 
 ## Not completed, and why
 

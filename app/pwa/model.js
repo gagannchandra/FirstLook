@@ -94,7 +94,59 @@
     return Object.values(g).filter((d) => Math.abs(d.value) > 0.05).sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   }
 
-  const api = { predict, featureValue, calibrate };
+  /** Seeded PRNG (mulberry32): reproducible random patients from a 32-bit seed. */
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /**
+   * Random synthetic patient (same hand-set acuity profiles as app/random_patient.py, exported to
+   * models.json). Never sampled from data. Returns { form, meta }.
+   * @param {number} seed  @param {"low"|"medium"|"high"|null} acuity  @param {boolean} allowMissing
+   */
+  function randomPatient(seed, acuity, allowMissing, meta) {
+    const R = meta.random, rnd = mulberry32(seed);
+    const level = R.profiles[acuity] ? acuity : ["low", "medium", "high"][Math.floor(rnd() * 3)];
+    const P = R.profiles[level];
+    const u = ([lo, hi]) => lo + rnd() * (hi - lo);
+    const pick = (w) => {
+      const keys = Object.keys(w), tot = keys.reduce((s, k) => s + w[k], 0);
+      let r = rnd() * tot;
+      for (const k of keys) { r -= w[k]; if (r <= 0) return k; }
+      return keys[keys.length - 1];
+    };
+    const sbp = Math.round(u(P.sbp));
+    const dbp = Math.min(Math.max(Math.round(sbp * u([0.55, 0.68])), 40), sbp - 15);
+    const pool = P.complaints.filter((c) => meta.complaint_order.includes(c));
+    const nCc = rnd() < 0.8 ? 1 : 2, complaints = [];
+    while (complaints.length < Math.min(nCc, pool.length)) {
+      const c = pool[Math.floor(rnd() * pool.length)];
+      if (!complaints.includes(c)) complaints.push(c);
+    }
+    const form = {
+      age: Math.round(u(P.age)), gender: rnd() < 0.5 ? "Female" : "Male", arrivalmode: pick(P.arrival),
+      arrivalhour_bin: R.hour_bins[Math.floor(rnd() * R.hour_bins.length)],
+      triage_vital_hr: Math.round(u(P.hr)), triage_vital_rr: Math.round(u(P.rr)), triage_vital_sbp: sbp,
+      triage_vital_dbp: dbp, triage_vital_o2: Math.round(u(P.o2)), triage_vital_o2_device: rnd() < P.oxygen_p ? 1 : 0,
+      triage_vital_temp: Math.round(u(P.temp) * 10) / 10, complaints, esi: null,
+    };
+    const missing = [];
+    if (allowMissing && rnd() < 0.6) {
+      const v = R.missable[Math.floor(rnd() * R.missable.length)];
+      form[v] = null; if (v === "triage_vital_o2") form.triage_vital_o2_device = null;
+      missing.push(v);
+    }
+    return { form, meta: { seed, acuity: level, missing, esi: Number(pick(P.esi)) } };
+  }
+
+  const api = { predict, featureValue, calibrate, randomPatient };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.FirstLookModel = api;
 })(typeof self !== "undefined" ? self : this);
