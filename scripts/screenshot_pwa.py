@@ -32,8 +32,8 @@ def main():
         page.click("#go"); page.wait_for_timeout(300)
         page.screenshot(path=out / "pwa_02_result_offline.png", full_page=True)
         page.click("#why"); page.screenshot(path=out / "pwa_03_explanation_offline.png", full_page=True)
-        page.click("nav button[data-p=about]"); page.screenshot(path=out / "pwa_04_about_offline.png", full_page=True)
-        page.click("nav button[data-p=patient]")
+        page.click("nav a[data-p=about]"); page.screenshot(path=out / "pwa_04_about_offline.png", full_page=True)
+        page.click("nav a[data-p=patient]")
         page.click("#acuity button[data-a=high]"); page.click("#random")
         page.screenshot(path=out / "pwa_05_random_offline.png", full_page=True)
         page.click("#go"); page.wait_for_timeout(300)
@@ -41,7 +41,7 @@ def main():
         page.screenshot(path=out / "pwa_06_random_result_offline.png", full_page=True)
         res = {"random_high_pct": random_pct, "pct": None, "offline_failed_requests": offline_reqs, "external_requests": ext,
                "network_pill": page.inner_text("#nettext")}
-        page.click("nav button[data-p=patient]"); page.get_by_role("button", name="Uncertain").click(); page.click("#go")
+        page.click("nav a[data-p=patient]"); page.get_by_role("button", name="Uncertain").click(); page.click("#go")
         res["pct"] = page.inner_text("#pct").replace("\n", ""); res["conformal"] = page.inner_text("#conftitle")
         br.close()
     print(json.dumps(res, indent=1))

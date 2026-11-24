@@ -11,6 +11,7 @@ import os
 os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")  # D28: no ONNX Runtime telemetry
 
 import datetime as dt  # noqa: E402
+import html  # noqa: E402
 import json  # noqa: E402
 import sys  # noqa: E402
 import time  # noqa: E402
@@ -28,11 +29,19 @@ import streamlit as st  # noqa: E402
 import netstatus  # noqa: E402
 from examples import EXAMPLES  # noqa: E402
 from random_patient import random_patient  # noqa: E402
-from validation import c_to_f, validate  # noqa: E402
+from validation import NBSP, c_to_f, validate_fields  # noqa: E402
 
 from src.runtime import load_all  # noqa: E402
 
-st.set_page_config(page_title="FirstLook · triage admission risk", page_icon="🩺", layout="wide",
+PAGES = ["Patient", "Result", "Explanation", "Dashboard"]
+SLUG = {"Patient": "patient", "Result": "result", "Explanation": "explanation", "Dashboard": "dashboard"}
+# Screen lives in the URL (?screen=…) so refresh, bookmarks and shared links open the same screen (Vercel guidelines).
+if "page" not in st.session_state:
+    st.session_state.page = {v: k for k, v in SLUG.items()}.get(st.query_params.get("screen", "patient"), "Patient")
+    st.session_state.last_page = st.session_state.page
+_res = st.session_state.get("result")
+_pct = f" · {_res.probability*100:.0f}%" if _res is not None and st.session_state.page in ("Result", "Explanation") else ""
+st.set_page_config(page_title=f"{st.session_state.page or 'Patient'}{_pct} · FirstLook", page_icon="🩺", layout="wide",
                    initial_sidebar_state="collapsed")
 
 # ------------------------------------------------------------------ design tokens
@@ -45,7 +54,6 @@ UNCERTAIN = ("#6250d6", "#f1effc")
 RAISE, LOWER = "#e34948", "#2a78d6"  # diverging pair (red ↔ blue), neutral midpoint grey
 SERIES = {"t1": "#2a78d6", "t2": "#eb6834", "t3": "#1baf7a"}
 TIER_NAME = {"t1": "T1 nurse-only", "t2": "T2 + ESI", "t3": "T3 + history"}
-PAGES = ["Patient", "Result", "Explanation", "Dashboard"]
 PAGE_ICON = {"Patient": "①  Patient", "Result": "②  Result", "Explanation": "③  Explanation", "Dashboard": "Dashboard"}
 DASH_FILE = ROOT / "results" / "dashboard" / "dashboard.json"
 
@@ -101,7 +109,13 @@ st.markdown(f"""
             border-radius:999px; padding:.25rem .7rem; margin-top:.2rem; }}
 
   /* buttons / inputs */
-  .stButton>button {{ border-radius:10px; font-weight:600; border-color:{LINE}; transition: all .15s ease; }}
+  .stButton>button {{ border-radius:10px; font-weight:600; border-color:{LINE};
+                      transition: transform .15s ease, border-color .15s ease, color .15s ease, background-color .15s ease; touch-action: manipulation; }}
+  .stApp :focus-visible {{ outline: 2px solid {ACCENT} !important; outline-offset: 2px; }}
+  .stApp a, .stApp [role="radio"], .stApp [role="checkbox"], .stApp label {{ touch-action: manipulation; }}
+  .fl-ferr {{ font-size:.82rem; color:#b42323; margin:-.35rem 0 .35rem; display:flex; gap:.3rem; line-height:1.35; }}
+  .fl-ferr.warn {{ color:#7a5200; }}
+  @media (prefers-reduced-motion: reduce) {{ .fl-dot::after {{ animation: none; }} .stApp * {{ transition: none !important; }} }}
   .stButton>button:hover {{ border-color:{ACCENT}; color:{ACCENT}; transform: translateY(-1px); }}
   .stButton>button[kind="primary"] {{ background:{ACCENT}; border-color:{ACCENT}; box-shadow: 0 6px 16px -6px rgba(15,110,106,.55); }}
   .stButton>button[kind="primary"]:hover {{ color:#fff; filter: brightness(1.07); }}
@@ -115,7 +129,7 @@ st.markdown(f"""
   /* progress */
   .fl-progress {{ display:flex; align-items:center; gap:.8rem; color:{INK2}; font-size:.85rem; margin:.4rem 0 .5rem; }}
   .fl-progress .track {{ flex:1; height:6px; background:#e7ebe9; border-radius:4px; overflow:hidden; }}
-  .fl-progress .fill {{ height:100%; background:{ACCENT}; border-radius:4px; transition: width .3s; }}
+  .fl-progress .fill {{ height:100%; width:100%; background:{ACCENT}; border-radius:4px; transform-origin:left center; transition: transform .3s ease-out; }}
 
   /* result */
   .fl-hero {{ background:#fff; border:1px solid {LINE}; border-radius:20px; padding:1.4rem 1.6rem 1.3rem; box-shadow: var(--shadow); }}
@@ -192,8 +206,6 @@ def dashboard_data():
 
 B = bundles()
 NET = net_baseline()
-if "page" not in st.session_state:
-    st.session_state.page = "Patient"
 st.session_state.setdefault("latencies", [])
 
 
@@ -216,9 +228,9 @@ ARRIVALS = [("Walk-in", "Walk-in"), ("Car", "Private car / taxi"), ("ambulance",
             ("Wheelchair", "Wheelchair"), ("Public Transportation", "Public transport"), ("Police", "Police"), ("Other", "Other")]
 O2_OPTS = ["Room air", "On supplemental oxygen", "Not recorded"]
 VITAL_KEYS = ["triage_vital_hr", "triage_vital_sbp", "triage_vital_dbp", "triage_vital_rr", "triage_vital_o2", "triage_vital_temp"]
-VITAL_UI = [("triage_vital_hr", "Heart rate", "bpm", "typical 60–100"), ("triage_vital_rr", "Respiratory rate", "/min", "typical 12–20"),
-            ("triage_vital_sbp", "Systolic BP", "mmHg", "typical 100–140"), ("triage_vital_dbp", "Diastolic BP", "mmHg", "typical 60–90"),
-            ("triage_vital_o2", "SpO₂", "%", "typical 95–100")]
+VITAL_UI = [("triage_vital_hr", "Heart rate", "bpm", "typical 60–100…"), ("triage_vital_rr", "Respiratory rate", "/min", "typical 12–20…"),
+            ("triage_vital_sbp", "Systolic BP", "mmHg", "typical 100–140…"), ("triage_vital_dbp", "Diastolic BP", "mmHg", "typical 60–90…"),
+            ("triage_vital_o2", "SpO₂", "%", "typical 95–100…")]
 ESI_LABEL = {1: "1 · resus", 2: "2 · emergent", 3: "3 · urgent", 4: "4 · less urgent", 5: "5 · non-urgent"}
 ACUITY_OPTS = ["Any", "Low", "Medium", "High"]
 
@@ -252,7 +264,7 @@ def _fill(form: dict):
         val = form.get(v)
         ss[f"nm_{v}"] = val is None
         ss[f"f_{v}"] = None if val is None else float(val)
-    ss.pop("errors", None); ss.pop("warnings", None)
+    ss.pop("field_msgs", None); ss.pop("undo_snapshot", None)
 
 
 def load_example(name: str):
@@ -279,12 +291,24 @@ def load_random():
     ss.fill_note = ("random", f"{meta['acuity']} acuity · seed {seed}")
 
 
+UNDO_KEYS = ("result", "form", "bundle_slot", "fill_note")
+
+
 def clear_form():
+    """Clears the form and keeps a snapshot so the user can undo (destructive action → Undo, Vercel guidelines)."""
     ss = st.session_state
+    snap = {k: ss[k] for k in list(ss.keys()) if k.startswith(("f_", "nm_", "h_")) or k in UNDO_KEYS}
     for k in [k for k in ss.keys() if k.startswith(("f_", "nm_", "h_"))]:
         del ss[k]
-    for k in ("result", "form", "fill_note", "errors", "warnings"):
+    for k in (*UNDO_KEYS, "field_msgs"):
         ss.pop(k, None)
+    ss.undo_snapshot = snap or None
+
+
+def undo_clear():
+    ss = st.session_state
+    for k, v in (ss.pop("undo_snapshot", None) or {}).items():
+        ss[k] = v
 
 
 def collect_form() -> dict:
@@ -312,11 +336,36 @@ def choose_bundle(form: dict, use_hist: bool):
     return B["t1"]
 
 
+def field_messages(form: dict) -> dict:
+    """{field: {level, msg}} from the shared validator, plus: a blank vital must be entered or marked "Not measured"."""
+    ss = st.session_state
+    items = validate_fields(form)
+    for v in VITAL_KEYS:
+        if form.get(v) is None and not ss[f"nm_{v}"]:
+            items.append({"field": v, "level": "error", "msg": "Enter a value, or tick “Not measured”."})
+    out: dict = {}
+    for d in items:  # one message per field; an error outranks a warning
+        if d["field"] not in out or (out[d["field"]]["level"] == "warning" and d["level"] == "error"):
+            out[d["field"]] = d
+    return out
+
+
+def fmsg(field: str, col=None):
+    """Render a field's message directly under it."""
+    d = st.session_state.get("field_msgs", {}).get(field)
+    if d:
+        warn = d["level"] == "warning"
+        (col or st).markdown(f'<div class="fl-ferr{" warn" if warn else ""}" role="{"status" if warn else "alert"}">'
+                             f'<span aria-hidden="true">{"⚠️" if warn else "✋"}</span>{html.escape(d["msg"])}</div>',
+                             unsafe_allow_html=True)
+
+
 def run_prediction():
     form = collect_form()
-    errors, warnings = validate(form)
-    st.session_state.errors, st.session_state.warnings = errors, warnings
-    if errors:
+    msgs = field_messages(form)
+    st.session_state.field_msgs = msgs
+    st.session_state.pop("undo_snapshot", None)
+    if any(d["level"] == "error" for d in msgs.values()):
         return
     b = choose_bundle(form, st.session_state.f_use_hist)
     res = b.predict(form)
@@ -361,14 +410,18 @@ def screen_patient():
             for c, key in zip(r1 + r2[:1], ["high", "low", "uncertain", "missing_spo2"]):
                 c.button(EXAMPLES[key]["label"], key=f"ex_{key}", on_click=load_example, args=(key,), use_container_width=True,
                          help=EXAMPLES[key]["hint"])
-            r2[1].button("Clear form", on_click=clear_form, use_container_width=True, icon=":material/restart_alt:")
+            r2[1].button("Clear Form", on_click=clear_form, use_container_width=True, icon=":material/restart_alt:")
         with q2:
             st.markdown('<div class="fl-eyebrow">Random synthetic patient · choose acuity</div>', unsafe_allow_html=True)
             st.pills("Acuity", ACUITY_OPTS, key="rand_acuity", label_visibility="collapsed")
             r1, r2 = st.columns([1.1, 1], vertical_alignment="center")
             r1.checkbox("Include a missing vital", key="rand_missing")
-            r2.button("Random patient", key="random", on_click=load_random, use_container_width=True,
+            r2.button("Random Patient", key="random", on_click=load_random, use_container_width=True,
                       icon=":material/casino:", help="Fills every field with plausible, invented values for the chosen acuity.")
+        if ss.get("undo_snapshot"):
+            u1, u2 = st.columns([4, 1], vertical_alignment="center")
+            u1.markdown('<span class="fl-tag" role="status">Form cleared.</span>', unsafe_allow_html=True)
+            u2.button("Undo", key="undo", on_click=undo_clear, use_container_width=True, icon=":material/undo:")
         note = ss.get("fill_note")
         if note:
             kind, text = note
@@ -380,23 +433,27 @@ def screen_patient():
     left, right = st.columns([1, 1.1], gap="large")
     with left:
         with st.container(key="card-patient"):
-            heading("1", "Patient & arrival")
+            heading("1", "Patient & Arrival")
             a, b = st.columns(2)
-            a.number_input("Age (years)", min_value=0, max_value=130, step=1, key="f_age", placeholder="e.g. 54")
+            a.number_input("Age (years)", min_value=0, max_value=130, step=1, key="f_age", placeholder="e.g. 54…")
+            fmsg("age", a)
             b.radio("Sex", ["Female", "Male"], key="f_gender", horizontal=True, index=None)
+            fmsg("gender", b)
             a, b = st.columns(2)
             a.selectbox("Arrival mode", [k for k, _ in ARRIVALS], format_func=dict(ARRIVALS).get, key="f_arrival")
             b.selectbox("Arrival time (auto-filled)", [k for k, _ in HOUR_BINS], format_func=dict(HOUR_BINS).get, key="f_hour")
             spec = B["t1"].spec
             st.multiselect("Chief complaint (search, up to 3)", spec["complaint_order"],
                            format_func=lambda c: spec["complaint_labels"][c], key="f_cc", max_selections=3,
-                           placeholder="Type to search — e.g. chest pain, fall, fever")
+                           placeholder="Type to search, e.g. chest pain…")
+            fmsg("complaints")
         st.markdown("<div style='height:.9rem'></div>", unsafe_allow_html=True)
         with st.container(key="card-optional"):
-            heading("3", "Optional inputs", "improve accuracy when available")
+            heading("3", "Optional Inputs", "Improve accuracy when available")
             st.toggle("ESI level available", key="f_use_esi", help="Adds the Emergency Severity Index (uses the T2 model).")
             if ss.f_use_esi:
                 st.segmented_control("ESI level", [1, 2, 3, 4, 5], key="f_esi", format_func=ESI_LABEL.get)
+                fmsg("esi")
             has_hist = "t3lite" in B
             st.toggle("EHR history available", key="f_use_hist", disabled=not has_hist,
                       help="Adds key history fields (uses the T3-lite model)." if has_hist else "No history model bundled.")
@@ -405,33 +462,35 @@ def screen_patient():
     with right:
         with st.container(key="card-vitals"):
             n_done = sum(1 for v in VITAL_KEYS if ss[f"nm_{v}"] or ss[f"f_{v}"] is not None)
-            heading("2", "Triage vitals", f"{n_done}/{len(VITAL_KEYS)} entered or marked")
+            heading("2", "Triage Vitals", f"{n_done}/{len(VITAL_KEYS)} entered or marked")
             for v, lab, unit, typ in VITAL_UI:
                 c1, c2 = st.columns([3, 1.3], vertical_alignment="bottom")
                 c1.number_input(f"{lab} ({unit})", key=f"f_{v}", step=1.0, format="%.0f", disabled=ss[f"nm_{v}"],
-                                placeholder="not measured" if ss[f"nm_{v}"] else typ)
+                                placeholder="Not measured" if ss[f"nm_{v}"] else typ)
                 c2.checkbox("Not measured", key=f"nm_{v}")
+                fmsg(v)
                 if v == "triage_vital_o2":
                     st.radio("Oxygen at triage", O2_OPTS, key="f_o2dev", horizontal=True)
             c1, c2, c3 = st.columns([2.1, 0.9, 1.3], vertical_alignment="bottom")
             c1.number_input(f"Temperature ({ss.f_tunit})", key="f_triage_vital_temp", step=0.1, format="%.1f",
                             disabled=ss["nm_triage_vital_temp"],
-                            placeholder="not measured" if ss["nm_triage_vital_temp"] else
-                            ("typical 97–99.5" if ss.f_tunit == "°F" else "typical 36.1–37.5"))
+                            placeholder="Not measured" if ss["nm_triage_vital_temp"] else
+                            ("typical 97–99.5…" if ss.f_tunit == "°F" else "typical 36.1–37.5…"))
             c2.radio("Unit", ["°F", "°C"], key="f_tunit", label_visibility="collapsed")
             c3.checkbox("Not measured", key="nm_triage_vital_temp")
+            fmsg("triage_vital_temp")
 
     req = [ss.f_age is not None, ss.f_gender is not None, bool(ss.f_cc)]
     done = sum(req) + sum(1 for v in VITAL_KEYS if ss[f"nm_{v}"] or ss[f"f_{v}"] is not None)
     total = len(req) + len(VITAL_KEYS)
     st.markdown(f'<div class="fl-progress"><span><b>{done}</b> of {total} core fields complete</span>'
-                f'<div class="track"><div class="fill" style="width:{100*done/total:.0f}%"></div></div></div>', unsafe_allow_html=True)
-    for e in ss.get("errors", []):
-        st.error(e, icon=":material/front_hand:")
-    for w in ss.get("warnings", []):
-        st.warning(w, icon=":material/warning:")
+                f'<div class="track"><div class="fill" style="transform:scaleX({done/total:.3f})"></div></div></div>', unsafe_allow_html=True)
+    n_err = sum(1 for d in ss.get("field_msgs", {}).values() if d["level"] == "error")
+    if n_err:
+        st.error(f"{n_err} field{'s need' if n_err > 1 else ' needs'} attention — see the message{'s' if n_err > 1 else ''} next to "
+                 f"{'them' if n_err > 1 else 'it'}.", icon=":material/front_hand:")
     with st.container(key="go"):
-        st.button("Estimate admission risk  →", type="primary", on_click=run_prediction, use_container_width=True)
+        st.button("Estimate Admission Risk  →", type="primary", on_click=run_prediction, use_container_width=True)
 
 
 HIST_LABEL = {"n_edvisits": "ED visits in the past year", "n_admissions": "Hospital admissions in the past year",
@@ -470,7 +529,7 @@ def history_inputs(spec: dict):
         if kinds.get(h) == "binary":
             return 1.0 if col.checkbox(hist_label(h), key=f"h_{h}") else 0.0
         if kinds.get(h) == "lab":
-            return col.number_input(hist_label(h), step=0.1, key=f"h_{h}", placeholder="not available")
+            return col.number_input(hist_label(h), step=0.1, key=f"h_{h}", placeholder="Not available")
         return float(col.number_input(hist_label(h), min_value=0, step=1, key=f"h_{h}"))
 
     cols = st.columns(len(key_fields) or 1)
@@ -491,9 +550,9 @@ def history_inputs(spec: dict):
 
 # ------------------------------------------------------------------ screen 2
 CONF_TEXT = {
-    "likely_admission": ("🛏️", "Likely admission", "The conformal check gives a single answer at the 90% level: admission."),
-    "likely_discharge": ("🏠", "Likely discharge", "The conformal check gives a single answer at the 90% level: discharge."),
-    "uncertain": ("⚠️", "Uncertain — clinician review",
+    "likely_admission": ("🛏️", "Likely Admission", "The conformal check gives a single answer at the 90% level: admission."),
+    "likely_discharge": ("🏠", "Likely Discharge", "The conformal check gives a single answer at the 90% level: discharge."),
+    "uncertain": ("⚠️", "Uncertain — Clinician Review",
                   "Both outcomes remain plausible at the 90% confidence level. The model should not be relied on for this patient."),
 }
 
@@ -511,12 +570,12 @@ def meter_html(p: float, b) -> str:
 
 def summary_html(form: dict, spec: dict) -> str:
     arr = dict(ARRIVALS).get(form.get("arrivalmode"), form.get("arrivalmode"))
-    chips = [f"{form['age']} y · {'F' if form['gender'] == 'Female' else 'M'}", arr]
+    chips = [f"{form['age']}{NBSP}y · {'F' if form['gender'] == 'Female' else 'M'}", arr]
     chips += [spec["complaint_labels"].get(c, c) for c in form.get("complaints", [])]
     for v, lab, unit, _ in VITAL_UI + [("triage_vital_temp", "Temp", "°F", "")]:
         val = form.get(v)
         short = {"Heart rate": "HR", "Respiratory rate": "RR", "Systolic BP": "SBP", "Diastolic BP": "DBP"}.get(lab, lab)
-        chips.append(f'<span class="miss">{short} not measured</span>' if val is None else f"{short} {val:g}{'' if unit == '%' else ' '}{unit}")
+        chips.append(f'<span class="miss">{short} not measured</span>' if val is None else f"{short} {val:g}{'' if unit == '%' else NBSP}{unit}")
     if form.get("triage_vital_o2_device") == 1:
         chips.append("on O₂")
     if form.get("esi"):
@@ -538,7 +597,7 @@ def screen_result():
     r = st.session_state.get("result")
     if r is None:
         st.info("No estimate yet — enter a patient on the **Patient** screen.")
-        st.button("Go to patient form", on_click=goto, args=("Patient",))
+        st.button("Go to Patient Form", on_click=goto, args=("Patient",))
         return
     b = B[st.session_state.bundle_slot]
     col, bg, ico = BAND[r.band]
@@ -552,8 +611,8 @@ def screen_result():
             {meter_html(r.probability, b)}</div>""", unsafe_allow_html=True)
         st.markdown("<div style='height:.9rem'></div>", unsafe_allow_html=True)
         a, bcol = st.columns(2)
-        a.button("Why this estimate?  →", type="primary", on_click=goto, args=("Explanation",), use_container_width=True)
-        bcol.button("New patient", on_click=lambda: (clear_form(), goto("Patient")), use_container_width=True,
+        a.button("Why This Estimate?  →", type="primary", on_click=goto, args=("Explanation",), use_container_width=True)
+        bcol.button("New Patient", on_click=lambda: (clear_form(), goto("Patient")), use_container_width=True,
                     icon=":material/person_add:")
     with c2:
         icon, title, desc = CONF_TEXT[r.conformal]
@@ -595,7 +654,7 @@ def screen_explanation():
     c1, c2 = st.columns([1.3, 1], gap="large")
     with c1:
         with st.container(key="card-explain"):
-            heading("?", "What moved this estimate", f"{r.probability*100:.0f}% · {r.band} risk")
+            heading("?", "What Moved This Estimate", f"{r.probability*100:.0f}% · {r.band} risk")
             items = sorted(up + down, key=lambda d: d["contribution"])
             span = max([abs(d["contribution"]) for d in items] + [0.5])
             fig = go.Figure(go.Bar(
@@ -616,7 +675,7 @@ def screen_explanation():
                        "Associations, not causes.")
     with c2:
         with st.container(key="card-plain"):
-            heading("Aa", "In plain language")
+            heading("Aa", "In Plain Language")
             rows = "".join(f'<div class="fl-factor"><span class="arrow" style="color:{RAISE};background:#fdecec">↑</span>'
                            f'<span><b>{d["factor"]}</b> — associated with higher estimated risk</span></div>' for d in up)
             rows += "".join(f'<div class="fl-factor"><span class="arrow" style="color:{LOWER};background:#e8f1fc">↓</span>'
@@ -628,7 +687,7 @@ def screen_explanation():
                         f'vitals), so the estimate is less precise. Measuring them may change it.</div>', unsafe_allow_html=True)
         st.caption("These factors explain the model, not the patient. They are statistical associations learned from "
                    "past visits and must not be read as causes.")
-        st.button("← Back to result", on_click=goto, args=("Result",))
+        st.button("← Back to Result", on_click=goto, args=("Result",))
 
 
 # ------------------------------------------------------------------ screen 4
@@ -785,5 +844,6 @@ if "t1" not in B:
     st.error("No model bundle found in models/bundles/. Build it with `python -m src.bundle`.")
     st.stop()
 header()
+st.query_params["screen"] = SLUG[st.session_state.page or "Patient"]
 {"Patient": screen_patient, "Result": screen_result, "Explanation": screen_explanation,
  "Dashboard": screen_dashboard}.get(st.session_state.page or "Patient", screen_patient)()

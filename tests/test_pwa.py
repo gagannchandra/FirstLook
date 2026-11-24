@@ -90,3 +90,35 @@ def test_js_random_patients_valid_reproducible_and_ordered():
     assert res["bad"] == [], res["bad"][:5]
     assert res["repro"]
     assert res["mean"]["low"] < res["mean"]["medium"] < res["mean"]["high"], res["mean"]
+
+
+def test_js_validation_matches_python():
+    """Both apps must accept/reject the same patients with the same messages."""
+    import sys
+    sys.path.insert(0, str(ROOT / "app"))
+    from validation import validate_fields
+    r = random.Random(1)
+    edge = {"age": [None, 12, 18, 54, 110, 140], "triage_vital_hr": [None, 20, 30, 39, 41, 181, 299, 300],
+            "triage_vital_sbp": [None, 60, 120, 250, 400], "triage_vital_dbp": [None, 20, 80, 130],
+            "triage_vital_rr": [None, 3, 9, 16, 45, 70], "triage_vital_o2": [None, 40, 79, 97, 100],
+            "triage_vital_temp": [None, 37.0, 94.5, 98.6, 104.2, 109.9, 110.5]}
+    forms = []
+    for _ in range(600):
+        f = {k: r.choice(v) for k, v in edge.items()}
+        f["gender"] = r.choice([None, "", "Female", "Male"])
+        f["complaints"] = r.sample(["cc_fever", "cc_fall", "cc_other", "cc_cough", "cc_rash"], r.choice([0, 1, 2, 3, 4]))
+        f["use_esi"] = r.random() < 0.3
+        f["esi"] = r.choice([None, 3])
+        forms.append(f)
+    import tempfile
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+        json.dump(forms, fh)
+    js = f"""
+    const M = require({json.dumps(str(PWA / 'model.js'))});
+    const meta = require({json.dumps(str(PWA / 'models.json'))});
+    const forms = require({json.dumps(fh.name)});
+    console.log(JSON.stringify(forms.map(f => M.validateFields(f, meta))));
+    """
+    res = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    for f, j in zip(forms, res):
+        assert validate_fields(f) == j, (f, validate_fields(f), j)

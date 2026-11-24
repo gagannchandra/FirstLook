@@ -146,7 +146,40 @@
     return { form, meta: { seed, acuity: level, missing, esi: Number(pick(P.esi)) } };
   }
 
-  const api = { predict, featureValue, calibrate, randomPatient };
+  const NBSP = "\u00a0";
+  const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
+  const unitSep = (u) => (u === "%" ? u : NBSP + u);
+
+  /**
+   * Field-aware validation: a line-for-line port of app/validation.py validate_fields
+   * (tests/test_pwa.py checks both return identical messages).
+   * @returns {{field: string, level: "error"|"warning", msg: string}[]}
+   */
+  function validateFields(form, meta) {
+    const out = [], add = (field, level, msg) => out.push({ field, level, msg });
+    if (form.age === null || form.age === undefined) add("age", "error", "Enter the patient’s age in years.");
+    if (!form.gender) add("gender", "error", "Select the patient’s sex.");
+    const cc = form.complaints ?? [];
+    if (!cc.length) add("complaints", "error", "Choose at least one chief complaint — use “Other” if none fits.");
+    else if (cc.length > 3) add("complaints", "error", "Choose at most 3 chief complaints.");
+    for (const [key, [lo, hi, name, unit]] of Object.entries(meta.ranges)) {
+      const v = form[key];
+      if (v === null || v === undefined) continue;
+      if (!(lo <= v && v <= hi)) {
+        if (key === "age") add(key, "error", `Enter an age from ${lo} to ${hi} — this tool was built on adult visits only.`);
+        else add(key, "error", `${name} ${fmt(v)}${unitSep(unit)} is outside ${fmt(lo)}–${fmt(hi)}${unitSep(unit)}. Re-check the reading, or tick “Not measured”.`);
+      } else if (meta.soft[key] && !(meta.soft[key][0] <= v && v <= meta.soft[key][1])) {
+        add(key, "warning", `${name} ${fmt(v)}${unitSep(unit)} is unusual — double-check it before continuing.`);
+      }
+    }
+    const sbp = form.triage_vital_sbp, dbp = form.triage_vital_dbp;
+    if (sbp !== null && sbp !== undefined && dbp !== null && dbp !== undefined && dbp >= sbp)
+      add("triage_vital_dbp", "error", `Diastolic BP (${fmt(dbp)}) must be lower than systolic BP (${fmt(sbp)}).`);
+    if (form.use_esi && (form.esi === null || form.esi === undefined)) add("esi", "error", "Pick an ESI level, or switch ESI off.");
+    return out;
+  }
+
+  const api = { predict, featureValue, calibrate, randomPatient, validateFields };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.FirstLookModel = api;
 })(typeof self !== "undefined" ? self : this);

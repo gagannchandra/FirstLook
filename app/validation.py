@@ -1,5 +1,14 @@
-"""Input validation for the patient form (pure functions, unit-tested)."""
+"""Input validation for the patient form (pure functions, unit-tested).
+
+validate_fields() is the single source of truth: each message carries the field it belongs to,
+so both apps can show it next to that field (Vercel guidelines: errors beside fields, focus the
+first error). The PWA has a line-for-line JS port (app/pwa/model.js: validateFields);
+tests/test_pwa.py checks the two return identical messages.
+Messages say how to fix the problem; numbers and units are joined by a non-breaking space.
+"""
 from __future__ import annotations
+
+NBSP = " "
 
 # Plausible ranges = the original dataset's cleaning limits (DECISIONS D16).
 RANGES = {
@@ -21,33 +30,49 @@ def c_to_f(c: float) -> float:
     return round(c * 9 / 5 + 32, 1)
 
 
-def validate(form: dict) -> tuple[list[str], list[str]]:
-    """Returns (errors, warnings). Errors block prediction; warnings are shown only."""
-    errors, warnings = [], []
-    age = form.get("age")
-    if age is None:
-        errors.append("Please enter the patient's age.")
+def fmt(v: float) -> str:
+    """Number formatting shared with the JS port: integers without decimals, else up to 1 decimal."""
+    return str(int(v)) if float(v).is_integer() else f"{v:.1f}"
+
+
+def _u(unit: str) -> str:
+    return unit if unit == "%" else NBSP + unit
+
+
+def validate_fields(form: dict) -> list[dict]:
+    """[{field, level: 'error'|'warning', msg}] in form order. Errors block prediction."""
+    out: list[dict] = []
+    add = lambda f, lvl, m: out.append({"field": f, "level": lvl, "msg": m})  # noqa: E731
+    if form.get("age") is None:
+        add("age", "error", "Enter the patient’s age in years.")
+    if not form.get("gender"):
+        add("gender", "error", "Select the patient’s sex.")
+    cc = form.get("complaints") or []
+    if not cc:
+        add("complaints", "error", "Choose at least one chief complaint — use “Other” if none fits.")
+    elif len(cc) > 3:
+        add("complaints", "error", "Choose at most 3 chief complaints.")
     for key, (lo, hi, name, unit) in RANGES.items():
         v = form.get(key)
         if v is None:
             continue
         if not (lo <= v <= hi):
             if key == "age":
-                errors.append(f"Age must be between {lo} and {hi} — this tool was built on adult visits only.")
+                add(key, "error", f"Enter an age from {lo} to {hi} — this tool was built on adult visits only.")
             else:
-                errors.append(f"{name} {v:g} {unit} is outside the plausible range ({lo:g}–{hi:g} {unit}). "
-                              "Please re-check the reading, or mark it as not measured.")
+                add(key, "error", f"{name} {fmt(v)}{_u(unit)} is outside {fmt(lo)}–{fmt(hi)}{_u(unit)}. "
+                                  "Re-check the reading, or tick “Not measured”.")
         elif key in SOFT and not (SOFT[key][0] <= v <= SOFT[key][1]):
-            warnings.append(f"{name} {v:g} {unit} is unusual — please double-check it.")
+            add(key, "warning", f"{name} {fmt(v)}{_u(unit)} is unusual — double-check it before continuing.")
     sbp, dbp = form.get("triage_vital_sbp"), form.get("triage_vital_dbp")
     if sbp is not None and dbp is not None and dbp >= sbp:
-        errors.append(f"Diastolic BP ({dbp:g}) should be lower than systolic BP ({sbp:g}).")
-    if not form.get("gender"):
-        errors.append("Please select the patient's sex.")
-    if not form.get("complaints"):
-        errors.append("Please choose at least one chief complaint (use “Other (not listed)” if none fits).")
-    if len(form.get("complaints", [])) > 3:
-        errors.append("Choose at most 3 chief complaints.")
+        add("triage_vital_dbp", "error", f"Diastolic BP ({fmt(dbp)}) must be lower than systolic BP ({fmt(sbp)}).")
     if form.get("use_esi") and form.get("esi") is None:
-        errors.append("ESI is switched on — please pick an ESI level, or switch it off.")
-    return errors, warnings
+        add("esi", "error", "Pick an ESI level, or switch ESI off.")
+    return out
+
+
+def validate(form: dict) -> tuple[list[str], list[str]]:
+    """Returns (errors, warnings). Errors block prediction; warnings are shown only."""
+    v = validate_fields(form)
+    return [d["msg"] for d in v if d["level"] == "error"], [d["msg"] for d in v if d["level"] == "warning"]

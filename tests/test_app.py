@@ -9,7 +9,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "app"))
 
-from validation import c_to_f, validate  # noqa: E402
+from validation import c_to_f, validate, validate_fields  # noqa: E402
 
 from src.features import VITALS, build_features, load_spec  # noqa: E402
 from src.runtime import form_to_raw  # noqa: E402
@@ -73,8 +73,8 @@ def test_validation_accepts_good_form():
 @pytest.mark.parametrize("field,value", [("age", 12), ("age", 140), ("triage_vital_hr", 400), ("triage_vital_o2", 40),
                                          ("triage_vital_temp", 37.0), ("triage_vital_rr", 3)])
 def test_validation_rejects_out_of_range(field, value):
-    e, _ = validate(good_form(**{field: value}))
-    assert e and any("range" in m or "between" in m for m in e)
+    v = validate_fields(good_form(**{field: value}))
+    assert any(d["field"] == field and d["level"] == "error" for d in v), v
 
 
 def test_validation_messages_and_rules():

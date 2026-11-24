@@ -2,101 +2,124 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0f6e6a">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f3f5f4">
+<meta name="color-scheme" content="light">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
-<title>FirstLook (offline)</title>
+<title>Patient · FirstLook</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
   :root {
-    --bg:#f3f5f4; --card:#fff; --ink:#111a19; --ink2:#47534f; --muted:#76817e; --line:#e3e7e5;
-    --accent:#0f6e6a; --accent-soft:#e7f2f1;
+    color-scheme: light;
+    --bg:#f3f5f4; --card:#fff; --ink:#111a19; --ink2:#414c49; --muted:#646f6c;
+    --line: rgba(17,26,25,.11); --line-strong: rgba(17,26,25,.22);
+    --accent:#0f6e6a; --accent-hover:#0b5754; --accent-soft:#e5f1ef;
     /* dataviz status palette (always with icon + label) and diverging pair */
     --low:#0ca30c; --low-bg:#e9f6e9; --med:#fab219; --med-bg:#fff5dc; --high:#d03b3b; --high-bg:#fcebeb;
-    --unc:#6250d6; --unc-bg:#f1effc; --raise:#e34948; --lower:#2a78d6;
-    --shadow: 0 1px 2px rgba(17,26,25,.04), 0 6px 20px -8px rgba(17,26,25,.10);
-    --r: 16px;
+    --unc:#6250d6; --unc-bg:#f1effc; --raise:#e34948; --lower:#2a78d6; --err:#b42323; --warn:#7a5200;
+    /* layered shadows (2 layers), tinted toward the ink hue */
+    --shadow: 0 1px 2px rgba(17,26,25,.05), 0 8px 24px -12px rgba(17,26,25,.14);
+    --r: 16px; --r-in: 10px; --bar-h: 84px;
   }
   * { box-sizing: border-box; }
-  html { -webkit-font-smoothing: antialiased; }
+  html { -webkit-font-smoothing: antialiased; scroll-padding-top: calc(var(--bar-h) + 16px); -webkit-tap-highlight-color: rgba(15,110,106,.12); }
+  @media (pointer: fine) { html { overscroll-behavior: none; } }
   body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; background:var(--bg);
-         color:var(--ink); padding-bottom: 64px; font-size: 15px; }
-  button, select, input { font: inherit; color: inherit; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 18px; }
+         color:var(--ink); padding-bottom: calc(64px + env(safe-area-inset-bottom)); font-size: 15px; line-height: 1.45; }
+  button, select, input, a { font: inherit; color: inherit; touch-action: manipulation; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  input:focus-visible, select:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15,110,106,.22); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 max(18px, env(safe-area-inset-left)); }
   .num { font-variant-numeric: tabular-nums; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .skip { position:absolute; left:12px; top:-60px; z-index:100; background:var(--ink); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; }
+  .skip:focus { top: 12px; }
+  h1, h2, h3 { margin: 0; font-size: inherit; }
 
   /* app bar */
-  .bar { position: sticky; top: 0; z-index: 20; padding-top: 12px; background: linear-gradient(var(--bg) 70%, transparent); }
-  .appbar { display:flex; align-items:center; gap:14px; padding:12px 16px; background:rgba(255,255,255,.88); backdrop-filter: blur(8px);
+  .bar { position: sticky; top: 0; z-index: 20; padding-top: 12px; background: linear-gradient(var(--bg) 75%, rgba(243,245,244,0)); }
+  .appbar { display:flex; align-items:center; gap:14px; padding:10px 14px; background:rgba(255,255,255,.9); backdrop-filter: blur(10px);
             border:1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); flex-wrap: wrap; }
-  .brand { display:flex; align-items:center; gap:10px; }
-  .brand b { font-size:1.25rem; letter-spacing:-.02em; } .brand b span { color: var(--accent); }
-  .brand small { display:block; color:var(--muted); font-size:.8rem; margin-top:2px; }
-  nav { display:inline-flex; background:#e9eeec; padding:4px; border-radius:12px; gap:2px; margin-left: 12px; }
-  nav button { border:0; background:transparent; padding:7px 14px; border-radius:9px; font-weight:600; color:var(--ink2); cursor:pointer; }
-  nav button.on { background:#fff; color:var(--accent); box-shadow: 0 1px 3px rgba(17,26,25,.12); }
+  .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand h1 { font-size:1.22rem; letter-spacing:-.02em; font-weight:750; line-height:1.1; } .brand h1 span { color: var(--accent); }
+  .brand small { display:block; color:var(--muted); font-size:.8rem; }
+  nav { display:flex; background:#e8edeb; padding:4px; border-radius:12px; gap:2px; margin-left: 8px; overflow-x:auto; scrollbar-width:none; }
+  nav a { padding:8px 14px; border-radius:9px; font-weight:600; color:var(--ink2); text-decoration:none; white-space:nowrap; min-height: 36px;
+          display:inline-flex; align-items:center; transition: background-color .15s, color .15s; }
+  nav a:hover { color: var(--ink); background: rgba(255,255,255,.6); }
+  nav a[aria-current="page"] { background:#fff; color:var(--accent); box-shadow: 0 1px 2px rgba(17,26,25,.08), 0 2px 6px rgba(17,26,25,.08); }
   .pill { margin-left:auto; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background:#fff; border-radius:999px;
-          padding:6px 12px; font-size:.8rem; font-weight:600; color:var(--ink2); }
-  .dot { width:9px; height:9px; border-radius:50%; position:relative; }
-  .dot::after { content:""; position:absolute; inset:-4px; border-radius:50%; background:inherit; opacity:.35; animation: pulse 2s infinite; }
+          padding:6px 12px; font-size:.8rem; font-weight:600; color:var(--ink2); white-space: nowrap; }
+  .dot { width:9px; height:9px; border-radius:50%; position:relative; flex: 0 0 auto; }
+  .dot::after { content:""; position:absolute; inset:-4px; border-radius:50%; background:inherit; opacity:.35; animation: pulse 2s ease-out infinite; }
   @keyframes pulse { from { transform:scale(.6); opacity:.45 } to { transform:scale(1.6); opacity:0 } }
-  @media (prefers-reduced-motion: reduce) { .dot::after { animation: none; } * { transition: none !important; } }
 
   main { padding-top: 20px; }
+  main:focus { outline: none; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px; box-shadow: var(--shadow); margin-bottom:14px; }
-  .h { display:flex; align-items:center; gap:9px; margin-bottom: 6px; }
+  .h { display:flex; align-items:center; gap:9px; margin-bottom: 4px; }
   .h .n { width:24px; height:24px; border-radius:8px; background:var(--accent-soft); color:var(--accent); font-weight:750; font-size:.8rem;
-          display:inline-flex; align-items:center; justify-content:center; }
-  .h .t { font-weight:700; } .h .s { margin-left:auto; color:var(--muted); font-size:.82rem; }
+          display:inline-flex; align-items:center; justify-content:center; flex: 0 0 auto; }
+  .h h2 { font-weight:700; font-size: 1rem; } .h .s { margin-left:auto; color:var(--muted); font-size:.82rem; }
   .eyebrow { font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; margin: 0 0 10px; }
-  .grid { display:grid; grid-template-columns: 1fr 1.08fr; gap: 16px; }
-  @media (max-width: 820px) { .grid, .qf { grid-template-columns: 1fr !important; } nav { margin-left:0; } .pill { margin-left:0; } }
+  .grid { display:grid; grid-template-columns: 1fr 1.08fr; gap: 16px; align-items: start; }
 
   /* quick fill */
-  .qf { display:grid; grid-template-columns: 1fr 1fr; gap: 22px; background: linear-gradient(135deg, #fff 0%, #f2f8f7 100%); }
+  .qf { display:grid; grid-template-columns: 1fr 1fr; gap: 22px; background: linear-gradient(135deg, #fff 0%, #f1f8f6 100%); }
   .btns { display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .btn { border:1px solid var(--line); background:#fff; border-radius:10px; padding:9px 12px; cursor:pointer; font-weight:600;
-         transition: transform .15s, border-color .15s, color .15s; }
-  .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
-  .btn.dark { background: var(--ink); color:#fff; border-color: var(--ink); } .btn.dark:hover { color:#fff; filter: brightness(1.3); }
-  .btn.primary { background: var(--accent); color:#fff; border-color: var(--accent); box-shadow: 0 6px 16px -6px rgba(15,110,106,.55); }
-  .btn.primary:hover { color:#fff; filter: brightness(1.07); }
-  .btn.big { width:100%; padding: 13px; font-size: 1.02rem; }
+  .btn { border:1px solid var(--line-strong); background:#fff; border-radius:var(--r-in); padding:9px 12px; min-height: 40px; cursor:pointer; font-weight:600;
+         transition: transform .15s, border-color .15s, color .15s, background-color .15s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:active { transform: translateY(1px); }
+  .btn.dark { background: var(--ink); color:#fff; border-color: var(--ink); } .btn.dark:hover { background:#000; color:#fff; }
+  .btn.primary { background: var(--accent); color:#fff; border-color: var(--accent); box-shadow: 0 1px 2px rgba(15,110,106,.3), 0 8px 18px -8px rgba(15,110,106,.6); }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color:#fff; }
+  .btn.big { width:100%; padding: 13px; font-size: 1.02rem; min-height: 48px; }
   .chips { display:flex; flex-wrap: wrap; gap: 6px; }
-  .chip-t { border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 14px; cursor:pointer; font-weight:600; color: var(--ink2); }
+  .chip-t { border:1px solid var(--line-strong); background:#fff; border-radius:999px; padding:6px 14px; min-height: 36px; cursor:pointer; font-weight:600; color: var(--ink2);
+            transition: background-color .15s, border-color .15s, color .15s; }
+  .chip-t:hover { border-color: var(--accent); color: var(--accent); }
   .chip-t[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-  .rrow { display:flex; align-items:center; gap: 12px; margin-top: 12px; }
+  .rrow { display:flex; align-items:center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
   .rrow .btn { margin-left:auto; min-width: 170px; }
   .tag { display:inline-flex; gap:6px; align-items:center; font-size:.82rem; color:var(--ink2); background:var(--accent-soft); border-radius:999px;
          padding: 5px 12px; grid-column: 1 / -1; justify-self: start; }
 
   /* form */
-  label.l { display:block; font-size:.86rem; color: var(--ink2); margin: 10px 0 5px; }
-  input[type=number], select, input[type=search] { width:100%; padding:9px 11px; border:1px solid #cfd5d2; border-radius:10px; font-size:.95rem; background:#fff;
-         transition: border-color .15s, box-shadow .15s; }
-  input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15,110,106,.15); }
-  input:disabled { background:#f1f3f2; color:#9aa29f; }
-  .row { display:flex; gap:10px; align-items:flex-end; } .row > div { flex:1; }
-  .nm { flex: 0 0 auto; font-size:.84rem; color: var(--ink2); white-space:nowrap; padding-bottom:10px; display:flex; gap:6px; align-items:center; }
-  .opts { max-height: 180px; overflow:auto; border:1px solid var(--line); border-radius:10px; margin-top:4px; display:none; background:#fff; box-shadow: var(--shadow); }
-  .opts div { padding:7px 11px; cursor:pointer; } .opts div:hover, .opts div.act { background:var(--accent-soft); }
+  label.l { display:block; font-size:.86rem; color: var(--ink2); margin: 10px 0 5px; font-weight: 500; }
+  input[type=number], select, input[type=search] { width:100%; padding:9px 11px; border:1px solid var(--line-strong); border-radius:var(--r-in);
+         font-size:16px; background-color:#fff; color: var(--ink); min-height: 42px; transition: border-color .15s, box-shadow .15s; }
+  input::placeholder { color: #8a9491; }
+  input:disabled { background-color:#f1f3f2; color:#8a9491; }
+  input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--err); }
+  .row { display:flex; gap:10px; align-items:flex-start; } .row > .f { flex:1; min-width: 0; }
+  .check { flex: 0 0 auto; display:inline-flex; gap:8px; align-items:center; font-size:.86rem; color: var(--ink2); white-space:nowrap;
+           min-height: 42px; padding: 0 6px; margin-top: 31px; border-radius: 8px; cursor: pointer; }
+  .check:hover { background: rgba(17,26,25,.04); }
+  .check input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; cursor: pointer; }
+  .ferr { margin: 5px 0 0; font-size: .82rem; color: var(--err); display:flex; gap:5px; }
+  .ferr.warn { color: var(--warn); }
+  .opts { max-height: 220px; overflow:auto; border:1px solid var(--line); border-radius:var(--r-in); margin-top:4px; background:#fff; box-shadow: var(--shadow); }
+  .opts[hidden] { display: none; }
+  .opts div { padding:8px 11px; cursor:pointer; min-height: 36px; } .opts div:hover, .opts div[aria-selected="true"] { background:var(--accent-soft); }
   .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-  .tags span { background:var(--accent); color:#fff; border-radius:8px; padding:4px 9px; font-size:.86rem; cursor:pointer; }
+  .tags button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:5px 10px; font-size:.86rem; cursor:pointer; min-height: 30px; }
+  .tags button:hover { background: var(--accent-hover); }
   .progress { display:flex; align-items:center; gap: 12px; color: var(--ink2); font-size:.86rem; margin: 4px 0 10px; }
-  .progress .track { flex:1; height:6px; background:#e3e8e6; border-radius:4px; overflow:hidden; }
-  .progress .fill { height:100%; background: var(--accent); border-radius:4px; transition: width .3s; }
-  .msg { border-radius: 10px; padding: 10px 12px; margin: 8px 0; font-size: .9rem; }
-  .msg.err { background:#fbeaea; color:#8b2525; } .msg.warn { background:#fdf4df; color:#6b4b00; }
+  .progress .track { flex:1; height:6px; background:#e1e6e4; border-radius:4px; overflow:hidden; }
+  .progress .fill { height:100%; width:100%; background: var(--accent); border-radius:4px; transform-origin: left center; transition: transform .3s ease-out; }
+  .errsum { border-radius: var(--r-in); padding: 10px 14px; margin: 0 0 10px; font-size: .9rem; background:#fbeaea; color:#7d1d1d; }
+  .errsum[hidden] { display:none; }
   #go { margin: 4px 0 24px; }
 
   /* result */
   .summary { display:flex; flex-wrap:wrap; gap:6px; margin-bottom: 14px; }
   .summary span { background:#fff; border:1px solid var(--line); border-radius:999px; padding:4px 11px; font-size:.82rem; color:var(--ink2); }
-  .summary span.miss { border-style: dashed; color: var(--muted); }
-  .hero .lab { display:flex; justify-content:space-between; color: var(--ink2); font-weight:600; font-size:.92rem; }
-  .big { font-size: 4.6rem; font-weight: 780; line-height: 1; margin: 10px 0 14px; letter-spacing: -.03em; }
-  .big small { font-size: 2rem; color: var(--ink2); }
+  .summary span.miss { border-style: dashed; border-color: var(--line-strong); color: var(--muted); }
+  .hero .lab { display:flex; justify-content:space-between; gap: 10px; color: var(--ink2); font-weight:600; font-size:.92rem; }
+  .big { font-size: clamp(3.4rem, 9vw, 4.6rem); font-weight: 780; line-height: 1; margin: 10px 0 14px; letter-spacing: -.03em; }
+  .big small { font-size: .43em; color: var(--ink2); }
   .band { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding: 6px 14px; font-weight:700; }
   .meter { position:relative; margin-top: 34px; }
   .segs { display:flex; gap:2px; height:10px; } .segs div:first-child { border-radius:5px 0 0 5px; } .segs div:last-child { border-radius:0 5px 5px 0; }
@@ -106,179 +129,259 @@
   .conf { display:flex; gap:14px; align-items:flex-start; }
   .conf .ico { width:40px; height:40px; border-radius:12px; background: var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex: 0 0 auto; }
   .conf.unc { border: 2px dashed var(--unc); background: var(--unc-bg); box-shadow: none; } .conf.unc .ico { background:#fff; }
-  .conf h3 { margin: 0 0 4px; font-size: 1.1rem; } .conf p { margin:0; color: var(--ink2); font-size:.9rem; line-height:1.45; }
+  .conf h2 { margin: 0 0 4px; font-size: 1.1rem; } .conf p { margin:0; color: var(--ink2); font-size:.9rem; }
   .meta { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
   .meta div { background:#fff; border:1px solid var(--line); border-radius:12px; padding: 9px 12px; }
-  .meta small { color: var(--muted); font-size:.68rem; text-transform: uppercase; letter-spacing:.06em; font-weight:700; }
-  .meta b { display:block; margin-top: 3px; }
-  .factor { display:flex; gap:10px; align-items:center; padding: 8px 0; border-bottom: 1px solid #f0f2f1; }
+  .meta dt { color: var(--muted); font-size:.68rem; text-transform: uppercase; letter-spacing:.06em; font-weight:700; }
+  .meta dd { margin: 3px 0 0; font-weight: 700; }
+  .factor { display:flex; gap:10px; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--line); }
   .factor:last-child { border-bottom: 0; }
   .arrow { width:26px; height:26px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex:0 0 auto; }
   .factor .v { margin-left:auto; color: var(--muted); font-size:.82rem; }
   .actions { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .empty { text-align:center; padding: 40px 20px; }
+  .empty p { color: var(--ink2); margin: 0 0 14px; }
 
   /* explanation bars (diverging, centred axis, value labels in ink) */
-  .bar-row { display:grid; grid-template-columns: minmax(150px, 34%) 1fr; gap: 12px; align-items:center; margin: 8px 0; font-size:.9rem; }
+  .bar-row { display:grid; grid-template-columns: minmax(130px, 34%) 1fr; gap: 12px; align-items:center; margin: 8px 0; font-size:.9rem; }
   .bar-row .name { text-align:right; color: var(--ink2); }
   .track2 { position:relative; height: 20px; } .track2 .axis { position:absolute; left:50%; top:-4px; bottom:-4px; width:1px; background:#c3c2b7; }
   .track2 .b { position:absolute; top:3px; height:14px; border-radius:4px; }
   .track2 .val { position:absolute; top:1px; font-size:.75rem; color: var(--ink2); }
   .muted { color: var(--muted); font-size:.86rem; }
   table { width:100%; border-collapse:collapse; font-size:.9rem; font-variant-numeric: tabular-nums; }
-  th, td { text-align:left; padding: 9px 8px; border-bottom:1px solid #f0f2f1; } tr:last-child td { border-bottom: 0; }
+  .tablewrap { overflow-x: auto; }
+  th, td { text-align:left; padding: 9px 8px; border-bottom:1px solid var(--line); } tr:last-child td { border-bottom: 0; }
   th { font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-  .hide { display:none !important; }
-  footer { position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--ink); color:#eef2f1; text-align:center; padding: 11px; font-size:.84rem; }
+  [hidden] { display:none !important; }
+  footer { position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--ink); color:#eef2f1; text-align:center;
+           padding: 11px 16px calc(11px + env(safe-area-inset-bottom)); font-size:.84rem; }
   code { background:#eef1f0; padding:1px 5px; border-radius:5px; }
+
+  /* toast (undo) */
+  .toast { position: fixed; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40;
+           background: var(--ink); color:#fff; border-radius: 12px; padding: 10px 10px 10px 16px; display:flex; gap: 14px; align-items:center;
+           box-shadow: 0 2px 4px rgba(0,0,0,.2), 0 12px 30px -10px rgba(0,0,0,.4); font-size: .9rem; }
+  .toast button { background: rgba(255,255,255,.14); color:#fff; border:0; border-radius: 8px; padding: 7px 12px; font-weight: 700; cursor: pointer; min-height: 32px; }
+  .toast button:hover { background: rgba(255,255,255,.24); }
+
+  @media (max-width: 820px) {
+    .grid, .qf { grid-template-columns: 1fr; }
+    nav { margin-left: 0; order: 3; width: 100%; } .pill { margin-left: auto; }
+    .meta { grid-template-columns: repeat(2, 1fr); }
+    /* safety-critical order on small screens: risk → conformal verdict → actions → details */
+    .grid.res { display: flex; flex-direction: column; gap: 0; } .grid.res > div { display: contents; } .grid.res > div > * { order: var(--o); }
+    .bar-row { grid-template-columns: 1fr; gap: 2px; } .bar-row .name { text-align: left; }
+    .explain-legend { margin-left: 0 !important; }
+  }
+  @media (max-width: 480px) {
+    .btns { grid-template-columns: repeat(2, 1fr); } .brand small { display:none; } .pill span.long { display:none; }
+    .bar { padding-top: 8px; } .appbar { padding: 8px 10px; gap: 8px; border-radius: 14px; }
+    nav a { flex: 1; justify-content: center; padding: 7px 6px; font-size: .86rem; } nav a .stepno { display:none; }
+    .actions { grid-template-columns: 1fr; margin-bottom: 14px; }
+    footer .long { display: none; } footer { font-size: .8rem; padding-top: 9px; }
+    body { padding-bottom: calc(48px + env(safe-area-inset-bottom)); } .toast { bottom: calc(48px + env(safe-area-inset-bottom)); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot::after { animation: none; } *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to Content</a>
 <div class="bar"><div class="wrap">
-  <div class="appbar">
-    <div class="brand"><img src="icon.svg" width="30" height="30" alt=""><div><b>First<span>Look</span></b><small>ED admission risk · offline web app</small></div></div>
+  <header class="appbar">
+    <a class="brand" href="#/patient" aria-label="FirstLook home"><img src="icon.svg" width="30" height="30" alt="">
+      <span><h1 translate="no">First<span>Look</span></h1><small>ED admission risk · offline web app</small></span></a>
     <nav id="nav" aria-label="Screens">
-      <button data-p="patient" class="on">① Patient</button><button data-p="result">② Result</button><button data-p="explain">③ Explanation</button><button data-p="about">About</button>
+      <a href="#/patient" data-p="patient"><span class="stepno" aria-hidden="true">①&nbsp;</span>Patient</a><a href="#/result" data-p="result"><span class="stepno" aria-hidden="true">②&nbsp;</span>Result</a><a href="#/explain" data-p="explain"><span class="stepno" aria-hidden="true">③&nbsp;</span>Explanation</a><a href="#/about" data-p="about">About</a>
     </nav>
-    <div class="pill" role="status"><span class="dot" id="netdot"></span><span id="nettext">…</span></div>
-  </div>
+    <div class="pill" role="status"><span class="dot" id="netdot" aria-hidden="true"></span><span id="nettext">…</span></div>
+  </header>
 </div></div>
+<div id="live" class="sr-only" aria-live="polite"></div>
 
-<main class="wrap">
-<section id="patient">
+<main class="wrap" id="main" tabindex="-1">
+<section id="patient" aria-labelledby="t-patient">
+  <h2 class="sr-only" id="t-patient">Patient</h2>
   <div class="card qf">
     <div>
-      <div class="eyebrow">Quick fill · synthetic example patients</div>
+      <p class="eyebrow">Quick fill · synthetic example patients</p>
       <div class="btns" id="examples"></div>
     </div>
     <div>
-      <div class="eyebrow">Random synthetic patient · choose acuity</div>
-      <div class="chips" id="acuity" role="group" aria-label="Acuity">
-        <button class="chip-t" data-a="" aria-pressed="true">Any</button><button class="chip-t" data-a="low" aria-pressed="false">Low</button>
-        <button class="chip-t" data-a="medium" aria-pressed="false">Medium</button><button class="chip-t" data-a="high" aria-pressed="false">High</button>
+      <p class="eyebrow" id="acuity-l">Random synthetic patient · choose acuity</p>
+      <div class="chips" id="acuity" role="group" aria-labelledby="acuity-l">
+        <button type="button" class="chip-t" data-a="" aria-pressed="true">Any</button><button type="button" class="chip-t" data-a="low" aria-pressed="false">Low</button>
+        <button type="button" class="chip-t" data-a="medium" aria-pressed="false">Medium</button><button type="button" class="chip-t" data-a="high" aria-pressed="false">High</button>
       </div>
       <div class="rrow">
-        <label class="nm" style="padding:0"><input type="checkbox" id="rmiss"> Include a missing vital</label>
-        <button class="btn dark" id="random" title="Fills every field with plausible, invented values for the chosen acuity">🎲 Random patient</button>
+        <label class="check" style="margin-top:0"><input type="checkbox" id="rmiss"> Include a missing vital</label>
+        <button type="button" class="btn dark" id="random"><span aria-hidden="true">🎲 </span>Random Patient</button>
       </div>
+      <p class="muted" style="margin:8px 0 0">Fills every field with plausible, invented values for the chosen acuity.</p>
     </div>
-    <div class="tag hide" id="exnote"></div>
+    <div class="tag" id="exnote" hidden></div>
   </div>
 
+  <form id="pform" novalidate>
   <div class="grid">
     <div>
       <div class="card">
-        <div class="h"><span class="n">1</span><span class="t">Patient &amp; arrival</span></div>
-        <div class="row"><div><label class="l" for="age">Age (years)</label><input id="age" type="number" min="18" max="110" placeholder="e.g. 54"></div>
-          <div><label class="l" for="gender">Sex</label><select id="gender"><option value="">Select…</option><option>Female</option><option>Male</option></select></div></div>
-        <div class="row"><div><label class="l" for="arrival">Arrival mode</label><select id="arrival"></select></div>
-          <div><label class="l" for="hour">Arrival time</label><select id="hour"></select></div></div>
+        <div class="h"><span class="n" aria-hidden="true">1</span><h2>Patient &amp; Arrival</h2></div>
+        <div class="row">
+          <div class="f"><label class="l" for="age">Age (years)</label>
+            <input id="age" name="age" type="number" inputmode="numeric" min="18" max="110" placeholder="e.g. 54…" autocomplete="off" aria-describedby="err-age">
+            <p class="ferr" id="err-age" hidden></p></div>
+          <div class="f"><label class="l" for="gender">Sex</label>
+            <select id="gender" name="gender" aria-describedby="err-gender"><option value="">Select…</option><option>Female</option><option>Male</option></select>
+            <p class="ferr" id="err-gender" hidden></p></div>
+        </div>
+        <div class="row">
+          <div class="f"><label class="l" for="arrival">Arrival mode</label><select id="arrival" name="arrival"></select></div>
+          <div class="f"><label class="l" for="hour">Arrival time</label><select id="hour" name="hour"></select></div>
+        </div>
         <label class="l" for="ccsearch">Chief complaint (search, up to 3)</label>
-        <input id="ccsearch" type="search" placeholder="Type to search — e.g. chest pain, fall, fever" autocomplete="off"
-               role="combobox" aria-expanded="false" aria-controls="ccopts">
-        <div class="opts" id="ccopts" role="listbox"></div>
-        <div class="tags" id="ccchips"></div>
+        <input id="ccsearch" type="search" placeholder="e.g. chest pain…" autocomplete="off" spellcheck="false"
+               role="combobox" aria-expanded="false" aria-controls="ccopts" aria-autocomplete="list" aria-describedby="err-complaints">
+        <div class="opts" id="ccopts" role="listbox" aria-label="Matching complaints" hidden></div>
+        <div class="tags" id="ccchips" aria-label="Selected complaints"></div>
+        <p class="ferr" id="err-complaints" hidden></p>
       </div>
       <div class="card">
-        <div class="h"><span class="n">3</span><span class="t">Optional</span><span class="s">improves accuracy</span></div>
-        <label class="l" for="esi">ESI level (uses the T2 model when given)</label>
-        <select id="esi"><option value="">Not available</option><option value="1">1 · resus</option><option value="2">2 · emergent</option>
+        <div class="h"><span class="n" aria-hidden="true">3</span><h2>Optional</h2><span class="s">Improves accuracy</span></div>
+        <label class="l" for="esi">ESI level — uses the T2 model when given</label>
+        <select id="esi" name="esi"><option value="">Not available</option><option value="1">1 · resus</option><option value="2">2 · emergent</option>
           <option value="3">3 · urgent</option><option value="4">4 · less urgent</option><option value="5">5 · non-urgent</option></select>
-        <p class="muted">The EHR-history model (T3-lite, a tree ensemble) runs in the desktop app (L1/L2) only.</p>
+        <p class="muted" style="margin:10px 0 0">The EHR-history model (T3-lite, a tree ensemble) runs in the desktop app (L1/L2) only.</p>
       </div>
     </div>
     <div class="card">
-      <div class="h"><span class="n">2</span><span class="t">Triage vitals</span><span class="s" id="vcount"></span></div>
+      <div class="h"><span class="n" aria-hidden="true">2</span><h2>Triage Vitals</h2><span class="s" id="vcount"></span></div>
       <div id="vitals"></div>
       <label class="l" for="o2dev">Oxygen at triage</label>
-      <select id="o2dev"><option value="0">Room air</option><option value="1">On supplemental oxygen</option><option value="">Not recorded</option></select>
+      <select id="o2dev" name="o2dev"><option value="0">Room air</option><option value="1">On supplemental oxygen</option><option value="">Not recorded</option></select>
     </div>
   </div>
-  <div class="progress"><span id="ptext"></span><div class="track"><div class="fill" id="pfill"></div></div></div>
-  <div id="msgs"></div>
-  <button class="btn primary big" id="go">Estimate admission risk →</button>
+  <div class="progress" aria-hidden="true"><span id="ptext"></span><div class="track"><div class="fill" id="pfill"></div></div></div>
+  <div class="errsum" id="errsum" role="alert" hidden></div>
+  <button type="submit" class="btn primary big" id="go">Estimate Admission Risk <span aria-hidden="true">→</span></button>
+  </form>
 </section>
 
-<section id="result" class="hide">
-  <div id="noresult" class="card muted">Fill in the patient form and press “Estimate admission risk”.</div>
-  <div id="resbody" class="hide">
-    <div class="summary" id="summary"></div>
-    <div class="grid">
+<section id="result" aria-labelledby="t-result" hidden>
+  <h2 class="sr-only" id="t-result">Result</h2>
+  <div id="noresult" class="card empty"><p>No estimate yet. Enter a patient — or load an example — to see their admission risk.</p>
+    <a class="btn primary" href="#/patient" style="display:inline-flex;text-decoration:none">Go to Patient Form</a></div>
+  <div id="resbody" hidden>
+    <div class="summary" id="summary" aria-label="Patient summary"></div>
+    <div class="grid res">
       <div>
-        <div class="card hero">
+        <div class="card hero" style="--o:1">
           <div class="lab"><span>Estimated admission risk</span><span class="muted" id="mname2"></span></div>
           <div class="big num" id="pct"></div>
           <span class="band" id="band"></span>
-          <div class="meter" id="meter"></div>
+          <div class="meter" id="meter" aria-hidden="true"></div>
         </div>
-        <div class="actions"><button class="btn primary" id="why">Why this estimate? →</button><button class="btn" id="newp">New patient</button></div>
+        <div class="actions" style="--o:3"><a class="btn primary" id="why" href="#/explain" style="text-decoration:none;text-align:center">Why This Estimate? <span aria-hidden="true">→</span></a>
+          <button type="button" class="btn" id="newp">New Patient</button></div>
       </div>
       <div>
-        <div class="card conf" id="conf"><div class="ico" id="conficon"></div><div><h3 id="conftitle"></h3><p id="conftext"></p></div></div>
-        <div class="meta"><div><small>Model</small><b id="mname"></b></div><div><small>Version</small><b id="mver"></b></div>
-          <div><small>Inference</small><b class="num" id="mms"></b></div><div><small>Inputs</small><b class="num" id="mn"></b></div></div>
-        <div class="eyebrow">Top factors</div>
-        <div class="card" id="topf" style="padding:6px 16px"></div>
+        <div class="card conf" id="conf" style="--o:2"><div class="ico" id="conficon" aria-hidden="true"></div><div><h2 id="conftitle"></h2><p id="conftext"></p></div></div>
+        <dl class="meta" style="margin-top:0;--o:4"><div><dt>Model</dt><dd id="mname"></dd></div><div><dt>Version</dt><dd id="mver"></dd></div>
+          <div><dt>Inference</dt><dd class="num" id="mms"></dd></div><div><dt>Inputs</dt><dd class="num" id="mn"></dd></div></dl>
+        <p class="eyebrow" style="--o:5">Top factors</p>
+        <div class="card" id="topf" style="padding:6px 16px;--o:6"></div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="explain" class="hide">
-  <div class="summary" id="summary2"></div>
-  <div class="card">
-    <div class="h"><span class="n">?</span><span class="t">What moved this estimate</span><span class="s" id="exsub"></span></div>
-    <div id="bars" class="muted">No estimate yet.</div>
-    <div class="mlab" style="margin:10px 0 0 calc(34% + 12px)"><span>← lowers estimated risk</span><span>raises estimated risk →</span></div>
-    <p class="muted">Exact contributions of the logistic-regression model, on the log-odds scale; factors below 0.05 are hidden.
-      These explain the model, not the patient — associations, not causes.</p>
+<section id="explain" aria-labelledby="t-explain" hidden>
+  <div id="noexplain" class="card empty"><p>No estimate to explain yet.</p>
+    <a class="btn primary" href="#/patient" style="display:inline-flex;text-decoration:none">Go to Patient Form</a></div>
+  <div id="exbody" hidden>
+    <div class="summary" id="summary2" aria-label="Patient summary"></div>
+    <div class="card">
+      <div class="h"><span class="n" aria-hidden="true">?</span><h2 id="t-explain">What Moved This Estimate</h2><span class="s" id="exsub"></span></div>
+      <div id="bars"></div>
+      <div class="mlab explain-legend" style="margin:10px 0 0 calc(34% + 12px)" aria-hidden="true"><span>← lowers estimated risk</span><span>raises estimated risk →</span></div>
+      <p class="muted">Exact contributions of the logistic-regression model, on the log-odds scale; factors below 0.05 are hidden.
+        These explain the model, not the patient — associations, not causes.</p>
+      <a class="btn" href="#/result" style="display:inline-flex;text-decoration:none">← Back to Result</a>
+    </div>
   </div>
 </section>
 
-<section id="about" class="hide">
+<section id="about" aria-labelledby="t-about" hidden>
   <div class="card">
-    <div class="eyebrow">Shipped models — S1 test set (frozen, opened once)</div>
-    <table id="mt"></table>
+    <h2 class="eyebrow" id="t-about">Shipped models — S1 test set (frozen, opened once)</h2>
+    <div class="tablewrap"><table id="mt"></table></div>
     <p class="muted" id="aboutnote"></p>
   </div>
   <div class="card">
-    <div class="eyebrow">Offline</div>
+    <h2 class="eyebrow">Offline</h2>
     <p>All computation runs in this browser tab from files cached by the service worker. The page makes no network requests after install
-      (content-security-policy <code>connect-src 'self'</code>). Service worker: <b id="swstate">…</b>.</p>
+      (content-security-policy <code translate="no">connect-src 'self'</code>). Service worker: <b id="swstate">…</b>.</p>
   </div>
 </section>
 </main>
-<footer><b>Decision support only.</b> Not a diagnosis. Clinical judgement decides. · Research prototype — not for use with real patients.</footer>
+<div class="toast" id="toast" role="status" hidden><span id="toastmsg"></span><button type="button" id="undo">Undo</button></div>
+<footer><b>Decision support only.</b> Not a diagnosis.<span class="long"> Clinical judgement decides. ·</span> Research prototype<span class="long"> — not for use with real patients</span>.</footer>
 
 <script src="model.js"></script>
 <script>
 "use strict";
-const VITAL = [["triage_vital_hr", "Heart rate", "bpm", "typical 60–100"], ["triage_vital_rr", "Respiratory rate", "/min", "typical 12–20"],
-  ["triage_vital_sbp", "Systolic BP", "mmHg", "typical 100–140"], ["triage_vital_dbp", "Diastolic BP", "mmHg", "typical 60–90"],
-  ["triage_vital_o2", "SpO₂", "%", "typical 95–100"], ["triage_vital_temp", "Temperature", "°F", "typical 97–99.5"]];
+const NB = " ";
+const VITAL = [["triage_vital_hr", "Heart rate", "bpm", "60–100", "numeric"], ["triage_vital_rr", "Respiratory rate", "/min", "12–20", "numeric"],
+  ["triage_vital_sbp", "Systolic BP", "mmHg", "100–140", "numeric"], ["triage_vital_dbp", "Diastolic BP", "mmHg", "60–90", "numeric"],
+  ["triage_vital_o2", "SpO₂", "%", "95–100", "numeric"], ["triage_vital_temp", "Temperature", "°F", "97–99.5", "decimal"]];
 const SHORT = { triage_vital_hr: "HR", triage_vital_rr: "RR", triage_vital_sbp: "SBP", triage_vital_dbp: "DBP", triage_vital_o2: "SpO₂", triage_vital_temp: "Temp" };
 const ARR = { Car: "Private car / taxi", ambulance: "Ambulance / EMS", "Walk-in": "Walk-in", Other: "Other",
   "Public Transportation": "Public transport", Wheelchair: "Wheelchair", Police: "Police" };
 const BAND = { Low: ["var(--low)", "var(--low-bg)", "●"], Medium: ["var(--med)", "var(--med-bg)", "◆"], High: ["var(--high)", "var(--high-bg)", "▲"] };
 const CONF = {
-  likely_admission: ["🛏️", "Likely admission", "The conformal check gives a single answer at the 90% level: admission."],
-  likely_discharge: ["🏠", "Likely discharge", "The conformal check gives a single answer at the 90% level: discharge."],
-  uncertain: ["⚠️", "Uncertain — clinician review", "Both outcomes remain plausible at the 90% confidence level. Use clinical judgement; do not rely on the percentage alone."],
+  likely_admission: ["🛏️", "Likely Admission", "The conformal check gives a single answer at the 90% level: admission."],
+  likely_discharge: ["🏠", "Likely Discharge", "The conformal check gives a single answer at the 90% level: discharge."],
+  uncertain: ["⚠️", "Uncertain — Clinician Review", "Both outcomes remain plausible at the 90% confidence level. Use clinical judgement; don’t rely on the percentage alone."],
 };
-let META = null, selected = [], acuity = "";
+const TITLES = { patient: "Patient", result: "Result", explain: "Explanation", about: "About" };
+const STORE = "firstlook.form.v1";
+let META = null, selected = [], acuity = "", last = null, dirty = false, undoTimer = 0, undoSnap = null;
+const scrollPos = {};
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const announce = (msg) => { $("live").textContent = ""; requestAnimationFrame(() => { $("live").textContent = msg; }); };
+const finePointer = matchMedia("(pointer: fine)").matches;
 
-function show(p) {
-  for (const s of ["patient", "result", "explain", "about"]) $(s).classList.toggle("hide", s !== p);
-  for (const b of $("nav").children) b.classList.toggle("on", b.dataset.p === p);
-  scrollTo({ top: 0, behavior: "smooth" });
+/* ---------- routing: real links + hash routes (Back/Forward, refresh, deep links, per-screen scroll) ---------- */
+let current = null;
+function route() {
+  const p = (location.hash.match(/^#\/(\w+)/) ?? [])[1];
+  const page = TITLES[p] ? p : "patient";
+  if (current) scrollPos[current] = scrollY;
+  for (const s of Object.keys(TITLES)) $(s).hidden = s !== page;
+  for (const a of $("nav").children) a.dataset.p === page ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
+  current = page;
+  const pct = last ? ` · ${Math.round(last.r.probability * 100)}%` : "";
+  document.title = `${TITLES[page]}${page === "result" || page === "explain" ? pct : ""} · FirstLook`;
+  $("noresult").hidden = $("noexplain").hidden = !!last;
+  $("resbody").hidden = $("exbody").hidden = !last;
+  scrollTo(0, scrollPos[page] ?? 0);
 }
-$("nav").addEventListener("click", (e) => { const p = e.target.closest("button")?.dataset.p; if (p) show(p); });
+addEventListener("hashchange", () => {
+  if (!(location.hash.startsWith("#/") || location.hash === "")) return; // "#main" = skip link, not a route
+  route();
+  $("main").focus({ preventScroll: true }); // move focus to the new screen (WAI-ARIA: don't strand it on a hidden control)
+});
+/** Programmatic navigation: push a history entry and render synchronously (no async hashchange race). */
+function go(page) {
+  if (location.hash !== `#/${page}`) history.pushState(null, "", `#/${page}`);
+  route(); $("main").focus({ preventScroll: true });
+}
 
 function net() {
   const on = navigator.onLine;
   $("netdot").style.background = on ? "var(--high)" : "var(--low)";
-  $("nettext").textContent = (on ? "Online" : "Offline") + " · this app sends 0 requests";
+  $("nettext").innerHTML = `${on ? "Online" : "Offline"}<span class="long"> · this app sends 0 requests</span>`;
 }
 addEventListener("online", net); addEventListener("offline", net);
 
@@ -288,39 +391,45 @@ function build() {
   for (const a of META.arrival_levels) $("arrival").add(new Option(ARR[a] ?? a, a));
   for (const h of META.hour_bins) $("hour").add(new Option(h.replace("-", ":00–") + ":59", h));
   $("hour").value = hourBin(new Date().getHours());
-  $("vitals").innerHTML = VITAL.map(([k, l, u, typ]) => `<div class="row"><div><label class="l" for="${k}">${l} (${u})</label>
-      <input id="${k}" type="number" step="any" placeholder="${typ}" data-typ="${typ}"></div>
-      <label class="nm"><input type="checkbox" id="${k}_nm"> Not measured</label></div>`).join("");
-  for (const [k] of VITAL) {
-    $(k + "_nm").addEventListener("change", (e) => setMissing(k, e.target.checked));
-    $(k).addEventListener("input", progress);
-  }
-  for (const id of ["age", "gender"]) $(id).addEventListener("input", progress);
+  $("vitals").innerHTML = VITAL.map(([k, l, u, typ, mode]) => `<div class="row"><div class="f"><label class="l" for="${k}">${l} (${u})</label>
+      <input id="${k}" name="${k}" type="number" step="any" inputmode="${mode}" autocomplete="off" placeholder="${typ}…" data-typ="${typ}…" aria-describedby="err-${k}">
+      <p class="ferr" id="err-${k}" hidden></p></div>
+      <label class="check"><input type="checkbox" id="${k}_nm"> Not measured</label></div>`).join("");
+  for (const [k] of VITAL) $(k + "_nm").addEventListener("change", (e) => { setMissing(k, e.target.checked); changed(); });
+  $("pform").addEventListener("input", (e) => { clearOne(e.target.id?.replace(/_nm$/, "")); changed(); });
   const ex = $("examples");
   for (const [key, e] of Object.entries(META.examples)) {
-    const b = document.createElement("button"); b.className = "btn"; b.textContent = e.label; b.onclick = () => load(key); ex.appendChild(b);
+    const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = e.label; b.onclick = () => load(key); ex.appendChild(b);
   }
-  const c = document.createElement("button"); c.className = "btn"; c.textContent = "↺ Clear form"; c.onclick = clearForm; ex.appendChild(c);
+  const c = document.createElement("button"); c.type = "button"; c.className = "btn"; c.innerHTML = '<span aria-hidden="true">↺ </span>Clear Form';
+  c.onclick = () => clearWithUndo("Form cleared."); ex.appendChild(c);
   $("acuity").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     acuity = b.dataset.a; for (const x of $("acuity").children) x.setAttribute("aria-pressed", String(x === b));
   });
   $("random").onclick = randomFill;
   combobox();
-  $("go").onclick = run; $("why").onclick = () => show("explain"); $("newp").onclick = () => { clearForm(); show("patient"); };
-  about(); progress();
+  $("pform").addEventListener("submit", (e) => { e.preventDefault(); run(); });
+  $("newp").onclick = () => { clearWithUndo("Ready for a new patient."); go("patient"); };
+  $("undo").onclick = undo;
+  about(); restore(); progress();
 }
 
-/** Searchable complaint combobox with keyboard support (↑ ↓ Enter Esc). */
+/* ---------- complaint combobox (WAI-ARIA combobox pattern: ↑ ↓ Enter Esc) ---------- */
 function combobox() {
   const s = $("ccsearch"), o = $("ccopts");
   let hits = [], act = 0;
   const render = () => {
-    o.innerHTML = hits.map((c, i) => `<div role="option" data-c="${c}" class="${i === act ? "act" : ""}">${esc(META.complaint_labels[c])}</div>`).join("");
+    o.innerHTML = hits.map((c, i) => `<div role="option" id="opt-${i}" data-c="${c}" aria-selected="${i === act}">${esc(META.complaint_labels[c])}</div>`).join("");
     const open = hits.length > 0 && s.value.trim() !== "";
-    o.style.display = open ? "block" : "none"; s.setAttribute("aria-expanded", String(open));
+    o.hidden = !open; s.setAttribute("aria-expanded", String(open));
+    open ? s.setAttribute("aria-activedescendant", `opt-${act}`) : s.removeAttribute("aria-activedescendant");
+    o.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
   };
-  const add = (c) => { if (c && selected.length < 3 && !selected.includes(c)) { selected = [...selected, c]; chips(); } s.value = ""; hits = []; render(); };
+  const add = (c) => {
+    if (c && selected.length < 3 && !selected.includes(c)) { selected = [...selected, c]; chips(); changed(); announce(`${META.complaint_labels[c]} added.`); }
+    s.value = ""; hits = []; render();
+  };
   s.addEventListener("input", () => {
     const q = s.value.trim().toLowerCase(); act = 0;
     hits = META.complaint_order.filter((c) => !selected.includes(c) && META.complaint_labels[c].toLowerCase().includes(q)).slice(0, 30);
@@ -329,19 +438,21 @@ function combobox() {
   s.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { act = Math.min(act + 1, hits.length - 1); render(); e.preventDefault(); }
     else if (e.key === "ArrowUp") { act = Math.max(act - 1, 0); render(); e.preventDefault(); }
-    else if (e.key === "Enter") { add(hits[act]); e.preventDefault(); }
+    else if (e.key === "Enter") { if (hits.length) { add(hits[act]); e.preventDefault(); } }
     else if (e.key === "Escape") { hits = []; render(); }
   });
-  o.addEventListener("mousedown", (e) => { add(e.target.dataset.c); e.preventDefault(); });
+  s.addEventListener("blur", () => setTimeout(() => { hits = []; render(); }, 120));
+  o.addEventListener("mousedown", (e) => { const c = e.target.closest("[data-c]")?.dataset.c; if (c) { add(c); e.preventDefault(); } });
 }
 function chips() {
-  $("ccchips").innerHTML = selected.map((c) => `<span data-c="${c}" title="Remove">${esc(META.complaint_labels[c])} ×</span>`).join("");
-  for (const el of $("ccchips").children) el.onclick = () => { selected = selected.filter((x) => x !== el.dataset.c); chips(); };
+  $("ccchips").innerHTML = selected.map((c) => `<button type="button" data-c="${c}" aria-label="Remove ${esc(META.complaint_labels[c])}">${esc(META.complaint_labels[c])} <span aria-hidden="true">×</span></button>`).join("");
+  for (const el of $("ccchips").children) el.onclick = () => { selected = selected.filter((x) => x !== el.dataset.c); chips(); changed(); $("ccsearch").focus(); };
+  if (selected.length) clearOne("complaints");
   progress();
 }
 function setMissing(k, on) {
   $(k + "_nm").checked = on; $(k).disabled = on; if (on) $(k).value = "";
-  $(k).placeholder = on ? "not measured" : $(k).dataset.typ; progress();
+  $(k).placeholder = on ? "Not measured" : $(k).dataset.typ;
 }
 function progress() {
   const vit = VITAL.filter(([k]) => $(k + "_nm").checked || $(k).value !== "").length;
@@ -349,24 +460,59 @@ function progress() {
   const done = vit + req, total = VITAL.length + 3;
   $("vcount").textContent = `${vit}/${VITAL.length} entered or marked`;
   $("ptext").innerHTML = `<b>${done}</b> of ${total} core fields complete`;
-  $("pfill").style.width = `${(100 * done / total).toFixed(0)}%`;
+  $("pfill").style.transform = `scaleX(${done / total})`;
 }
-function note(html) { $("exnote").innerHTML = html; $("exnote").classList.toggle("hide", !html); }
+function changed() { dirty = true; progress(); save(); }
+/** Editing a field clears that field's message (others stay until the next submit, so nothing flickers). */
+function clearOne(id) {
+  const field = id === "ccsearch" ? "complaints" : id;
+  const p = field && $(`err-${field}`); if (!p) return;
+  p.hidden = true; p.textContent = ""; $(FIELD_INPUT[field] ?? field)?.removeAttribute("aria-invalid");
+}
+function note(html) { $("exnote").innerHTML = html; $("exnote").hidden = !html; }
+
+/* ---------- form state: snapshot / restore (sessionStorage survives refresh; cleared when the tab closes) ---------- */
+function snapshot() {
+  const v = { selected: [...selected], note: $("exnote").innerHTML };
+  for (const id of ["age", "gender", "arrival", "hour", "esi", "o2dev"]) v[id] = $(id).value;
+  for (const [k] of VITAL) { v[k] = $(k).value; v[k + "_nm"] = $(k + "_nm").checked; }
+  return v;
+}
+function apply(v) {
+  for (const id of ["age", "gender", "arrival", "hour", "esi", "o2dev"]) if (v[id] !== undefined) $(id).value = v[id];
+  for (const [k] of VITAL) { setMissing(k, !!v[k + "_nm"]); if (!v[k + "_nm"]) $(k).value = v[k] ?? ""; }
+  selected = [...(v.selected ?? [])]; chips(); note(v.note ?? ""); progress();
+}
+function save() { try { sessionStorage.setItem(STORE, JSON.stringify(snapshot())); } catch { /* storage unavailable: no persistence */ } }
+function restore() { try { const v = JSON.parse(sessionStorage.getItem(STORE) ?? "null"); if (v) apply(v); } catch { /* ignore corrupt state */ } }
 
 function clearForm() {
-  $("age").value = ""; $("gender").value = ""; $("esi").value = ""; $("o2dev").value = "0"; selected = []; chips(); note(""); $("msgs").innerHTML = "";
+  $("age").value = ""; $("gender").value = ""; $("esi").value = ""; $("o2dev").value = "0"; $("hour").value = hourBin(new Date().getHours());
+  selected = []; chips(); note(""); clearFieldErrors();
   for (const [k] of VITAL) { $(k).value = ""; setMissing(k, false); }
-  progress();
+  dirty = false; progress(); save();
+}
+function clearWithUndo(msg) {
+  undoSnap = { form: snapshot(), last };
+  clearForm(); last = null; route();
+  $("toastmsg").textContent = msg; $("toast").hidden = false; announce(`${msg} Undo available.`);
+  clearTimeout(undoTimer); undoTimer = setTimeout(() => { $("toast").hidden = true; undoSnap = null; }, 8000);
+}
+function undo() {
+  if (!undoSnap) return;
+  apply(undoSnap.form); last = undoSnap.last; undoSnap = null; save(); route();
+  $("toast").hidden = true; clearTimeout(undoTimer); announce("Restored.");
 }
 function fill(f) {
   $("age").value = f.age; $("gender").value = f.gender; $("arrival").value = f.arrivalmode; $("hour").value = f.arrivalhour_bin;
   for (const [k] of VITAL) { setMissing(k, f[k] === null); if (f[k] !== null) $(k).value = f[k]; }
   $("o2dev").value = f.triage_vital_o2_device === null ? "" : String(f.triage_vital_o2_device);
-  selected = [...f.complaints]; chips(); $("msgs").innerHTML = "";
+  selected = [...f.complaints]; chips(); clearFieldErrors();
 }
 function load(key) {
   clearForm(); fill(META.examples[key].form);
-  note(`🧪 <b>Synthetic example:</b> ${esc(META.examples[key].label)} — invented for the demo, not a real patient`);
+  note(`<span aria-hidden="true">🧪</span> <b>Synthetic example:</b> ${esc(META.examples[key].label)} — invented for the demo, not a real patient`);
+  dirty = true; save(); announce(`Example “${META.examples[key].label}” loaded.`);
 }
 function randomFill() {
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] % 100000;
@@ -374,97 +520,127 @@ function randomFill() {
   const { form, meta } = FirstLookModel.randomPatient(seed, acuity || null, $("rmiss").checked, META);
   clearForm(); fill(form);
   if (esiOn) $("esi").value = String(meta.esi);
-  note(`🎲 <b>Random synthetic patient:</b> ${meta.acuity} acuity · seed ${seed} — invented for the demo, not a real patient`);
+  note(`<span aria-hidden="true">🎲</span> <b>Random synthetic patient:</b> ${meta.acuity} acuity · seed ${seed} — invented for the demo, not a real patient`);
+  dirty = true; save(); announce(`Random ${meta.acuity}-acuity patient loaded, seed ${seed}.`);
 }
 
 function readForm() {
-  const num = (id) => { const v = $(id).value; return v === "" ? null : Number(v); };
+  const num = (id) => { const v = $(id).value.trim(); return v === "" ? null : Number(v); };
   const f = { age: num("age"), gender: $("gender").value || null, arrivalmode: $("arrival").value, arrivalhour_bin: $("hour").value,
     triage_vital_o2_device: $("o2dev").value === "" ? null : Number($("o2dev").value), complaints: [...selected],
     esi: $("esi").value === "" ? null : Number($("esi").value) };
   for (const [k] of VITAL) f[k] = $(k + "_nm").checked ? null : num(k);
   return f;
 }
-function validate(f) {
-  const err = [], warn = [];
-  if (f.age === null) err.push("Please enter the patient's age.");
-  if (!f.gender) err.push("Please select the patient's sex.");
-  for (const [k, l] of VITAL) if (f[k] === null && !$(k + "_nm").checked) err.push(`${l}: enter a value or tick “not measured”.`);
-  for (const [k, [lo, hi, name, unit]] of Object.entries(META.ranges)) {
-    const v = f[k]; if (v === null || v === undefined) continue;
-    if (v < lo || v > hi) err.push(`${name} ${v} ${unit} is outside the accepted range (${lo}–${hi} ${unit}). Please check it.`);
-    else if (META.soft[k] && (v < META.soft[k][0] || v > META.soft[k][1])) warn.push(`${name} ${v} ${unit} is unusual — please double-check it.`);
+const FIELD_INPUT = { complaints: "ccsearch" };
+function clearFieldErrors() {
+  for (const el of document.querySelectorAll(".ferr")) { el.hidden = true; el.textContent = ""; el.classList.remove("warn"); }
+  for (const el of document.querySelectorAll("[aria-invalid]")) el.removeAttribute("aria-invalid");
+  $("errsum").hidden = true;
+}
+/** Shows each message next to its field; vitals left blank must be entered or marked "Not measured". */
+function showFieldErrors(f) {
+  clearFieldErrors();
+  const items = FirstLookModel.validateFields(f, META);
+  for (const [k, l] of VITAL) if (f[k] === null && !$(k + "_nm").checked)
+    items.push({ field: k, level: "error", msg: "Enter a value, or tick “Not measured”." });
+  const order = ["age", "gender", "complaints", ...VITAL.map((v) => v[0])];
+  items.sort((a, b) => order.indexOf(a.field) - order.indexOf(b.field));
+  for (const d of items) {
+    const p = $(`err-${d.field}`); if (!p) continue;
+    if (!p.hidden && p.classList.contains("warn") === false) continue; // first error wins
+    p.innerHTML = `<span aria-hidden="true">${d.level === "error" ? "✋" : "⚠️"}</span>${esc(d.msg)}`;
+    p.classList.toggle("warn", d.level === "warning"); p.hidden = false;
+    if (d.level === "error") $(FIELD_INPUT[d.field] ?? d.field)?.setAttribute("aria-invalid", "true");
   }
-  if (f.triage_vital_sbp !== null && f.triage_vital_dbp !== null && f.triage_vital_dbp >= f.triage_vital_sbp) err.push("Diastolic BP must be lower than systolic BP.");
-  if (!f.complaints.length) warn.push("No chief complaint selected — the estimate will be less informative.");
-  return [err, warn];
+  return items;
 }
 
 function summary(f) {
-  const c = [`${f.age} y · ${f.gender === "Female" ? "F" : "M"}`, ARR[f.arrivalmode] ?? f.arrivalmode, ...f.complaints.map((x) => META.complaint_labels[x])]
+  const c = [`${f.age}${NB}y · ${f.gender === "Female" ? "F" : "M"}`, ARR[f.arrivalmode] ?? f.arrivalmode, ...f.complaints.map((x) => META.complaint_labels[x])]
     .map((t) => `<span>${esc(t)}</span>`);
-  for (const [k, , u] of VITAL) c.push(f[k] === null ? `<span class="miss">${SHORT[k]} not measured</span>` : `<span>${SHORT[k]} ${f[k]}${u === "%" ? "" : " "}${u}</span>`);
+  for (const [k, , u] of VITAL) c.push(f[k] === null ? `<span class="miss">${SHORT[k]} not measured</span>` : `<span>${SHORT[k]} ${f[k]}${u === "%" ? "" : NB}${u}</span>`);
   if (f.triage_vital_o2_device === 1) c.push("<span>on O₂</span>");
-  if (f.esi) c.push(`<span>ESI ${f.esi}</span>`);
+  if (f.esi) c.push(`<span>ESI${NB}${f.esi}</span>`);
   return c.join("");
 }
 function factorRows(items) {
   return items.map((d) => { const up = d.value > 0;
-    return `<div class="factor"><span class="arrow" style="color:${up ? "var(--raise)" : "var(--lower)"};background:${up ? "#fdecec" : "#e8f1fc"}">${up ? "↑" : "↓"}</span>
-      <b>${esc(d.label)}</b><span class="v num">${d.value > 0 ? "+" : ""}${d.value.toFixed(2)}</span></div>`; }).join("");
+    return `<div class="factor"><span class="arrow" style="color:${up ? "var(--raise)" : "var(--lower)"};background:${up ? "#fdecec" : "#e8f1fc"}"><span aria-hidden="true">${up ? "↑" : "↓"}</span><span class="sr-only">${up ? "Raises risk:" : "Lowers risk:"}</span></span>
+      <b>${esc(d.label)}</b><span class="v num">${d.value > 0 ? "+" : "−"}${Math.abs(d.value).toFixed(2)}</span></div>`; }).join("");
 }
 
 function run() {
-  const f = readForm(); const [err, warn] = validate(f);
-  $("msgs").innerHTML = err.map((e) => `<div class="msg err">✋ ${esc(e)}</div>`).join("") + warn.map((w) => `<div class="msg warn">⚠️ ${esc(w)}</div>`).join("");
-  if (err.length) { $("msgs").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  const f = readForm();
+  const items = showFieldErrors(f);
+  const errs = items.filter((d) => d.level === "error");
+  if (errs.length) {
+    $("errsum").innerHTML = `${errs.length} field${errs.length > 1 ? "s need" : " needs"} attention — see the messages next to them.`;
+    $("errsum").hidden = false;
+    const first = errs[0].field; const el = $(FIELD_INPUT[first] ?? first);
+    el?.focus({ preventScroll: true }); el?.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    announce(`${errs.length} field${errs.length > 1 ? "s need" : " needs"} attention. ${errs[0].msg}`);
+    return;
+  }
   const slot = f.esi ? "t2" : "t1", m = META.models[slot];
   const r = FirstLookModel.predict(f, m, META);
+  last = { r, m, f, slot };
+  render();
+  dirty = false;
+  announce(`Estimated admission risk ${Math.round(r.probability * 100)} percent, ${r.band} risk. ${CONF[r.conformal][1]}.`);
+  scrollPos.result = 0; go("result");
+}
+
+function render() {
+  const { r, m, f, slot } = last;
   const [col, bg, ico] = BAND[r.band];
-  $("noresult").classList.add("hide"); $("resbody").classList.remove("hide");
   $("summary").innerHTML = $("summary2").innerHTML = summary(f);
   $("pct").innerHTML = `${Math.round(r.probability * 100)}<small>%</small>`;
-  $("band").innerHTML = `<span style="color:${col}">${ico}</span>${r.band} risk`; $("band").style.background = bg;
+  $("band").innerHTML = `<span style="color:${col}" aria-hidden="true">${ico}</span>${r.band} risk`; $("band").style.background = bg;
   const tl = m.thresholds.t_low, th = m.thresholds.t_high, x = Math.min(Math.max(r.probability * 100, 1), 99);
   $("meter").innerHTML = `<div class="bubble num" style="left:${x}%">${Math.round(r.probability * 100)}%</div>
     <div class="segs"><div style="width:${tl * 100}%;background:var(--low)"></div><div style="width:${(th - tl) * 100}%;background:var(--med)"></div><div style="flex:1;background:var(--high)"></div></div>
-    <div class="mark" style="left:${x}%"></div><div class="mlab"><span>0%</span><span>Low &lt; ${Math.round(tl * 100)}%</span><span>High ≥ ${Math.round(th * 100)}%</span><span>100%</span></div>`;
+    <div class="mark" style="left:${x}%"></div><div class="mlab"><span>0%</span><span>Low &lt;${NB}${Math.round(tl * 100)}%</span><span>High ≥${NB}${Math.round(th * 100)}%</span><span>100%</span></div>`;
   const [ci, ct, cd] = CONF[r.conformal];
   $("conf").classList.toggle("unc", r.conformal === "uncertain");
   $("conficon").textContent = ci; $("conftitle").textContent = ct; $("conftext").textContent = cd;
   $("conftitle").style.color = r.conformal === "uncertain" ? "var(--unc)" : "var(--ink)";
   $("mname").textContent = slot.toUpperCase(); $("mname2").textContent = m.name; $("mver").textContent = META.version;
-  $("mms").textContent = `${r.ms.toFixed(2)} ms`; $("mn").textContent = m.features.length;
-  $("topf").innerHTML = factorRows(r.contributions.slice(0, 3)) || '<div class="muted">No factor above 0.05.</div>';
+  $("mms").textContent = `${r.ms.toFixed(2)}${NB}ms`; $("mn").textContent = m.features.length;
+  $("topf").innerHTML = factorRows(r.contributions.slice(0, 3)) || '<p class="muted">No factor above 0.05.</p>';
   $("exsub").textContent = `${Math.round(r.probability * 100)}% · ${r.band} risk`;
   const top = r.contributions.slice(0, 10).sort((a, b) => b.value - a.value);
   const mx = Math.max(...top.map((d) => Math.abs(d.value)), 0.5) * 1.15;
   $("bars").innerHTML = top.map((d) => {
-    const w = Math.abs(d.value) / mx * 50, left = d.value > 0 ? 50 : 50 - w, lab = `${d.value > 0 ? "+" : ""}${d.value.toFixed(2)}`;
+    const w = Math.abs(d.value) / mx * 50, left = d.value > 0 ? 50 : 50 - w, lab = `${d.value > 0 ? "+" : "−"}${Math.abs(d.value).toFixed(2)}`;
     const vpos = d.value > 0 ? `left:calc(${50 + w}% + 5px)` : `right:calc(${50 + w}% + 5px)`;
-    return `<div class="bar-row"><div class="name">${esc(d.label)}</div><div class="track2"><div class="axis"></div>
-      <div class="b" style="left:${left}%;width:${w}%;background:${d.value > 0 ? "var(--raise)" : "var(--lower)"}"></div>
+    return `<div class="bar-row"><div class="name">${esc(d.label)}</div><div class="track2" role="img" aria-label="${esc(d.label)}: ${d.value > 0 ? "raises" : "lowers"} risk by ${Math.abs(d.value).toFixed(2)} log-odds">
+      <div class="axis"></div><div class="b" style="left:${left}%;width:${w}%;background:${d.value > 0 ? "var(--raise)" : "var(--lower)"}"></div>
       <span class="val num" style="${vpos}">${lab}</span></div></div>`;
-  }).join("") || "No factor above 0.05.";
-  show("result");
+  }).join("") || '<p class="muted">No factor above 0.05.</p>';
 }
 
 function about() {
-  const rows = Object.entries(META.models).map(([, m]) => { const t = m.metrics ?? {}, c = t["conformal_alpha_0.10"] ?? {};
+  const rows = Object.values(META.models).map((m) => { const t = m.metrics ?? {}, c = t["conformal_alpha_0.10"] ?? {};
     const f = (k) => t[k] !== undefined ? `${t[k].toFixed(3)} <span class="muted">(${t[k + "_ci"][0].toFixed(3)}–${t[k + "_ci"][1].toFixed(3)})</span>` : "—";
     return `<tr><td><b>${esc(m.name)}</b></td><td>${m.features.length}</td><td>${f("auc")}</td><td>${f("ece")}</td>
       <td>${c.coverage?.toFixed(3) ?? "—"}</td><td>${c.abstention !== undefined ? Math.round(c.abstention * 100) + "%" : "—"}</td></tr>`; }).join("");
-  $("mt").innerHTML = `<tr><th>Model</th><th>Inputs</th><th>ROC-AUC (95% CI)</th><th>ECE</th><th>Conformal coverage α=0.10</th><th>Uncertain</th></tr>${rows}`;
-  $("aboutnote").textContent = "Numbers are copied by scripts/build_pwa.py from each bundle's metrics.json (computed by src/final_eval.py). This web version computes the same function as the ONNX model; tests/test_pwa.py checks agreement to 1e-4.";
+  $("mt").innerHTML = `<caption class="sr-only">Test-set metrics of the shipped models</caption><thead><tr><th scope="col">Model</th><th scope="col">Inputs</th><th scope="col">ROC-AUC (95% CI)</th><th scope="col">ECE</th><th scope="col">Conformal coverage α${NB}=${NB}0.10</th><th scope="col">Uncertain</th></tr></thead><tbody>${rows}</tbody>`;
+  $("aboutnote").textContent = "Numbers are copied by scripts/build_pwa.py from each bundle’s metrics.json (computed by src/final_eval.py). This web version computes the same function as the ONNX model; tests/test_pwa.py checks agreement to 1e-4.";
 }
 
+/* warn before leaving with unsaved, unestimated input */
+addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
 async function init() {
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   try {
     const res = await fetch("models.json");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    META = await res.json(); build(); net();
+    META = await res.json(); build(); net(); route();
+    if (finePointer && current === "patient" && !$("age").value) $("age").focus({ preventScroll: true });
   } catch (e) {
-    document.querySelector("main").innerHTML = `<div class="card msg err">Could not load the model files (${esc(e.message)}).</div>`;
+    $("main").innerHTML = `<div class="card errsum">Couldn’t load the model files (${esc(e.message)}). Reload the page; if it keeps failing, re-open it once while online so it can cache itself.</div>`;
   }
   if (!("serviceWorker" in navigator)) { $("swstate").textContent = "not supported in this browser"; return; }
   try {
