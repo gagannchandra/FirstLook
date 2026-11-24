@@ -132,7 +132,12 @@ const hPut = (list) => { try { localStorage.setItem(HKEY, JSON.stringify(list.sl
 const formSig = () => JSON.stringify(snapshot());
 const sig = () => JSON.stringify({ f: formSig(), note: $("hnote").value.trim() });
 function hBadge() { const n = hAll().length; $("hcount").textContent = n; $("hcount").hidden = !n; }
-function who(f) { return `${f.gender ?? "?"}, ${f.age ?? "?"}. ${f.complaints.map((c) => META.complaint_labels[c]).join(", ")}`; }
+function who(f, name = $("pname").value.trim()) { return `${name ? `${name}, ` : ""}${f.gender ?? "?"}, ${f.age ?? "?"}. ${f.complaints.map((c) => META.complaint_labels[c]).join(", ")}`; }
+/* Invented identities for the sample and random patients. 555-01xx numbers are reserved for fiction. */
+const SAMPLE_ID = { high: ["Margaret Hale", "555-0142"], low: ["Daniel Okafor", "555-0117"], uncertain: ["Priya Raman", "555-0163"], missing_spo2: ["George Whitfield", "555-0188"] };
+const FAKE_FIRST = { Female: ["Anna", "Rosa", "Leela", "Grace", "Nadia", "Helen", "Mei", "Sofia", "Joan", "Amara"], Male: ["Tom", "Arjun", "Samuel", "Luis", "Omar", "Peter", "Kenji", "Victor", "Hugo", "Ben"] };
+const FAKE_LAST = ["Carter", "Iyer", "Novak", "Mensah", "Lindqvist", "Moreau", "Tanaka", "Reyes", "Byrne", "Haddad", "Kowalski", "Fraser"];
+const fakeId = (seed, sex) => [`${FAKE_FIRST[sex ?? "Female"][seed % 10]} ${FAKE_LAST[Math.floor(seed / 10) % FAKE_LAST.length]}`, `555-01${String(seed % 100).padStart(2, "0")}`];
 function saveEstimate() {
   if (!last) return false;
   const s = sig(), list = hAll(), r = last.r;
@@ -144,7 +149,7 @@ function saveEstimate() {
     savedSig = s; saveState(); toast("Note saved."); return true;
   }
   const entry = { id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, at: Date.now(), p: r.probability, band: r.band, conformal: r.conformal,
-    slot: last.slot, note: $("hnote").value.trim(), who: who(last.f), age: last.f.age, sex: last.f.gender,
+    slot: last.slot, note: $("hnote").value.trim(), who: who(last.f), name: $("pname").value.trim(), phone: $("pphone").value.trim(), age: last.f.age, sex: last.f.gender,
     complaints: last.f.complaints.map((c) => META.complaint_labels[c]), top: r.contributions.slice(0, 3).map((d) => ({ label: d.label, up: d.value > 0 })), form: snapshot() };
   if (!hPut([entry, ...list])) { toast("Couldn’t save: this browser’s storage is full or switched off."); return false; }
   savedSig = s; savedId = entry.id; hBadge(); saveState(); toast("Saved to history.");
@@ -163,7 +168,7 @@ const dayLabel = (t) => { const d = new Date(t), today = new Date(); const k = (
 function renderHistory() {
   const all = hAll(), q = $("hist-q").value.trim().toLowerCase(), band = radio("hband") ?? "";
   const list = all.filter((e) => (!band || (band === "unsure" ? e.conformal === "uncertain" : e.band === band))
-    && (!q || `${e.who} ${e.note} ${e.age}`.toLowerCase().includes(q)));
+    && (!q || `${e.who} ${e.note} ${e.age} ${e.phone ?? ""}`.toLowerCase().includes(q)));
   $("hempty").hidden = all.length > 0; $("hist-tools").hidden = !all.length; $("hist-actions").hidden = !all.length;
   const n = (b) => all.filter((e) => e.band === b).length;
   $("hist-sum").textContent = all.length ? `${list.length === all.length ? all.length : `${list.length} of ${all.length}`} saved. ${n("High")} high, ${n("Medium")} medium, ${n("Low")} low.` : "";
@@ -174,7 +179,7 @@ function renderHistory() {
     html += `<li class="hitem" data-band="${esc(e.band)}">
       <div class="h-pct"><b class="num">${pct(e.p)}%</b><span>${esc(e.band)}</span></div>
       <div class="h-main"><p class="h-who">${esc(e.who)}</p>
-        <p class="h-meta"><time datetime="${new Date(e.at).toISOString()}">${new Date(e.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time><span class="${e.conformal === "uncertain" ? "unc" : ""}">${esc(vt)}</span><span>${esc(LEVEL[e.slot] ?? "")}</span></p>
+        <p class="h-meta"><time datetime="${new Date(e.at).toISOString()}">${new Date(e.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time>${e.phone ? `<span>${esc(e.phone)}</span>` : ""}<span class="${e.conformal === "uncertain" ? "unc" : ""}">${esc(vt)}</span><span>${esc(LEVEL[e.slot] ?? "")}</span></p>
         ${e.note ? `<p class="h-note">${esc(e.note)}</p>` : ""}
         ${e.top?.length ? `<p class="h-top">Moved most by ${e.top.map((t) => `${t.up ? "↑" : "↓"} ${esc(t.label)}`).join(", ")}</p>` : ""}</div>
       <div class="h-act"><button type="button" class="btn" data-open="${e.id}">Open</button><button type="button" class="btn quiet" data-del="${e.id}" aria-label="Delete the estimate for ${esc(e.who)}">Delete</button></div></li>`;
@@ -198,9 +203,11 @@ function historyUI() {
   });
   $("hist-clear").onclick = () => { const before = hAll(); hPut([]); hBadge(); renderHistory(); toast("History cleared.", () => { hPut(before); hBadge(); renderHistory(); }); };
   $("hist-csv").onclick = () => {
-    const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const rows = [["saved_at", "note", "age", "sex", "complaints", "chance_percent", "risk", "confidence", "based_on"],
-      ...hAll().map((e) => [new Date(e.at).toISOString(), e.note, e.age, e.sex, e.complaints?.join("; "), pct(e.p), e.band, CONF[e.conformal]?.[1], LEVEL[e.slot]])];
+    const cell = (v) => { let s = String(v ?? ""); // a typed name like "=SUM(…)" must not run as a spreadsheet formula
+      if (/^[=@\t\r]/.test(s) || (/^[+-]/.test(s) && !/^[+-][\d\s().-]+$/.test(s))) s = `'${s}`;
+      return `"${s.replace(/"/g, '""')}"`; };
+    const rows = [["saved_at", "name", "contact", "note", "age", "sex", "complaints", "chance_percent", "risk", "confidence", "based_on"],
+      ...hAll().map((e) => [new Date(e.at).toISOString(), e.name, e.phone, e.note, e.age, e.sex, e.complaints?.join("; "), pct(e.p), e.band, CONF[e.conformal]?.[1], LEVEL[e.slot]])];
     const url = URL.createObjectURL(new Blob([rows.map((r) => r.map(cell).join(",")).join("\r\n")], { type: "text/csv" }));
     const a = document.createElement("a"); a.href = url; a.download = `firstlook-history-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000); toast("Downloaded history as CSV.");
@@ -223,7 +230,10 @@ function build() {
   for (const [k] of VITAL) { $(k + "_nm").addEventListener("change", (e) => { setMissing(k, e.target.checked); touched.add(k); changed(true); }); strip(k); }
   const ex = $("examples");
   for (const [key, e] of Object.entries(META.examples)) {
-    const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = e.label; b.onclick = () => load(key); ex.appendChild(b);
+    const b = document.createElement("button"); b.type = "button"; b.className = "sample"; b.dataset.k = key; b.onclick = () => load(key);
+    const f = e.form, nm = SAMPLE_ID[key]?.[0] ?? e.label;
+    b.innerHTML = `<b>${esc(nm)}</b><span>${esc(f.gender)}, ${f.age}, ${esc(f.complaints.map((c) => META.complaint_labels[c]).join(", ").toLowerCase())}</span><i>${esc(e.label)}</i>`;
+    ex.appendChild(b);
   }
   $("cccommon").innerHTML = META.complaint_order.filter((c) => c !== "cc_other").slice(0, 6)
     .map((c) => `<button type="button" class="common" data-c="${c}">${esc(META.complaint_labels[c])}</button>`).join(", ");
@@ -232,7 +242,7 @@ function build() {
   const form = $("pform");
   form.addEventListener("input", (e) => { if (e.target.type === "number") strip(e.target.id); changed(false); });
   form.addEventListener("change", (e) => { if (e.target.type === "radio" || e.target.tagName === "SELECT") { touched.add(e.target.name); changed(true); } });
-  form.addEventListener("focusout", (e) => { if (e.target.type === "number") { touched.add(e.target.id); changed(true); } });
+  form.addEventListener("focusout", (e) => { if (e.target.type === "number" || e.target.type === "tel") { touched.add(e.target.id); changed(true); } });
   form.addEventListener("submit", (e) => { e.preventDefault(); check(); });
   $("usehist").addEventListener("change", () => { $("histbox").hidden = !$("usehist").checked; changed(true); });
   $("random").onclick = randomFill;
@@ -326,13 +336,14 @@ function chips() {
 /* ---------------------------------------------------------------- state */
 const histIds = () => (META.history ? [...META.history.fields.map((f) => hid(f.key)), ...(META.history.prev_dispo.length ? ["h_prevdispo"] : [])] : []);
 function snapshot() {
-  const v = { selected: [...selected], note: $("exnote").innerHTML, usehist: $("usehist").checked, age: $("age").value, hour: $("hour").value,
+  const v = { selected: [...selected], note: $("exnote").innerHTML, usehist: $("usehist").checked, pname: $("pname").value, pphone: $("pphone").value, age: $("age").value, hour: $("hour").value,
     gender: radio("gender"), arrival: radio("arrival"), esi: radio("esi"), o2dev: radio("o2dev") };
   for (const [k] of VITAL) { v[k] = $(k).value; v[k + "_nm"] = $(k + "_nm").checked; }
   for (const id of histIds()) v[id] = $(id).type === "checkbox" ? $(id).checked : $(id).value;
   return v;
 }
 function apply(v) {
+  $("pname").value = v.pname ?? ""; $("pphone").value = v.pphone ?? "";
   $("age").value = v.age ?? ""; if (v.hour) $("hour").value = v.hour;
   setRadio("gender", v.gender); setRadio("arrival", v.arrival ?? "Walk-in"); setRadio("esi", v.esi ?? ""); setRadio("o2dev", v.o2dev ?? "0");
   for (const [k] of VITAL) { setMissing(k, !!v[k + "_nm"]); if (!v[k + "_nm"]) $(k).value = v[k] ?? ""; strip(k); }
@@ -370,13 +381,15 @@ function fill(f) {
 }
 function load(key) {
   const e = META.examples[key];
-  withUndo(`Loaded “${e.label}”.`, () => { fill(e.form); note(`<b>Synthetic patient: ${esc(e.label)}.</b> Invented for the demo, not a real person.`); });
+  const [nm, ph] = SAMPLE_ID[key] ?? ["", ""];
+  withUndo(`Loaded ${nm || `“${e.label}”`}.`, () => { fill(e.form); $("pname").value = nm; $("pphone").value = ph; note(`<b>Sample patient: ${esc(e.label)}.</b> Invented for the demo, not a real person.`); });
 }
 function randomFill() {
   const seed = crypto.getRandomValues(new Uint32Array(1))[0] % 100000, esiOn = radio("esi") !== "";
   const { form, meta } = M.randomPatient(seed, $("acuity").value || null, $("rmiss").checked, META);
   withUndo("Loaded a random patient.", () => {
     fill(form); if (esiOn) setRadio("esi", meta.esi);
+    [$("pname").value, $("pphone").value] = fakeId(seed, form.gender);
     note(`<b>Random synthetic patient, ${meta.acuity} acuity</b> (seed ${seed}). Invented for the demo, not a real person.`);
   });
 }
@@ -406,7 +419,9 @@ function findings(f) {
     const v = f[h.key];
     if (h.kind === "count" && v !== null && (v < 0 || !Number.isInteger(v) || v > 500)) out.push({ field: hid(h.key), level: "error", msg: "Enter a whole number from 0 to 500." });
   }
-  const order = ["age", "gender", "complaints", ...VITAL.map((v) => v[0])];
+  const ph = $("pphone").value.trim();
+  if (ph && !/^\+?[\d\s()-]{6,20}$/.test(ph)) out.push({ field: "pphone", level: "error", msg: "Enter a phone number using digits, spaces, + or -." });
+  const order = ["pname", "pphone", "age", "gender", "complaints", ...VITAL.map((v) => v[0])];
   return out.sort((a, b) => (order.indexOf(a.field) + 1 || 99) - (order.indexOf(b.field) + 1 || 99));
 }
 const INPUT = { complaints: "ccsearch" };
@@ -414,7 +429,7 @@ const focusField = (field) => {
   const el = field === "gender" ? document.querySelector('input[name="gender"]') : $(INPUT[field] ?? field);
   el?.focus({ preventScroll: true }); el?.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
 };
-const fieldName = (field) => ({ age: "Age", gender: "Sex", complaints: "Chief complaint" })[field] ?? VITAL.find((v) => v[0] === field)?.[1]
+const fieldName = (field) => ({ pname: "Patient name", pphone: "Contact number", age: "Age", gender: "Sex", complaints: "Chief complaint" })[field] ?? VITAL.find((v) => v[0] === field)?.[1]
   ?? META.history?.fields.find((h) => hid(h.key) === field)?.label ?? field;
 
 /** Inline messages: errors and warnings once a field is touched (and cleared the moment it is fixed); blanks only after "Check". */
@@ -524,7 +539,7 @@ function renderInputs() {
   const f = last.f, arr = document.querySelector('input[name="arrival"]:checked')?.parentElement.textContent.trim();
   const hour = $("hour").selectedOptions[0]?.textContent;
   $("res-who").textContent = `${who(f)}. ${arr ? `Arrived by ${arr.toLowerCase()}, ` : ""}${hour ?? ""}.`;
-  const rows = [["Age", `${f.age} years`], ["Sex", f.gender], ["Arrived by", arr], ["Arrival time", hour],
+  const rows = [["Name", $("pname").value.trim() || "Not given"], ["Contact", $("pphone").value.trim() || "Not given"], ["Age", `${f.age} years`], ["Sex", f.gender], ["Arrived by", arr], ["Arrival time", hour],
     ["Chief complaint", f.complaints.map((c) => META.complaint_labels[c]).join(", ")],
     ...VITAL.map(([k, name, unit]) => [name, $(k + "_nm").checked ? "Not measured" : `${$(k).value}${unit ? NB + unit : ""}`]),
     ["Triage level (ESI)", f.esi ? String(f.esi) : "Not set"], ["Patient record", $("usehist").checked && SERVER ? "Added" : "Not added"]];

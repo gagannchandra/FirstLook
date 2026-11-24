@@ -67,6 +67,14 @@ CC_LABEL = {
     "urinaryretention": "Urinary retention", "urinarytractinfection": "Urinary tract infection", "vaginalbleeding": "Vaginal bleeding",
     "vaginaldischarge": "Vaginal discharge", "vaginalpain": "Vaginal pain", "woundcheck": "Wound check", "woundinfection": "Wound infection",
     "wristinjury": "Wrist injury",
+    "decreasedbloodsugar-symptomatic": "Low blood sugar (with symptoms)", "drug/alcoholassessment": "Drug or alcohol assessment",
+    "elevatedbloodsugar-nosymptoms": "High blood sugar (no symptoms)", "elevatedbloodsugar-symptomatic": "High blood sugar (with symptoms)",
+    "fever-75yearsorolder": "Fever (75 or older)", "fever-9weeksto74years": "Fever (age 9 weeks to 74)",
+    "follow-upcellulitis": "Cellulitis follow-up", "headache-recurrentorknowndxmigraines": "Headache (recurrent or known migraine)",
+    "headachere-evaluation": "Headache re-evaluation", "overdose-accidental": "Overdose (accidental)", "overdose-intentional": "Overdose (intentional)",
+    "post-opproblem": "Post-op problem", "seizure-newonset": "Seizure (new onset)", "seizure-priorhxof": "Seizure (known history)",
+    "suture/stapleremoval": "Suture or staple removal", "withdrawal-alcohol": "Alcohol withdrawal", "woundre-evaluation": "Wound re-evaluation",
+    "bleeding/bruising": "Bleeding or bruising",
 }
 
 

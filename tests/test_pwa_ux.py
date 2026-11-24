@@ -110,7 +110,7 @@ def test_assess_and_result_are_separate_pages(page):
     assert pct(page) == 44 and page.inner_text("#conftitle").startswith("Unsure")
     assert "44% chance of admission" in page.title()
     assert page.get_attribute("nav a[data-p=assess]", "aria-current") == "page"
-    assert page.inner_text("#res-who").startswith("Female, 58. Abdominal pain")
+    assert page.inner_text("#res-who").startswith("Priya Raman, Female, 58. Abdominal pain")
     page.click("#res-edit"); page.wait_for_selector("#assess:not([hidden])")
     page.fill("#age", "90"); show(page)
     assert pct(page) != 44
@@ -316,3 +316,33 @@ def test_history_delete_clear_undo_csv_and_persistence(page):
     page.click("#hist-clear")
     assert items.count() == 0 and page.is_visible("#hempty") and page.is_hidden("#hcount")
     page.click("#undo"); assert items.count() == 2
+
+
+# ---------- patient name and contact ----------
+
+def test_name_and_contact_are_optional_validated_and_saved(page):
+    example(page, "High risk")  # sample patients come with an invented name and a 555-01xx number
+    assert page.input_value("#pname") == "Margaret Hale" and page.input_value("#pphone") == "555-0142"
+    page.fill("#pname", ""); page.fill("#pphone", "")
+    page.wait_for_selector("#needs[data-state=ready]")  # neither is required
+    page.fill("#pphone", "call me"); page.focus("#age")
+    assert page.is_visible("#err-pphone") and page.get_attribute("#needs", "data-state") == "fix"
+    page.fill("#pname", "=HYPERLINK(1)"); page.fill("#pphone", "+91 98450 00000"); show(page)
+    assert "=HYPERLINK(1), Female, 82" in page.inner_text("#res-who")
+    page.click("nav a[data-p=history]"); page.wait_for_selector("#hlist .hitem")
+    page.fill("#hist-q", "98450"); assert page.locator("#hlist .hitem").count() == 1
+    with page.expect_download() as dl:
+        page.click("#hist-csv")
+    rows = open(dl.value.path(), encoding="utf-8").read().splitlines()
+    assert rows[0].startswith('"saved_at","name","contact"')
+    assert '"\'=HYPERLINK(1)","+91 98450 00000"' in rows[1]  # a typed formula is neutralised; a phone number is not
+
+
+def test_random_patient_gets_an_invented_identity_matching_sex(page):
+    page.click("#random"); page.wait_for_selector("#needs[data-state=ready]")
+    sex = page.evaluate("document.querySelector('input[name=gender]:checked').value")
+    name, phone = page.input_value("#pname"), page.input_value("#pphone")
+    assert name and phone.startswith("555-01")
+    first = name.split()[0]
+    assert first in (["Anna", "Rosa", "Leela", "Grace", "Nadia", "Helen", "Mei", "Sofia", "Joan", "Amara"] if sex == "Female"
+                     else ["Tom", "Arjun", "Samuel", "Luis", "Omar", "Peter", "Kenji", "Victor", "Hugo", "Ben"])

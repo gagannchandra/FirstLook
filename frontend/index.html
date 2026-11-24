@@ -139,7 +139,7 @@
   </div>
   <div class="hist-tools" id="hist-tools">
     <label class="sr-only" for="hist-q">Search saved estimates</label>
-    <input id="hist-q" type="text" placeholder="Search by complaint, age or note">
+    <input id="hist-q" type="text" placeholder="Search by name, phone, complaint or note">
     <div class="seg small" id="hist-band" role="radiogroup" aria-label="Filter by risk">
       <label><input type="radio" name="hband" value="" checked>All</label><label><input type="radio" name="hband" value="High">High</label><label><input type="radio" name="hband" value="Medium">Medium</label><label><input type="radio" name="hband" value="Low">Low</label><label><input type="radio" name="hband" value="unsure">Unsure</label>
     </div>
@@ -162,22 +162,33 @@
       <p class="lede">Enter what you measured, then select “Check and save” to see the estimate. Nothing leaves this device.</p>
     </div>
 
-    <div class="quick" aria-labelledby="quick-l">
-      <p id="quick-l" class="quick-l">Try it with a synthetic patient</p>
-      <div class="quick-row">
-        <div class="btnset" id="examples"></div>
-        <div class="rand">
-          <label class="sr-only" for="acuity">Acuity of the random patient</label>
-          <select id="acuity" class="compact"><option value="">Any acuity</option><option value="low">Low acuity</option><option value="medium">Medium acuity</option><option value="high">High acuity</option></select>
-          <button type="button" class="btn sun" id="random"><svg class="ic" aria-hidden="true"><use href="#i-dice"/></svg>Random patient</button>
-        </div>
+    <section class="quick" aria-labelledby="quick-l">
+      <div class="quick-head">
+        <h2 id="quick-l" class="quick-l">Quick fill</h2>
+        <p class="hint">Sample patients for trying FirstLook. Every name and number is invented.</p>
       </div>
-      <label class="tick small"><input type="checkbox" id="rmiss">Random patients may have a missing vital</label>
+      <div class="samples" id="examples"></div>
+      <div class="rand-row">
+        <span class="rand-l">Or a random patient</span>
+        <label class="sr-only" for="acuity">Acuity of the random patient</label>
+        <select id="acuity" class="compact"><option value="">Any acuity</option><option value="low">Low acuity</option><option value="medium">Medium acuity</option><option value="high">High acuity</option></select>
+        <label class="tick small"><input type="checkbox" id="rmiss">May have a missing vital</label>
+        <button type="button" class="btn sun" id="random"><svg class="ic" aria-hidden="true"><use href="#i-dice"/></svg>Random patient</button>
+      </div>
       <p class="synthetic" id="exnote" hidden></p>
-    </div>
+    </section>
 
     <fieldset class="part">
       <legend>Patient and arrival</legend>
+      <div class="ident">
+        <div class="f"><label class="l" for="pname">Patient name <span class="opt">optional</span></label>
+          <input id="pname" name="pname" type="text" maxlength="60" autocomplete="off" spellcheck="false" aria-describedby="err-pname">
+          <p class="msg" id="err-pname" hidden></p></div>
+        <div class="f"><label class="l" for="pphone">Contact number <span class="opt">optional</span></label>
+          <input id="pphone" name="pphone" type="tel" inputmode="tel" maxlength="20" autocomplete="off" aria-describedby="pphone-help err-pphone">
+          <p class="msg" id="err-pphone" hidden></p></div>
+        <p class="hint ident-help" id="pphone-help">Kept with the saved estimate on this device only. FirstLook doesn’t use them to work out the estimate.</p>
+      </div>
       <div class="cols">
         <div class="f"><label class="l" for="age">Age</label>
           <div class="unit-in"><input id="age" name="age" type="number" inputmode="numeric" min="18" max="110" placeholder="54" aria-describedby="err-age"><span aria-hidden="true">years</span></div>
