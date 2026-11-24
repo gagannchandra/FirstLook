@@ -43,20 +43,57 @@ All tables (A–G), the criteria and the figure list: [`results/RESULTS.md`](res
 
 ## Quick start
 
+Run every command from the project's root folder (`FirstLook/`).
+
+**First time on a new computer** (once):
+
 ```bash
-./run.sh                  # start the Streamlit app (:8599), offline web app + local API (:8600) and Docker app (:8501, if built)
-./run.sh start web        # or start just one: app | web | docker
-./run.sh restart web      # stop + start (after a pull or a backend change); also: ./run.sh stop web
-./run.sh status           # what is running, and whether the web app can use patient records
-./run.sh logs web         # follow a log: web | app | docker
-./run.sh stop             # stop everything
-./run.sh build            # build the Docker image once (needs Docker or podman)
-./run.sh test             # run the tests (pass pytest options after it, e.g. ./run.sh test tests/test_pwa_ux.py)
-./run.sh export           # re-export models + results as JSON for the web app (frontend/data/)
-./run.sh screenshots      # offline proof + screenshots of the web app (results/figures/app/)
+uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/playwright install chrome      # only needed for the browser tests
 ```
 
-For a demo, open **http://localhost:8600**. After an update, refresh the page once: the browser keeps an offline copy of the previous version.
+The shipped models in `models/bundles/` are enough to run the apps. Re-training needs the dataset in `data/` (not in Git; see [How to run everything](#how-to-run-everything)).
+
+**Start and stop**
+
+```bash
+./run.sh                    # start everything (Streamlit app, web app, Docker if available)
+./run.sh start web          # start only the offline web app  → http://localhost:8600
+./run.sh start app          # start only the Streamlit app    → http://localhost:8599
+./run.sh start docker       # start only the Docker app       → http://localhost:8501
+./run.sh stop               # stop everything
+./run.sh stop web           # stop just one app (web | app | docker)
+./run.sh restart            # stop, then start again (after a pull or a backend change)
+./run.sh restart web        # restart just one app
+```
+
+**Check what is running**
+
+```bash
+./run.sh status             # what is running, and whether the web app can use patient records
+./run.sh logs               # follow the web app's log (Ctrl+C to exit)
+./run.sh logs app           # follow another log: app | docker
+```
+
+**Developer tasks**
+
+```bash
+./run.sh test                         # run all 89 tests (browser tests need Google Chrome)
+./run.sh test tests/test_pwa_ux.py    # run one test file (any pytest options work)
+./run.sh build                        # (re)build the Docker image (needs Docker or podman)
+./run.sh export                       # re-export model bundles + results as JSON for the web app (frontend/data/)
+./run.sh screenshots                  # offline proof + screenshots of the web app (web app must be running)
+./run.sh help                         # show all commands
+```
+
+**Before a demo**
+
+```bash
+./run.sh restart
+./run.sh status
+```
+
+Then open **http://localhost:8600** once while online, so the browser saves the app for offline use; after that it works with Wi-Fi off. After an update, refresh the page once: the browser keeps an offline copy of the previous version.
 
 ## How to run everything
 
