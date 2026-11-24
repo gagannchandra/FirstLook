@@ -44,7 +44,7 @@ All tables (A–G), the criteria and the figure list: [`results/RESULTS.md`](res
 ## Quick start
 
 ```bash
-./run.sh            # start the Streamlit app (:8599), offline web app (:8600) and Docker app (:8501, if built)
+./run.sh            # start the Streamlit app (:8599), offline web app + local API (:8600) and Docker app (:8501, if built)
 ./run.sh status     # what is running
 ./run.sh stop       # stop everything
 ./run.sh build      # build the Docker image once (needs Docker or podman)
@@ -63,34 +63,34 @@ uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requi
 mkdir -p data/raw && curl -L -o data/raw/admissionprediction-v1.0.zip \
   "https://zenodo.org/api/records/1308993/files/yaleemmlc/admissionprediction-v1.0.zip/content"
 unzip -j data/raw/admissionprediction-v1.0.zip '*/Results/5v_cleandf.RData' -d data/raw/
-.venv/bin/python -m src.load_raw      # RData -> data/interim/full.parquet (checks 560,486 x 972)
-.venv/bin/python -m src.data          # dictionary, leakage audit, tiers T1/T2/T3, splits S1/S2/S3
-.venv/bin/python -m src.eda           # EDA figures + aggregate tables
+.venv/bin/python -m src.data.load_raw  # RData -> data/interim/full.parquet (checks 560,486 x 972)
+.venv/bin/python -m src.data.build     # dictionary, leakage audit, tiers T1/T2/T3, splits S1/S2/S3
+.venv/bin/python -m src.data.eda       # EDA figures + aggregate tables
 
 # 2. models (Phase 2)
-.venv/bin/python -m src.e1_baseline   # E1: LR + XGBoost sanity check vs Hong et al.
+.venv/bin/python -m src.modelling.e1_baseline   # E1: LR + XGBoost sanity check vs Hong et al.
 ./scripts/run_e2.sh                   # E2: 5 models x 3 tiers, Optuna on validation (hours)
-.venv/bin/python -m src.select_calibrate   # E4 calibration, model selection, thresholds, E3 (val)
+.venv/bin/python -m src.modelling.select_calibrate   # E4 calibration, model selection, thresholds, E3 (val)
 
 # 3. research experiments (Phase 3)
-.venv/bin/python -m src.loho && .venv/bin/python -m src.report_loho   # E5 + E6 local-adaptation curve
-.venv/bin/python -m src.explain                                        # E7 SHAP
-.venv/bin/python -m src.secondary --split val                          # E10, E11, E12 (validation)
+.venv/bin/python -m src.experiments.loho && .venv/bin/python -m src.experiments.report_loho   # E5 + E6 local-adaptation curve
+.venv/bin/python -m src.experiments.explain                                        # E7 SHAP
+.venv/bin/python -m src.experiments.secondary --split val                          # E10, E11, E12 (validation)
 
 # 4. edge model + app (Phase 4)
-.venv/bin/python -m src.compress      # E8 compression variants + Pareto plot
-.venv/bin/python -m src.bundle        # model bundles in models/bundles/ (reads configs/edge_selection.json)
-.venv/bin/python -m src.benchmark --out results/bench/bench_host.json --setting "host laptop"
+.venv/bin/python -m src.experiments.compress      # E8 compression variants + Pareto plot
+.venv/bin/python -m src.edge.bundle        # model bundles in models/bundles/ (reads configs/edge_selection.json)
+.venv/bin/python -m src.edge.benchmark --out results/bench/bench_host.json --setting "host laptop"
 docker build -t firstlook -f docker/Dockerfile .
 docker run --rm --network none --cpus 2 --memory 2g -v "$PWD/results/bench:/out" firstlook \
-    python -m src.benchmark --out /out/bench_docker.json --setting "Docker --network none, 2 CPU, 2 GB"
+    python -m src.edge.benchmark --out /out/bench_docker.json --setting "Docker --network none, 2 CPU, 2 GB"
 
 # 5. final evaluation (Phase 5) — opens the S1 test set once; refuses unless selection.json is frozen
-FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.final_eval
-FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.secondary --split test
-FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.dashboard_data --split test
-.venv/bin/python -m src.make_report   # results/RESULTS.md (Tables A–H + success criteria), fig01, fig06
-.venv/bin/python scripts/build_pwa.py # export T1/T2 bundles for the PWA
+FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.reporting.final_eval
+FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.experiments.secondary --split test
+FIRSTLOOK_OPEN_TEST=1 .venv/bin/python -m src.reporting.dashboard_data --split test
+.venv/bin/python -m src.reporting.make_report   # results/RESULTS.md (Tables A–H + success criteria), fig01, fig06
+.venv/bin/python -m backend.export   # export bundles + research results as JSON for the web app (frontend/data/)
 
 # tests
 .venv/bin/python -m pytest -q
@@ -109,17 +109,26 @@ On the Patient screen, **Quick fill** loads one of four synthetic example patien
 
 ```bash
 docker run --rm -p 8501:8501 --cpus 2 --memory 2g firstlook      # UI (port mapping needs a network namespace)
-docker run --rm --network none --cpus 2 --memory 2g firstlook python -m src.benchmark   # offline proof
+docker run --rm --network none --cpus 2 --memory 2g firstlook python -m src.edge.benchmark   # offline proof
 ```
 
-### Run the offline web app (L3 PWA)
+### Run the offline web app (L3) — frontend + local backend
 
 ```bash
-./scripts/serve_pwa.sh            # http://localhost:8600 — open once, then it works with the network off
-python scripts/screenshot_pwa.py  # proves it: installs the service worker, cuts the network, reloads, predicts
+./run.sh start web                # or ./scripts/serve_pwa.sh — http://localhost:8600
+python scripts/screenshot_pwa.py  # proves it: saves the app, cuts the network, uses every page, saves to history
 ```
 
-Plain HTML + JavaScript, no libraries or CDN; includes the same example and random-patient autofill. Runs the nurse-only (T1) and +ESI (T2) models; the EHR-history model runs in L1/L2 only (D33).
+The web app is split in two (D37):
+
+| | `frontend/` | `backend/` |
+|---|---|---|
+| What | The website: home page, assessment form, result, explanation, evidence charts, about | `server.py` — a small local server (standard library only); `export.py` — writes the JSON the frontend reads |
+| Runs | In the browser. Plain HTML, CSS and JavaScript, no libraries, no CDN, strict CSP | On this machine, bound to `127.0.0.1` |
+| Models | T1 and T2 (logistic regression ported to JS; parity-tested to 1e-4) | All three, with ONNX Runtime, including the EHR-history model (T3-lite) via `POST /api/predict` |
+| Offline | Cached by a service worker; works with the network off and **without** the server | Never talks to the internet; telemetry disabled |
+
+API: `GET /api/health` lists the models; `POST /api/predict` takes `{"form": {...}, "slot": "t1" | "t2" | "t3lite"}` and returns probability, band, conformal state, latency and per-factor contributions (422 with per-field messages on invalid input). `--static-only` serves the frontend without the API.
 
 ## Not completed, and why
 
@@ -129,27 +138,37 @@ Plain HTML + JavaScript, no libraries or CDN; includes the same example and rand
 | Supervisor sign-off of the leakage audit | pending | Human step (`docs/leakage_audit.md`). |
 | T1 compression criterion (ΔAUC ≤ 0.01) | narrowly missed | No compressed T1 export stayed within 0.01 AUC; shipped LR has test ΔAUC 0.013 at 1/1,105 the size (D27). T3-lite meets it. |
 | 3-seed repeats of Table A | not run | Cut-list item (D32); CIs are 1,000-resample bootstrap on one training seed. |
-| PWA with EHR-history model | not built | Would need onnxruntime-web (multi-MB WASM); T1/T2 work offline in the PWA (D33). |
+| EHR-history model inside the browser | not built | Would need onnxruntime-web (multi-MB WASM). The web app runs it through the local backend instead (D37); T1/T2 run in the browser. |
 
 Finding worth reporting: ONNX Runtime 1.32 sends telemetry to Microsoft by default on Linux even after `disable_telemetry_events()`. It was found by the OS-level socket audit and is disabled with `ORT_DISABLE_TELEMETRY=1`; a regression test guards it (D28).
 
 ## Repository layout
 
 ```
-src/            pipeline: load_raw, data, features (shared train/app), splits, train, evaluate,
-                calibrate, conformal (own NumPy), select_calibrate, loho, report_loho, explain,
-                secondary (E10–E12), compress, bundle, runtime (app inference), benchmark,
-                dashboard_data, final_eval
-app/            Streamlit app (4 screens), input validation, synthetic example patients, network status;
-                app/pwa/ offline PWA (L3)
-configs/        feature_spec.json, tiers.yaml, selection.json (frozen choices), edge_selection.json
-models/bundles/ deployable bundles (model.onnx + calibrator/conformal/thresholds/spec/metrics/model card)
-results/        tables/ (markdown copies of every table; CSVs are git-ignored), figures/, bench/, dashboard/
-docs/           leakage audit and other generated docs
-tests/          pytest: data pipeline, conformal coverage, train/app feature parity, validation, test-set guard
-guide/          the project specification (unchanged)
-data/           NEVER committed (git-ignored)
+src/                 research pipeline, run as `python -m src.<stage>.<module>`
+  common.py, viz.py  shared paths, model loading, test-set guard (D21); plotting style
+  data/              load_raw, build (dictionary, leakage audit, tiers, splits), features (shared train/app), splits, eda
+  modelling/         train, evaluate (metrics), calibrate, conformal (own NumPy), e1_baseline, select_calibrate
+  experiments/       loho + report_loho (E5/E6), conformal_val, explain (E7), secondary (E10–E12), compress (E8), select_edge
+  edge/              bundle (deployable bundles), runtime (in-process inference for the apps), benchmark (E9)
+  reporting/         final_eval (opens the test set once), dashboard_data, make_report (results/RESULTS.md)
+app/                 Streamlit app (L1/L2) and the input helpers shared with the backend: validation, examples, random_patient, netstatus
+frontend/            offline web app (L3): index.html, css/, js/ (model, charts, app), data/ (exported JSON), service worker
+backend/             local server for the web app (server.py: static files + /api/health, /api/predict) and export.py
+configs/             feature_spec.json, tiers.yaml, selection.json (frozen choices), edge_selection.json
+models/bundles/      deployable bundles (model.onnx + calibrator/conformal/thresholds/spec/metrics/model card)
+results/             tables/ (markdown copies of every table; CSVs are git-ignored), figures/, bench/, dashboard/, logs/
+scripts/             E2 driver, serve/screenshot helpers, socket audit
+docker/              Dockerfile for the L2 offline image
+docs/                leakage audit and frozen choices
+tests/               pytest: data pipeline, conformal coverage, train/app feature parity, validation, test-set guard,
+                     backend API, JS/Python parity, browser UX (Playwright)
+guide/               the project specification (unchanged)
+data/                NEVER committed (git-ignored)
+pyproject.toml       project metadata, pytest and ruff configuration; dependencies in requirements*.txt
 ```
+
+All commands run from the repository root (`src`, `app` and `backend` are imported as packages).
 
 ## Data and ethics
 

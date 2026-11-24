@@ -64,7 +64,7 @@ def test_splits_partition_and_no_overlap(meta):
 
 
 def test_split_is_deterministic(meta):
-    from src.data import make_splits
+    from src.data.build import make_splits
     again = make_splits(meta.y.to_numpy(), meta.site.to_numpy())
     assert (again.s1.to_numpy() == meta.s1.to_numpy()).all()
 
@@ -75,7 +75,7 @@ def test_prevalence_stratified(meta):
 
 
 def test_loho_excludes_s1_test(meta):
-    from src.splits import loho
+    from src.data.splits import loho
     for h in ("A", "B", "C"):
         d = loho(meta, h)
         assert not (meta.s1.to_numpy()[d["test"]] == "test").any()

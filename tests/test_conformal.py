@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from src import conformal
+from src.modelling import conformal
 
 
 def simulate(n, seed, shift=0.0):
@@ -60,12 +60,12 @@ def test_risk_coverage_monotone_start():
 
 
 def test_calibrators_roundtrip():
-    from src import calibrate
+    from src.modelling import calibrate
     p, y = simulate(5000, 4)
     p_bad = np.clip(p ** 0.5, 1e-4, 1 - 1e-4)
     for kind in ("platt", "isotonic"):
         c = calibrate.make(kind).fit(p_bad, y)
         c2 = calibrate.from_dict(c.to_dict())
         assert np.allclose(c.predict(p_bad), c2.predict(p_bad), atol=1e-5)
-        from src.evaluate import ece
+        from src.modelling.evaluate import ece
         assert ece(y, c.predict(p_bad)) < ece(y, p_bad)

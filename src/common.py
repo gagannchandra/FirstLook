@@ -10,7 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from src import calibrate
+from src.modelling import calibrate
 
 ROOT = Path(__file__).resolve().parents[1]
 PROC = ROOT / "data" / "processed"

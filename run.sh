@@ -8,7 +8,7 @@
 #   ./run.sh build           (re)build the Docker image
 #
 # URLs:  Streamlit app  http://localhost:8599   (all models + research dashboard)
-#        Offline web app http://localhost:8600  (works with Wi-Fi off after the first load)
+#        Offline web app http://localhost:8600  (frontend/ + backend/ API; works with Wi-Fi off after the first load)
 #        Docker          http://localhost:8501  (same app as 8599, limited to 2 CPUs / 2 GB)
 #
 # PIDs and logs go to .run/ (git-ignored). Override ports with APP_PORT / WEB_PORT / DOCKER_PORT.
@@ -31,7 +31,7 @@ alive() { [[ -f "$RUN/$1.pid" ]] && kill -0 "$(cat "$RUN/$1.pid")" 2>/dev/null; 
 port_busy() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
 # PID of the process listening on a TCP port (Linux: ss). Recorded after start, so the PID file always
 # names the real server, whatever wrapper launched it.
-port_pid()  { ss -ltnpH "sport = :$1" 2>/dev/null | grep -o 'pid=[0-9]*' | head -1 | cut -d= -f2; }
+port_pid()  { ss -ltnpH "sport = :$1" 2>/dev/null | grep -o 'pid=[0-9]*' | head -1 | cut -d= -f2 || true; }
 record()    { local pid; pid="$(port_pid "$2")"; [[ -n "$pid" ]] && echo "$pid" >"$RUN/$1.pid"; }
 
 wait_http() {  # wait_http URL EXPECT seconds
@@ -61,11 +61,14 @@ start_app() {
 start_web() {
   if alive web; then say "• Offline web app already running → http://localhost:$WEB_PORT"; return; fi
   port_busy "$WEB_PORT" && { say "✗ Port $WEB_PORT is in use — run: WEB_PORT=8601 ./run.sh"; return 1; }
-  (cd "$ROOT/app/pwa" && setsid nohup python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 \
+  # frontend/ + local backend API (backend/server.py). Without the venv it still serves the browser models (T1/T2).
+  local py="$PY" mode=()
+  [[ -x "$py" ]] || { py=python3; mode=(--static-only); say "• No .venv — web app runs browser models only (no history model)"; }
+  (cd "$ROOT" && ORT_DISABLE_TELEMETRY=1 setsid nohup "$py" -m backend.server --port "$WEB_PORT" "${mode[@]}" \
       >"$RUN/web.log" 2>&1 </dev/null &)
-  if wait_http "http://localhost:$WEB_PORT/index.html" FirstLook 15; then
+  if wait_http "http://localhost:$WEB_PORT/index.html" FirstLook 20; then
     record web "$WEB_PORT"
-    say "✓ Offline web app    http://localhost:$WEB_PORT"
+    say "✓ Offline web app    http://localhost:$WEB_PORT   (frontend + local API)"
   else
     say "✗ Web app did not start — see .run/web.log"; return 1
   fi
@@ -93,7 +96,7 @@ stop_pid() {  # stop_pid NAME PORT LABEL PATTERN
   alive "$name" && pid="$(cat "$RUN/$name.pid")"
   if [[ -z "$pid" ]]; then  # no/stale PID file: stop the port's listener, but only if it is our server
     local p; p="$(port_pid "$port")"
-    [[ -n "$p" ]] && grep -q -- "$pattern" "/proc/$p/cmdline" 2>/dev/null && pid="$p"
+    if [[ -n "$p" ]] && grep -q -- "$pattern" "/proc/$p/cmdline" 2>/dev/null; then pid="$p"; fi
   fi
   if [[ -n "$pid" ]]; then
     kill "$pid" 2>/dev/null || true
@@ -106,7 +109,7 @@ stop_pid() {  # stop_pid NAME PORT LABEL PATTERN
 
 stop_all() {
   stop_pid app "$APP_PORT" "Streamlit app" "streamlit_app.py"
-  stop_pid web "$WEB_PORT" "offline web app" "http.server"
+  stop_pid web "$WEB_PORT" "offline web app" "backend.server"
   if have docker && [[ -n "$(docker ps -aq --filter "name=^${CONTAINER}$" 2>/dev/null)" ]]; then
     docker rm -f "$CONTAINER" >/dev/null 2>&1 && say "✓ Stopped Docker app"
   fi

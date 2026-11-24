@@ -14,9 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 CHILD = r'''
 import sys, time, os, ipaddress, psutil
-sys.path.insert(0, "."); sys.path.insert(0, "app")
-from src.runtime import load_all
-from examples import EXAMPLES
+from src.edge.runtime import load_all
+from app.examples import EXAMPLES
 B = load_all()
 found = set(); t0 = time.time()
 while time.time() - t0 < 20:

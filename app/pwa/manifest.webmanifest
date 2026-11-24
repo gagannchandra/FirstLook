@@ -1,3 +1,0 @@
-{"name": "FirstLook — ED admission risk (offline)", "short_name": "FirstLook", "start_url": "./index.html", "scope": "./",
- "display": "standalone", "background_color": "#f6f7f5", "theme_color": "#0f6e6a",
- "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}]}

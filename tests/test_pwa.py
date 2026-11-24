@@ -1,4 +1,4 @@
-"""L3 PWA: the JavaScript model must match the Python/ONNX runtime (probability, band, conformal)."""
+"""Offline web app (frontend/, L3): the JavaScript model must match the Python/ONNX runtime (probability, band, conformal)."""
 import json
 import random
 import shutil
@@ -8,14 +8,16 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-PWA = ROOT / "app" / "pwa"
+PWA = ROOT / "frontend"
+MODEL_JS = PWA / "js" / "model.js"
+MODELS_JSON = PWA / "data" / "models.json"
 
-pytestmark = pytest.mark.skipif(shutil.which("node") is None or not (PWA / "models.json").exists(),
-                                reason="node or app/pwa/models.json missing")
+pytestmark = pytest.mark.skipif(shutil.which("node") is None or not MODELS_JSON.exists(),
+                                reason="node or frontend/data/models.json missing (run: python -m backend.export)")
 
 
 def synthetic_forms(n=300, seed=0):
-    from src.features import ARRIVAL_LEVELS, HOUR_BINS
+    from src.data.features import ARRIVAL_LEVELS, HOUR_BINS
     spec = json.loads((ROOT / "models/bundles/t1_v1/feature_spec.json").read_text())
     r = random.Random(seed)
     out = []
@@ -32,13 +34,13 @@ def synthetic_forms(n=300, seed=0):
 
 
 def test_js_matches_python_runtime(tmp_path):
-    from src.runtime import load_all
+    from src.edge.runtime import load_all
     B = load_all()
     forms = synthetic_forms()
     (tmp_path / "forms.json").write_text(json.dumps(forms))
     js = f"""
-    const M = require({json.dumps(str(PWA / 'model.js'))});
-    const meta = require({json.dumps(str(PWA / 'models.json'))});
+    const M = require({json.dumps(str(MODEL_JS))});
+    const meta = require({json.dumps(str(MODELS_JSON))});
     const forms = require({json.dumps(str(tmp_path / 'forms.json'))});
     const out = {{}};
     for (const slot of ["t1", "t2"]) out[slot] = forms.map(f => M.predict(f, meta.models[slot], meta));
@@ -54,19 +56,24 @@ def test_js_matches_python_runtime(tmp_path):
 
 
 def test_pwa_assets_are_self_contained():
-    html = (PWA / "index.html").read_text()
     sw = (PWA / "sw.js").read_text()
-    for s in (html, sw, (PWA / "model.js").read_text()):
-        assert "http://" not in s.replace("http://www.w3.org", "") and "https://" not in s, "no external URLs"
-    for asset in ("model.js", "models.json", "manifest.webmanifest", "icon.svg"):
-        assert asset in sw
+    files = [PWA / "index.html", PWA / "sw.js", PWA / "css" / "app.css", *sorted((PWA / "js").glob("*.js"))]
+    for f in files:
+        s = f.read_text()
+        assert "http://" not in s.replace("http://www.w3.org", "") and "https://" not in s, f"external URL in {f.name}"
+    # every file the app loads must be pre-cached by the service worker, or it breaks offline
+    for asset in ("index.html", "css/app.css", "js/model.js", "js/charts.js", "js/app.js", "data/models.json", "data/dashboard.json",
+                  "manifest.webmanifest", "icon.svg"):
+        assert f'"{asset}"' in sw, asset
+        assert (PWA / asset).exists(), asset
+    assert "/api/" in sw  # live backend calls are never served from cache
 
 
 def test_js_random_patients_valid_reproducible_and_ordered():
     """PWA random autofill: valid against the shared ranges, reproducible from the seed, risk ordered by acuity."""
     js = f"""
-    const M = require({json.dumps(str(PWA / 'model.js'))});
-    const meta = require({json.dumps(str(PWA / 'models.json'))});
+    const M = require({json.dumps(str(MODEL_JS))});
+    const meta = require({json.dumps(str(MODELS_JSON))});
     const out = {{bad: [], mean: {{}}, repro: true}};
     for (const a of ["low", "medium", "high"]) {{
       let s = 0;
@@ -94,9 +101,7 @@ def test_js_random_patients_valid_reproducible_and_ordered():
 
 def test_js_validation_matches_python():
     """Both apps must accept/reject the same patients with the same messages."""
-    import sys
-    sys.path.insert(0, str(ROOT / "app"))
-    from validation import validate_fields
+    from app.validation import validate_fields
     r = random.Random(1)
     edge = {"age": [None, 12, 18, 54, 110, 140], "triage_vital_hr": [None, 20, 30, 39, 41, 181, 299, 300],
             "triage_vital_sbp": [None, 60, 120, 250, 400], "triage_vital_dbp": [None, 20, 80, 130],
@@ -114,8 +119,8 @@ def test_js_validation_matches_python():
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
         json.dump(forms, fh)
     js = f"""
-    const M = require({json.dumps(str(PWA / 'model.js'))});
-    const meta = require({json.dumps(str(PWA / 'models.json'))});
+    const M = require({json.dumps(str(MODEL_JS))});
+    const meta = require({json.dumps(str(MODELS_JSON))});
     const forms = require({json.dumps(fh.name)});
     console.log(JSON.stringify(forms.map(f => M.validateFields(f, meta))));
     """

@@ -7,3 +7,7 @@ results/figures/
 results/logs/
 guide/
 .git/
+__pycache__/
+*.pyc
+.pytest_cache/
+.run/

@@ -2,7 +2,7 @@
 
 validate_fields() is the single source of truth: each message carries the field it belongs to,
 so both apps can show it next to that field (Vercel guidelines: errors beside fields, focus the
-first error). The PWA has a line-for-line JS port (app/pwa/model.js: validateFields);
+first error). The offline web app has a line-for-line JS port (frontend/js/model.js: validateFields);
 tests/test_pwa.py checks the two return identical messages.
 Messages say how to fix the problem; numbers and units are joined by a non-breaking space.
 """

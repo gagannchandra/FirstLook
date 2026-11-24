@@ -9,7 +9,7 @@ Status key: ✅ done · 🟡 in progress / partial · ❌ not done · ⬜ not st
 | P1 Setup & data | Repo, env, dataset, dictionary, leakage audit, tiers, splits | M1 Data ready | ✅ 560,486×972, 29.73% admit, no leakage flag |
 | P2 Models | E1 baseline, E2 5×3 models (Optuna on val), calibration, thresholds, E3 | M2 Models ready | ✅ val AUC T1 .857 / T2 .876 / T3 .928 |
 | P3 Research | Conformal, E5 LOHO, **E6 local-adaptation**, E7 SHAP, E10, E11, E12 | M3 Research results | ✅ (val; test numbers in P5) |
-| P4 Edge & app | E8 Pareto, ONNX/m2cgen, bundles, E9 Docker benchmark, Streamlit L1, Docker L2, (PWA L3) | M4 Prototype | ✅ L1 Streamlit + L2 Docker + L3 offline PWA (T1/T2) |
+| P4 Edge & app | E8 Pareto, ONNX/m2cgen, bundles, E9 Docker benchmark, Streamlit L1, Docker L2, (PWA L3) | M4 Prototype | ✅ L1 Streamlit + L2 Docker + L3 offline web app (frontend/ T1/T2 in-browser + backend/ local API incl. T3-lite, D37) |
 | P5 Final eval | Freeze, open S1 test once, Tables A–H, figures | M5 Submission | ✅ test opened 2026-11-24; Tables A–G in results/RESULTS.md; H not run (needs humans) |
 
 ## Experiments

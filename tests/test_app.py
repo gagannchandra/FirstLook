@@ -1,18 +1,15 @@
 """Feature-pipeline parity (training vs app), input validation, examples, bundles."""
 from pathlib import Path
-import sys
 
 import numpy as np
 import pandas as pd
 import pytest
 
+from app.validation import c_to_f, validate, validate_fields
+from src.data.features import VITALS, build_features, load_spec
+from src.edge.runtime import form_to_raw
+
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "app"))
-
-from validation import c_to_f, validate, validate_fields  # noqa: E402
-
-from src.features import VITALS, build_features, load_spec  # noqa: E402
-from src.runtime import form_to_raw  # noqa: E402
 
 PROC = ROOT / "data" / "processed"
 HAS_DATA = (PROC / "t2.parquet").exists() and (ROOT / "data" / "interim" / "full.parquet").exists()
@@ -95,8 +92,8 @@ def test_celsius_conversion():
 
 @pytest.mark.skipif(not (BUNDLES).exists() or not any(BUNDLES.glob("t1_*")), reason="no bundle built")
 def test_examples_land_where_promised():
-    from examples import EXAMPLES
-    from src.runtime import load_all
+    from app.examples import EXAMPLES
+    from src.edge.runtime import load_all
     b = load_all()["t1"]
     res = {k: b.predict(v["form"]) for k, v in EXAMPLES.items()}
     assert res["high"].band == "High" and res["high"].conformal == "likely_admission"
@@ -109,8 +106,8 @@ def test_examples_land_where_promised():
 
 @pytest.mark.skipif(not HAS_DATA or not (BUNDLES / "t3lite_v1").exists(), reason="data or bundle missing")
 def test_t3lite_bundle_vector_matches_training():
-    from src.runtime import Bundle
-    from src.features import safe_name
+    from src.edge.runtime import Bundle
+    from src.data.features import safe_name
     b = Bundle(BUNDLES / "t3lite_v1")
     spec = load_spec()
     hist = b.spec["history_inputs"]
@@ -134,10 +131,7 @@ def test_t3lite_bundle_vector_matches_training():
 def test_external_socket_counter_ignores_inbound_but_counts_outbound():
     """Inbound (to our listening port) is not 'external'; an outbound non-loopback connection is."""
     import socket
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
-    import netstatus
+    from app import netstatus
     base = netstatus.external_sockets()
     # inbound: a server in this process accepting a connection from a non-loopback local address
     try:
@@ -159,13 +153,10 @@ def test_external_socket_counter_ignores_inbound_but_counts_outbound():
 def test_random_patients_are_valid_and_follow_acuity():
     """Random autofill: every form passes validation with no warnings, is reproducible from its seed,
     and acuity orders the predicted risk (high > medium > low on average)."""
-    import sys
-    from pathlib import Path
     import numpy as np
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
-    from random_patient import random_patient
-    from validation import validate
-    from src.runtime import load_all
+    from app.random_patient import random_patient
+    from app.validation import validate
+    from src.edge.runtime import load_all
     b = load_all()["t1"]
     cc = b.spec["complaint_order"]
     risk = {}

@@ -1,0 +1,25 @@
+[project]
+name = "firstlook"
+version = "1.0.0"
+description = "Offline-first, uncertainty-aware admission-risk estimate at ED triage (research prototype)"
+readme = "README.md"
+requires-python = ">=3.12"
+# Dependencies are pinned by purpose in requirements.txt (full research pipeline) and
+# requirements-app.txt (minimal offline runtime used by the Docker image).
+
+[tool.pytest.ini_options]
+# Run from the repo root: `src`, `app` and `backend` import as top-level packages, no sys.path hacks.
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["data", "models", "results", "guide"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "app", "backend"]

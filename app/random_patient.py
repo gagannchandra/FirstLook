@@ -4,10 +4,10 @@ Purely parametric: values are drawn from hand-set, clinically plausible ranges p
 level (never sampled from dataset rows — guide rule "demo patients are synthetic").
 Every generated form passes app/validation.py without errors or soft-range warnings
 (tests/test_app.py checks this over many seeds). The same generator exists in JavaScript
-for the PWA (app/pwa/model.js: randomPatient) with the same ranges.
+for the offline web app (frontend/js/model.js: randomPatient) with the same ranges.
 
 Usage:
-    from random_patient import random_patient
+    from app.random_patient import random_patient
     form, meta = random_patient(seed=123, acuity="high", allow_missing=True)
 """
 from __future__ import annotations

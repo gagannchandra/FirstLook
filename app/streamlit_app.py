@@ -18,20 +18,22 @@ import time  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "app"))
+# `streamlit run app/streamlit_app.py` puts app/ (not the repo root) on sys.path; this entry point is the
+# one place that adds the root so `app.*` and `src.*` import as packages.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import numpy as np  # noqa: E402
 import plotly.graph_objects as go  # noqa: E402
 import psutil  # noqa: E402
 import streamlit as st  # noqa: E402
 
-import netstatus  # noqa: E402
-from examples import EXAMPLES  # noqa: E402
-from random_patient import random_patient  # noqa: E402
-from validation import NBSP, c_to_f, validate_fields  # noqa: E402
+from app import netstatus  # noqa: E402
+from app.examples import EXAMPLES  # noqa: E402
+from app.random_patient import random_patient  # noqa: E402
+from app.validation import NBSP, c_to_f, validate_fields  # noqa: E402
 
-from src.runtime import load_all  # noqa: E402
+from src.edge.runtime import complaint_label, load_all  # noqa: E402
 
 PAGES = ["Patient", "Result", "Explanation", "Dashboard"]
 SLUG = {"Patient": "patient", "Result": "result", "Explanation": "explanation", "Dashboard": "dashboard"}
@@ -444,7 +446,7 @@ def screen_patient():
             b.selectbox("Arrival time (auto-filled)", [k for k, _ in HOUR_BINS], format_func=dict(HOUR_BINS).get, key="f_hour")
             spec = B["t1"].spec
             st.multiselect("Chief complaint (search, up to 3)", spec["complaint_order"],
-                           format_func=lambda c: spec["complaint_labels"][c], key="f_cc", max_selections=3,
+                           format_func=complaint_label, key="f_cc", max_selections=3,
                            placeholder="Type to search, e.g. chest pain…")
             fmsg("complaints")
         st.markdown("<div style='height:.9rem'></div>", unsafe_allow_html=True)
@@ -571,7 +573,7 @@ def meter_html(p: float, b) -> str:
 def summary_html(form: dict, spec: dict) -> str:
     arr = dict(ARRIVALS).get(form.get("arrivalmode"), form.get("arrivalmode"))
     chips = [f"{form['age']}{NBSP}y · {'F' if form['gender'] == 'Female' else 'M'}", arr]
-    chips += [spec["complaint_labels"].get(c, c) for c in form.get("complaints", [])]
+    chips += [complaint_label(c) for c in form.get("complaints", [])]
     for v, lab, unit, _ in VITAL_UI + [("triage_vital_temp", "Temp", "°F", "")]:
         val = form.get(v)
         short = {"Heart rate": "HR", "Respiratory rate": "RR", "Systolic BP": "SBP", "Diastolic BP": "DBP"}.get(lab, lab)
@@ -747,7 +749,7 @@ def screen_dashboard():
 
     d = dashboard_data()
     if d is None:
-        st.info("Research results not built yet — run `python -m src.dashboard_data`.")
+        st.info("Research results not built yet — run `python -m src.reporting.dashboard_data`.")
         return
     st.markdown(f'<div class="fl-section">Research models (best per tier) · {d["eval_label"]}</div>', unsafe_allow_html=True)
     rows = ""
@@ -841,7 +843,7 @@ def screen_dashboard():
 
 # ------------------------------------------------------------------ main
 if "t1" not in B:
-    st.error("No model bundle found in models/bundles/. Build it with `python -m src.bundle`.")
+    st.error("No model bundle found in models/bundles/. Build it with `python -m src.edge.bundle`.")
     st.stop()
 header()
 st.query_params["screen"] = SLUG[st.session_state.page or "Patient"]

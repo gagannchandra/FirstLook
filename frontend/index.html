@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5ff">
+<meta name="color-scheme" content="light">
+<meta name="description" content="FirstLook estimates emergency-department admission risk at triage — calibrated, explained, honest about uncertainty, and fully offline.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<title>FirstLook · Admission chance at triage</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/rethink-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/atkinson-next-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="2.4"/>
+    </pattern>
+  </defs>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18V6M3 14h18v4M21 14v-2a3 3 0 00-3-3h-7v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="10.5" r="2" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-split" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 3.5v17" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5l4.5 4.5M12 12l3.5 3.5M12 4.5l7 7" stroke="currentColor" stroke-width="1.3"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="wrap top-in">
+  <a class="brand" href="#/home" translate="no"><img src="icon.svg" width="30" height="30" alt="">FirstLook</a>
+  <nav id="nav" aria-label="Pages"><a href="#/home" data-p="home">Home</a><a href="#/assess" data-p="assess">Assess</a><a href="#/history" data-p="history">History <span class="count-badge" id="hcount" hidden></span></a><a href="#/about" data-p="about">About</a></nav>
+  <p class="engine" role="status" id="engine"><span class="led" id="led" aria-hidden="true"></span><span id="nettext">Starting…</span></p>
+  <a class="btn primary sm top-cta" href="#/assess">Start an assessment</a>
+</div></header>
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<main id="main" tabindex="-1">
+
+<!-- ================================================================ HOME -->
+<section id="home" aria-labelledby="t-home">
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1 id="t-home">Know who needs a bed from the first look.</h1>
+        <p class="hero-lede">FirstLook gives a triage nurse the chance that a patient will be admitted, worked out from the vital signs they already take. When it can’t tell, it says so instead of guessing.</p>
+        <div class="cta-row">
+          <a class="btn primary lg" href="#/assess">Start an assessment</a>
+          <a class="btn sun lg" href="#/about">How it works</a>
+        </div>
+        <p class="hero-small">Learned from <b>560,486</b> emergency visits. Answers in <b id="h-lat">under a millisecond</b>. Runs with the Wi-Fi off and sends nothing anywhere.</p>
+      </div>
+
+      <figure class="demo" aria-label="The real model, running on invented patients">
+        <div class="demo-top">
+          <figcaption>Try it on an invented patient</figcaption>
+          <div class="demo-tabs" id="pv-tabs" role="group" aria-label="Choose a preview patient"></div>
+        </div>
+        <div class="demo-pt"><p class="demo-who" id="pv-who">…</p><p class="demo-sub" id="pv-sub"></p><dl class="demo-vit" id="pv-vit"></dl></div>
+        <div class="demo-est">
+          <p class="pct"><b class="num" id="pv-pct">–</b><span>%</span></p>
+          <p class="demo-say" id="pv-say"></p>
+          <div class="array" id="pv-array" aria-hidden="true"></div>
+          <p class="demo-verdict" id="pv-verdict"></p>
+          <ol class="factors" id="pv-f"></ol>
+          <a class="link" id="pv-open" href="#/assess">Open this patient</a>
+        </div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="band two" aria-labelledby="h-how">
+      <div><h2 id="h-how">At the triage desk</h2>
+        <p>There is nothing to install and no account. Open the page on the computer or phone you already use.</p></div>
+      <ol class="plain-steps">
+        <li><b>Type what you measured.</b> Age, sex, how they arrived, the main complaint and six vital signs. If a reading wasn’t taken, tick “Not measured”.</li>
+        <li><b>Read the chance of admission.</b> It updates as you type. A hundred dots show the same number for a quick glance across the room.</li>
+        <li><b>See how sure it is, and why.</b> “Likely admission”, “likely discharge” or “unsure”, with the readings that weighed most.</li>
+        <li><b>Save it if you want to come back.</b> Saved estimates stay in History on this device only.</li>
+      </ol>
+    </section>
+
+    <section class="band" aria-labelledby="h-feat">
+      <h2 id="h-feat">Why the number can be trusted</h2>
+      <dl class="spec">
+        <div><dt>It means what it says</dt><dd>When FirstLook says 30%, about 30 in 100 similar patients were admitted. Across the test, its percentages were within a point of what happened.</dd></div>
+        <div><dt>It admits doubt</dt><dd>Some patients could go either way. FirstLook marks them “unsure” rather than picking a side, so your judgement leads.</dd></div>
+        <div><dt>It shows its working</dt><dd>Each estimate lists the readings that pushed it up or down, and how strongly.</dd></div>
+        <div><dt>It needs no internet</dt><dd>Everything is worked out on the device. The page is locked against sending data, and measured traffic was zero bytes.</dd></div>
+        <div><dt>It copes with gaps</dt><dd>Missing readings barely change it. Even with every vital sign missing it stays close to its usual accuracy.</dd></div>
+        <div><dt>It leaves out who you are</dt><dd>Race, religion, language and insurance are never used. They were only used afterwards, to check it treats groups fairly.</dd></div>
+      </dl>
+    </section>
+
+    <section class="band" aria-labelledby="h-levels">
+      <h2 id="h-levels">It works with what your hospital has</h2>
+      <p class="band-lede">Start with the basics. If you also have a triage level or the patient’s record, add them and the estimate gets sharper.</p>
+      <div class="tablewrap flat"><table class="compare">
+        <caption class="sr-only">The three levels of detail</caption>
+        <thead><tr><th scope="col">Based on</th><th scope="col">What you enter</th><th scope="col">Picks the admitted patient</th><th scope="col">Gives a clear answer</th></tr></thead>
+        <tbody id="h-levels-rows"></tbody>
+      </table></div>
+      <p class="hint">“Picks the admitted patient”: shown one patient who was admitted and one who went home, how often FirstLook ranks them the right way round. All figures come from patients it never saw while being built.</p>
+    </section>
+
+    <section class="band two" aria-labelledby="h-faq">
+      <div><h2 id="h-faq">Common questions</h2><p>More in <a href="#/about">About the project</a>.</p></div>
+      <div class="faq">
+        <details><summary>Does FirstLook replace the triage nurse?</summary><p>No. It sits beside the nurse’s own assessment as a second opinion. The nurse decides.</p></details>
+        <details><summary>Where does patient data go?</summary><p>Nowhere. There is no account and no cloud. Saved estimates stay in this browser on this device, and you can clear them at any time.</p></details>
+        <details><summary>Do I need internet?</summary><p>Only to open it for the first time. After that it is saved on the device and works with the Wi-Fi off.</p></details>
+        <details><summary>What if a vital sign wasn’t measured?</summary><p>Tick “Not measured”. FirstLook was tested with missing readings and stays nearly as good.</p></details>
+        <details><summary>Can I use it with real patients?</summary><p>Not yet. It is a research prototype built on US hospital data and hasn’t been through a clinical study. Every patient in the app is invented.</p></details>
+      </div>
+    </section>
+
+    <section class="closer" aria-labelledby="h-cta">
+      <div><h2 id="h-cta">Try it with an invented patient.</h2><p>It takes under a minute. Nothing you type leaves this device.</p></div>
+      <a class="btn primary lg" href="#/assess">Start an assessment</a>
+    </section>
+  </div>
+</section>
+
+<!-- ================================================================ HISTORY -->
+<section id="history" class="wrap page" aria-labelledby="t-history" hidden>
+  <div class="page-head">
+    <div><h1 id="t-history">History</h1>
+      <p class="lede">Estimates you saved, newest first. They are kept in this browser on this device only.</p></div>
+    <div class="page-actions" id="hist-actions">
+      <button type="button" class="btn" id="hist-csv">Download as CSV</button>
+      <button type="button" class="btn quiet danger" id="hist-clear">Clear history</button>
+    </div>
+  </div>
+  <div class="hist-tools" id="hist-tools">
+    <label class="sr-only" for="hist-q">Search saved estimates</label>
+    <input id="hist-q" type="text" placeholder="Search by complaint, age or note">
+    <div class="seg small" id="hist-band" role="radiogroup" aria-label="Filter by risk">
+      <label><input type="radio" name="hband" value="" checked>All</label><label><input type="radio" name="hband" value="High">High</label><label><input type="radio" name="hband" value="Medium">Medium</label><label><input type="radio" name="hband" value="Low">Low</label><label><input type="radio" name="hband" value="unsure">Unsure</label>
+    </div>
+    <p class="hint" id="hist-sum" aria-live="polite"></p>
+  </div>
+  <ol class="hlist" id="hlist"></ol>
+  <div class="hempty" id="hempty" hidden>
+    <p class="big-q">Nothing saved yet</p>
+    <p>When an estimate is ready, choose <b>Save to history</b> in the estimate panel. It will appear here so you can reopen it later.</p>
+    <a class="btn primary" href="#/assess">Start an assessment</a>
+  </div>
+</section>
+
+<!-- ================================================================ ASSESS -->
+<section id="assess" class="wrap" aria-labelledby="t-assess" hidden>
+  <div class="workspace">
+  <form id="pform" class="sheet" novalidate autocomplete="off">
+    <div class="sheet-head">
+      <h1 id="t-assess">Triage assessment</h1>
+      <p class="lede">Enter what you measured. The estimate updates as you type and nothing leaves this device.</p>
+    </div>
+
+    <div class="quick" aria-labelledby="quick-l">
+      <p id="quick-l" class="quick-l">Try it with a synthetic patient</p>
+      <div class="quick-row">
+        <div class="btnset" id="examples"></div>
+        <div class="rand">
+          <label class="sr-only" for="acuity">Acuity of the random patient</label>
+          <select id="acuity" class="compact"><option value="">Any acuity</option><option value="low">Low acuity</option><option value="medium">Medium acuity</option><option value="high">High acuity</option></select>
+          <button type="button" class="btn sun" id="random"><svg class="ic" aria-hidden="true"><use href="#i-dice"/></svg>Random patient</button>
+        </div>
+      </div>
+      <label class="tick small"><input type="checkbox" id="rmiss">Random patients may have a missing vital</label>
+      <p class="synthetic" id="exnote" hidden></p>
+    </div>
+
+    <fieldset class="part">
+      <legend>Patient and arrival</legend>
+      <div class="cols">
+        <div class="f"><label class="l" for="age">Age</label>
+          <div class="unit-in"><input id="age" name="age" type="number" inputmode="numeric" min="18" max="110" placeholder="54" aria-describedby="err-age"><span aria-hidden="true">years</span></div>
+          <p class="msg" id="err-age" hidden></p></div>
+        <div class="f" role="radiogroup" aria-labelledby="gender-l" aria-describedby="err-gender">
+          <span class="l" id="gender-l">Sex</span>
+          <div class="seg" id="gender"><label><input type="radio" name="gender" value="Female">Female</label><label><input type="radio" name="gender" value="Male">Male</label></div>
+          <p class="msg" id="err-gender" hidden></p></div>
+      </div>
+      <div class="f" role="radiogroup" aria-labelledby="arrival-l"><span class="l" id="arrival-l">Arrived by</span>
+        <div class="chips" id="arrival"></div></div>
+      <div class="f f-hour"><label class="l" for="hour">Arrival time</label><select id="hour" name="hour"></select></div>
+
+      <div class="f cc">
+        <label class="l" for="ccsearch">Chief complaint <span class="hint">up to 3</span></label>
+        <div class="cc-box" id="ccbox">
+          <ul class="picked" id="ccchips" aria-label="Selected complaints"></ul>
+          <input id="ccsearch" type="text" placeholder="Search, e.g. chest pain" spellcheck="false"
+                 role="combobox" aria-expanded="false" aria-controls="ccopts" aria-autocomplete="list" aria-describedby="err-complaints cc-help">
+        </div>
+        <ul class="opts" id="ccopts" role="listbox" aria-label="Matching complaints" hidden></ul>
+        <p class="hint" id="cc-help">Common: <span id="cccommon"></span></p>
+        <p class="msg" id="err-complaints" hidden></p>
+      </div>
+    </fieldset>
+
+    <fieldset class="part">
+      <legend>Triage vitals <span class="count" id="vcount"></span></legend>
+      <p class="hint part-hint">The strip shows where each reading sits; the clear zone is the usual adult range.</p>
+      <div id="vitals"></div>
+      <div class="f" role="radiogroup" aria-labelledby="o2-l"><span class="l" id="o2-l">Oxygen at triage</span>
+        <div class="seg" id="o2dev"><label><input type="radio" name="o2dev" value="0" checked>Room air</label><label><input type="radio" name="o2dev" value="1">Supplemental O₂</label><label><input type="radio" name="o2dev" value="">Not recorded</label></div></div>
+    </fieldset>
+
+    <fieldset class="part">
+      <legend>Sharper estimate <span class="count">optional</span></legend>
+      <div class="f" role="radiogroup" aria-labelledby="esi-l" aria-describedby="esi-help">
+        <span class="l" id="esi-l">Triage level (ESI)</span>
+        <div class="seg esi" id="esi"><label><input type="radio" name="esi" value="" checked>Not set</label>
+          <label><input type="radio" name="esi" value="1">1</label><label><input type="radio" name="esi" value="2">2</label><label><input type="radio" name="esi" value="3">3</label><label><input type="radio" name="esi" value="4">4</label><label><input type="radio" name="esi" value="5">5</label></div>
+        <p class="hint" id="esi-help">1 is the most urgent, 5 the least. If you have it, the estimate gets sharper.</p>
+      </div>
+      <div class="hist">
+        <label class="switch" for="usehist"><input type="checkbox" id="usehist" role="switch"><span class="knob" aria-hidden="true"></span>
+          <span><b>Add the patient’s record</b><span class="hint" id="histsub">Past visits, medicines, conditions and lab results give the sharpest estimate.</span></span></label>
+        <p class="note" id="histoff">Not available right now. This part needs the FirstLook helper running on this computer; it still works without internet. See “About the project” to switch it on.</p>
+        <div id="histbox" hidden></div>
+      </div>
+    </fieldset>
+
+    <div class="form-foot">
+      <p class="errsum" id="errsum" role="alert" hidden></p>
+      <div class="foot-row">
+        <button type="submit" class="btn primary" id="go">Check and save</button>
+        <button type="button" class="btn quiet" id="clear">Clear form</button>
+      </div>
+    </div>
+  </form>
+
+  <aside class="panel" id="estimate" aria-labelledby="t-est" tabindex="-1">
+    <div class="tag" id="tag" data-state="empty">
+      <div class="tag-head"><h2 id="t-est">Admission estimate</h2><span class="model" id="mname"></span></div>
+
+      <div id="st-empty" class="st">
+        <p class="big-q">Who is in front of you?</p>
+        <p>Fill in the form and the estimate appears here. Still needed:</p>
+        <ul class="todo" id="todo"></ul>
+        <details class="howto"><summary>How to read an estimate</summary>
+          <p><b>The number means what it says.</b> 30% means about 30 in 100 similar patients were admitted.</p>
+          <p><b>A confidence check comes with it.</b> It says “likely admission”, “likely discharge”, or “unsure” when the patient could go either way.</p>
+          <p><b>“What moved it”</b> shows what FirstLook weighed most. These are patterns in past patients, not causes.</p></details>
+      </div>
+
+      <div id="st-fix" class="st" hidden>
+        <p class="big-q">Check these readings</p>
+        <ul class="todo" id="fixlist"></ul>
+      </div>
+
+      <div id="st-result" class="st" hidden>
+        <div class="readout">
+          <p class="pct"><b class="num" id="pct">–</b><span>%</span></p>
+          <p class="pct-say" id="pctsay"></p>
+        </div>
+        <div class="array" id="array" aria-hidden="true"></div>
+        <div class="scale" id="scale" aria-hidden="true"></div>
+        <div class="verdict" id="verdict"><svg class="ic" aria-hidden="true"><use id="vicon" href="#i-split"/></svg><div><p class="v-t" id="conftitle"></p><p class="v-d" id="conftext"></p></div></div>
+        <div class="why">
+          <h3>What moved it</h3>
+          <ol class="factors" id="factors"></ol>
+          <button type="button" class="link" id="morefactors" aria-expanded="false" hidden>Show all factors</button>
+          <p class="hint" id="exnote2"></p>
+        </div>
+        <dl class="meta"><div><dt>Based on</dt><dd id="mtier"></dd></div><div><dt>Worked out on</dt><dd id="mengine"></dd></div><div><dt>Took</dt><dd class="num" id="mms"></dd></div></dl>
+        <div class="save">
+          <label class="l" for="hnote">Note <span class="hint">optional, e.g. bay or initials</span></label>
+          <div class="save-row"><input id="hnote" type="text" maxlength="60" autocomplete="off"><button type="button" class="btn sun" id="hsave">Save to history</button></div>
+          <p class="hint" id="hsaved" hidden></p>
+        </div>
+      </div>
+    </div>
+    <p class="disc">Decision support only. Clinical judgement decides.</p>
+  </aside>
+  </div>
+  <a class="peek" id="peek" href="#estimate" hidden><span id="peektext"></span><b>View estimate</b></a>
+</section>
+
+<!-- ================================================================ ABOUT: the whole project in plain words -->
+<section id="about" class="wrap page about" aria-labelledby="t-about" hidden>
+  <header class="ab-hero">
+    <h1 id="t-about">FirstLook helps a triage nurse see, in the first minutes, how likely a patient is to need a hospital bed.</h1>
+    <p class="lede">It uses only what the nurse already records, works with no internet at all, and says plainly when it is not sure.</p>
+    <dl class="facts inline">
+      <div><dt>Learned from</dt><dd>560,486 real emergency visits</dd></div>
+      <div><dt>Needs internet</dt><dd>Never</dd></div>
+      <div><dt>Time to answer</dt><dd>Under a millisecond</dd></div>
+    </dl>
+  </header>
+
+  <div class="ab-body">
+  <nav class="toc" aria-label="On this page">
+    <a href="#ab-why">Why it exists</a><a href="#ab-how">How it works</a><a href="#ab-read">Reading an estimate</a><a href="#ab-levels">Three levels of detail</a>
+    <a href="#ab-good">How well it works</a><a href="#ab-private">Privacy</a><a href="#ab-built">How it was built</a><a href="#ab-limits">Limits</a><a href="#ab-tech">Technical details</a>
+  </nav>
+
+  <div class="prose">
+  <section id="ab-why"><h2>Why it exists</h2>
+    <p>Emergency departments are crowded. In the first few minutes a nurse decides who is seen first, and an early sense of who will need a bed helps the whole department plan.</p>
+    <p>Many hospitals, especially in India, have no patient records system, no formal triage scale and unreliable internet. Most prediction tools assume all three. FirstLook was built for the hospital that has none of them: a nurse, a thermometer, a pulse oximeter and a cheap computer or phone.</p>
+  </section>
+
+  <section id="ab-how"><h2>How it works</h2>
+    <ol class="steps">
+      <li><b>The nurse enters what they measured.</b> Age, sex, how the patient arrived, the main complaint, and six vital signs. A reading that wasn’t taken can be marked “Not measured”.</li>
+      <li><b>FirstLook compares the patient with past ones.</b> It has learned from over half a million earlier emergency visits which patterns tended to end in admission.</li>
+      <li><b>It shows a chance of admission and how sure it is.</b> The estimate updates as you type, together with the main reasons behind it.</li>
+      <li><b>The nurse decides.</b> FirstLook is a second opinion, never the decision.</li>
+    </ol>
+  </section>
+
+  <section id="ab-read"><h2>Reading an estimate</h2>
+    <div class="read">
+      <div><h3>The percentage</h3><p>“44%” means that of 100 past patients like this one, about 44 were admitted. The dots show the same thing at a glance.</p></div>
+      <div><h3>Low, medium, high</h3><p id="ab-bands">Among patients marked low, at least 95 in 100 went home. Among patients marked high, at least 80 in 100 were admitted.</p></div>
+      <div><h3>The confidence check</h3><p>“Likely admission” or “likely discharge” means FirstLook is confident, and that check is right at least 9 times in 10. “Unsure” means the patient could go either way, so the nurse’s judgement matters most.</p></div>
+      <div><h3>What moved it</h3><p>The longest bars mattered most. Red pushed the chance up; blue pulled it down. These are patterns in past patients, not causes of illness.</p></div>
+    </div>
+  </section>
+
+  <section id="ab-levels"><h2>Three levels of detail</h2>
+    <p>FirstLook uses whatever the hospital has. Each estimate says which level it was based on.</p>
+    <div class="levels" id="ab-levelcards"></div>
+  </section>
+
+  <section id="ab-good"><h2>How well it works</h2>
+    <p>Every result below comes from patients FirstLook never saw while it was being built. That test was opened only once, after every design choice was fixed, so the numbers could not be tuned to look good.</p>
+    <ul class="wins" id="ab-wins"></ul>
+    <figure class="chart"><figcaption><h3>When it says 30%, about 30% are admitted</h3><p>Each line compares what FirstLook predicted with what actually happened. Lines on the diagonal mean the percentages can be taken at face value.</p></figcaption><div id="c-cal"></div></figure>
+    <figure class="chart"><figcaption><h3>Moving to a new hospital</h3><p id="c-la-cap">At a hospital it had never seen, FirstLook’s confidence check needed a little local tuning. After a few hundred local visits it was reliable again, without retraining.</p></figcaption><div id="c-la"></div></figure>
+  </section>
+
+  <section id="ab-private"><h2>Privacy: nothing leaves the device</h2>
+    <p>All the working-out happens on the computer or phone in front of the nurse. FirstLook has no account, no cloud and no tracking. Estimates you choose to save stay in this browser on this device, and History lets you delete them. After the first visit it keeps working with Wi-Fi switched off, and the page is locked so it cannot send data anywhere.</p>
+    <p>This was measured, not assumed: running in a sealed box with no network, FirstLook sent <b id="ab-bytes">0 bytes</b>. Race, religion, language and insurance are never used to make an estimate. They were used only to check that FirstLook works fairly across groups.</p>
+    <dl class="status"><div><dt>Works offline on this device</dt><dd id="swstate">checking…</dd></div><div><dt>Patient-record helper</dt><dd id="srvstate">checking…</dd></div></dl>
+  </section>
+
+  <section id="ab-built"><h2>How it was built</h2>
+    <ol class="steps">
+      <li><b>The data.</b> 560,486 de-identified emergency visits from three US hospitals: a large teaching hospital, a community hospital and a stand-alone emergency department (Hong, Haimovich &amp; Taylor, <i>PLoS ONE</i> 2018). Anything a nurse couldn’t know at triage was removed first, so FirstLook can’t cheat by peeking at the outcome.</li>
+      <li><b>Choosing the method.</b> Five kinds of prediction model were compared fairly on the same patients, at each level of detail, and the best for each level was kept.</li>
+      <li><b>Making the numbers honest.</b> The percentages were adjusted so that “30%” really means 30 in 100, and a confidence check was added that knows when to say “unsure”.</li>
+      <li><b>Testing what goes wrong.</b> FirstLook was moved to each hospital it hadn’t learned from, given patients with missing readings, and checked across age, sex and other groups.</li>
+      <li><b>Making it small.</b> The everyday model was shrunk to about 9 KB, smaller than a photo, so it runs inside a web browser on a cheap phone.</li>
+      <li><b>The app.</b> This page: one screen, live answers, works offline.</li>
+    </ol>
+  </section>
+
+  <section id="ab-limits"><h2>Limits</h2>
+    <ul class="limits">
+      <li>It is a research prototype, not a medical device. It must not be used with real patients.</li>
+      <li>It learned from US hospitals. It has not yet been tested in Indian hospitals, where patients and practice differ.</li>
+      <li>It is less sharp for patients over 80, most of whom are admitted anyway.</li>
+      <li>It has not yet been tried by nurses in a timed study; that is the next step.</li>
+      <li>Every patient you can load in this app is invented for the demo.</li>
+    </ul>
+    <p class="credit">An M.Tech project in Computer Science (AI &amp; Data Science) by Gagan Chandra.</p>
+  </section>
+
+  <section id="ab-tech"><h2>Technical details</h2>
+    <p>For researchers and reviewers. Everything above, in the field’s own terms.</p>
+    <details class="tech"><summary>Model results on the held-out test set</summary>
+      <div class="tablewrap" id="kpis"></div>
+      <div class="tablewrap" style="margin-top:12px"><table id="mt"></table></div>
+      <p class="hint" id="aboutnote"></p></details>
+    <details class="tech"><summary>Decision curve</summary>
+      <p class="hint">Net benefit across decision thresholds, against admitting everyone or no one.</p><div id="c-dca"></div></details>
+    <details class="tech"><summary>Speed and size on a small device</summary>
+      <p class="hint">Measured in Docker with no network, 2 CPUs and 2 GB of memory.</p><div class="tablewrap" id="t-bench"></div></details>
+    <details class="tech"><summary>How the software is put together</summary>
+      <p>The web app is plain HTML, CSS and JavaScript with no outside libraries; a strict content-security policy blocks every connection except to this device, and a service worker caches it for offline use. The triage-only and triage-level models (logistic regression) run in the browser. The patient-record model (gradient-boosted trees, run with ONNX Runtime) runs on an optional local server bound to 127.0.0.1; start it with <code translate="no">./run.sh start web</code>. Explanations are exact per-feature contributions (logistic regression) or TreeSHAP values (trees), on the log-odds scale. The confidence check is split conformal prediction at α = 0.10.</p>
+      <p class="hint" id="evfoot"></p></details>
+  </section>
+  </div>
+  </div>
+</section>
+</main>
+
+<div class="toast" id="toast" role="status" hidden><span id="toastmsg"></span><button type="button" id="undo">Undo</button></div>
+<footer class="foot"><div class="wrap">
+  <div class="foot-grid">
+    <div class="foot-brand"><a class="brand" href="#/home" translate="no"><img src="icon.svg" width="28" height="28" alt="">FirstLook</a>
+      <p>An honest chance of hospital admission at triage, from the first look. Works offline; nothing leaves the device.</p></div>
+    <nav aria-label="Use FirstLook"><h2>Use</h2><a href="#/assess">Start an assessment</a><a href="#/home">Home</a></nav>
+    <nav aria-label="The project"><h2>Project</h2><a href="#/about">About the project</a><a href="#/about" data-to="ab-good">How well it works</a><a href="#/about" data-to="ab-private">Privacy</a><a href="#/about" data-to="ab-limits">Limits</a></nav>
+    <nav aria-label="Research"><h2>Research</h2><a href="#/about" data-to="ab-built">How it was built</a><a href="#/about" data-to="ab-tech">Technical details</a></nav>
+  </div>
+  <div class="foot-in">
+    <span><b>Decision support only.</b> Not a diagnosis. Research prototype, not for real patients.</span>
+    <span translate="no">FirstLook <span id="fver"></span></span>
+  </div>
+</div></footer>
+
+<script src="js/model.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

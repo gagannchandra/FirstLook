@@ -1,5 +1,9 @@
-"""Screenshot the L3 PWA and prove it works offline: load once (service worker installs), then switch the
-browser context offline, reload and run a prediction. Usage: python scripts/screenshot_pwa.py [--url ...]"""
+"""Screenshot the offline web app (frontend/) and prove it works offline: load once (the service worker saves the app),
+then cut the browser's network, reload and use every page. Any request that leaves localhost is recorded.
+
+Usage: python scripts/screenshot_pwa.py [--url http://localhost:8600/index.html] [--out results/figures/app]
+Writes pwa_01_home … pwa_07_history_mobile .png and pwa_offline_check.json to --out.
+"""
 import argparse
 import json
 from pathlib import Path
@@ -16,34 +20,65 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "results" / "figures" / "app"))
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    ext, offline_reqs = [], []
+    base = a.url.split("#")[0]
+    ext, offline_failed, errors = [], [], []
     with sync_playwright() as p:
         br = p.chromium.launch(channel="chrome", headless=True)
-        ctx = br.new_context(viewport={"width": 1366, "height": 768}, device_scale_factor=1.5, bypass_csp=True)  # test harness only
+        # bypass_csp lets this harness use wait_for_function; the app itself never needs it
+        ctx = br.new_context(viewport={"width": 1366, "height": 860}, device_scale_factor=1.5, bypass_csp=True,
+                             reduced_motion="reduce")
         page = ctx.new_page()
         page.on("request", lambda r: ext.append(r.url) if urlparse(r.url).hostname not in ("localhost", "127.0.0.1") else None)
-        page.goto(a.url)
-        page.wait_for_function("document.getElementById('swstate').textContent.startsWith('installed')", timeout=20000)
-        ctx.set_offline(True)  # network cut: everything below must come from the service-worker cache
-        page.on("requestfailed", lambda r: offline_reqs.append(r.url))
-        page.reload(); page.wait_for_selector("#examples button")
-        page.get_by_role("button", name="Uncertain").click()
-        page.screenshot(path=out / "pwa_01_patient_offline.png", full_page=True)
-        page.click("#go"); page.wait_for_timeout(300)
-        page.screenshot(path=out / "pwa_02_result_offline.png", full_page=True)
-        page.click("#why"); page.screenshot(path=out / "pwa_03_explanation_offline.png", full_page=True)
-        page.click("nav a[data-p=about]"); page.screenshot(path=out / "pwa_04_about_offline.png", full_page=True)
-        page.click("nav a[data-p=patient]")
-        page.click("#acuity button[data-a=high]"); page.click("#random")
-        page.screenshot(path=out / "pwa_05_random_offline.png", full_page=True)
-        page.click("#go"); page.wait_for_timeout(300)
-        random_pct = page.inner_text("#pct").replace("\n", "")
-        page.screenshot(path=out / "pwa_06_random_result_offline.png", full_page=True)
-        res = {"random_high_pct": random_pct, "pct": None, "offline_failed_requests": offline_reqs, "external_requests": ext,
-               "network_pill": page.inner_text("#nettext")}
-        page.click("nav a[data-p=patient]"); page.get_by_role("button", name="Uncertain").click(); page.click("#go")
-        res["pct"] = page.inner_text("#pct").replace("\n", ""); res["conformal"] = page.inner_text("#conftitle")
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(base + "#/about")
+        page.wait_for_function("document.getElementById('swstate').textContent.startsWith('yes')", timeout=20000)
+
+        ctx.set_offline(True)  # from here on, everything must come from the service-worker cache
+        page.on("requestfailed", lambda r: offline_failed.append(r.url) if "/api/" not in r.url else None)
+        page.reload(); page.wait_for_selector("#examples button", state="attached")
+        def shot(name):  # grow the viewport to the page so sticky header/panel sit where a reader expects them
+            page.evaluate("document.getElementById('toast').hidden = true; document.querySelector('main').style.minHeight = '0'")
+            w = page.viewport_size["width"]
+            h = page.evaluate("document.documentElement.scrollHeight")
+            page.set_viewport_size({"width": w, "height": h}); page.wait_for_timeout(150)
+            page.screenshot(path=out / f"pwa_{name}.png")
+            page.set_viewport_size({"width": w, "height": 860 if w > 600 else 844}); page.evaluate("scrollTo(0, 0)")
+
+        page.evaluate("location.hash = '#/home'"); page.wait_for_selector("#pv-tabs button")
+        page.locator("#pv-tabs button", has_text="High").click()
+        shot("01_home")
+
+        page.evaluate("location.hash = '#/assess'"); page.wait_for_selector("#assess:not([hidden])")
+        shot("02_assess_empty")
+        page.locator("#examples button", has_text="Uncertain").click(); page.wait_for_selector("#st-result:not([hidden])")
+        page.fill("#hnote", "Bay 3"); page.click("#go")
+        page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
+        res = {"uncertain_pct": page.inner_text("#pct").replace("\n", ""), "uncertain_confidence": page.inner_text("#conftitle")}
+        shot("03_assess_uncertain")
+
+        page.select_option("#acuity", "high"); page.click("#random"); page.wait_for_selector("#st-result:not([hidden])")
+        page.click("#go"); page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
+        res["random_high_pct"] = page.inner_text("#pct").replace("\n", "")
+        shot("04_assess_random_high")
+
+        page.locator("#examples button", has_text="Low risk").click(); page.wait_for_selector("#st-result:not([hidden])")
+        page.click("#go"); page.wait_for_function("document.getElementById('hsave').textContent === 'Saved'")
+        page.click("nav a[data-p=history]"); page.wait_for_selector("#hlist .hitem")
+        res["history_entries"] = page.locator("#hlist .hitem").count()
+        shot("05_history")
+
+        page.click("nav a[data-p=about]"); page.wait_for_selector("#c-cal svg")
+        page.evaluate("document.querySelectorAll('details.tech').forEach(d => d.open = true)")
+        shot("06_about")
+
+        page.set_viewport_size({"width": 390, "height": 844})
+        page.click("nav a[data-p=history]"); page.wait_for_selector("#hlist .hitem")
+        shot("07_history_mobile")
+
+        res.update({"network_pill": page.inner_text("#nettext"), "offline_failed_requests": offline_failed,
+                    "external_requests": ext, "page_errors": errors})
         br.close()
+    (out / "pwa_offline_check.json").write_text(json.dumps(res, indent=1))
     print(json.dumps(res, indent=1))
 
 
