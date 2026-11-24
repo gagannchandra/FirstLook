@@ -93,6 +93,7 @@ main { outline: none; background: linear-gradient(180deg, var(--sky) 0, #e3ecff 
 .cols { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 16px 24px; }
 .f { margin-bottom: 18px; min-width: 0; }
 .f-hour { max-width: 22rem; }
+.cols .f-hour { grid-column: 1 / -1; }
 .l { display: block; color: var(--ink); font-weight: 600; margin-bottom: 6px; }
 .hint { color: var(--muted); font-size: var(--step--1); font-weight: 400; }
 .l .hint { margin-left: 6px; }
@@ -560,7 +561,20 @@ td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; m
 @media print { .top, .quick, .form-foot, .peek, .toast, .foot { display: none !important; } .workspace { grid-template-columns: 1fr 1fr; } .panel { position: static; } }
 
 /* ---------------------------------------------------------------- assess: one centred column, sticky action bar */
-.workspace.solo { grid-template-columns: minmax(0, 860px); justify-content: center; }
+.workspace.solo { grid-template-columns: minmax(0, 1fr); }
+/* wide screens: section titles in a left column, fields on the right */
+@media (min-width: 1100px) {
+  .workspace.solo .sheet { padding: 40px 48px 0; }
+  .workspace.solo .sheet-head, .workspace.solo .quick { margin-left: 0; }
+  .workspace.solo .part { padding-top: 30px; }
+  .workspace.solo .part legend { width: 220px; float: left; margin: 0; }
+  .workspace.solo .part legend + * { clear: none; }
+  .workspace.solo .part > :not(legend) { margin-left: 268px; }
+  .workspace.solo .part .count { display: block; margin: 4px 0 0; }
+  .workspace.solo .cols { grid-template-columns: 11rem 14rem minmax(0, 22rem); }
+  .workspace.solo .cols .f-hour { grid-column: auto; }
+  .workspace.solo .sheet .form-foot { margin-left: -48px; margin-right: -48px; padding: 16px 48px; }
+}
 .workspace.solo .form-foot { position: sticky; bottom: 0; z-index: 5; gap: 8px; margin: 24px calc(-1 * clamp(18px, 3vw, 36px)) 0; padding: 14px clamp(18px, 3vw, 36px);
   background: var(--sheet); border-top: 1px solid var(--rule); box-shadow: 0 -12px 24px -18px rgba(16, 38, 90, .25); }
 .actionbar { display: flex; justify-content: space-between; align-items: center; gap: 12px 20px; flex-wrap: wrap; }
